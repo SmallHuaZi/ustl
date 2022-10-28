@@ -1,0 +1,13 @@
+#ifndef __default_message_h
+#define __default_message_h
+
+/**
+ * @brief this header is used to description exception message
+ *
+ */
+
+#define __default_bad_alloc_message "the size of the requested memory exceeds the maximum vlaue"
+
+#define __default_nullptr_reference_message "nullptr reference error"
+
+#endif
