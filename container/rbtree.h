@@ -10,6 +10,9 @@ namespace ustl
 {
     namespace internal_ustl
     {
+
+#include "rbtree_fwd.h"
+
         enum _color : unsigned long
         {
             _Block,
@@ -36,8 +39,14 @@ namespace ustl
             _Node_ptr _M_left;
             _Node_ptr _M_right;
 
+#ifdef __debug_ustl
+            int _M_value;
+#endif
+
             _Rbt_node_base()
-                : _M_color(_Red) {}
+                : _M_color(_Red)
+            {
+            }
 
             _Rbt_node_base(_Node_ptr __p)
                 : _M_parent(__p) {}
@@ -100,7 +109,7 @@ namespace ustl
 
             _Rbt_header()
                 : _M_count(0),
-                  _Rbt_node_base(this, this, this) {}
+                  _Rbt_node_base(this, this, 0) {}
 
             _Rbt_header(_Node_ptr __l,
                         _Node_ptr __r, _Node_ptr __p, size_t __n)
@@ -133,8 +142,9 @@ namespace ustl
             typedef _Rbtree_Node<_Val> *_Node_ptr;
             typedef const _Rbtree_Node<_Val> *_CNode_ptr;
 
+#ifndef __debug_ustl
             value_type _M_value;
-
+#endif
             value_type *
             _M_valptr()
             {
@@ -151,14 +161,41 @@ namespace ustl
                 : _Rbtree_Node() {}
 
             _Rbtree_Node(value_type __v)
-                : _M_value(__v), _Rbt_node_base() {}
+                :
+#ifndef __debug_ustl
+                  _M_value(__v),
+#endif
+                  _Rbt_node_base()
+            {
+#ifdef __debug_ustl
+                this->_M_value = __v;
+#endif
+            }
 
             _Rbtree_Node(value_type __v, _Node_ptr __p)
-                : _M_value(__v), _Rbt_node_base(__p) {}
+                :
+#ifndef __debug_ustl
+                  _M_value(__v),
+#endif
+                  _Rbt_node_base(__p)
+            {
+#ifdef __debug_ustl
+                this->_M_value = __v;
+#endif
+            }
 
             _Rbtree_Node(value_type __v, _Node_ptr __l,
                          _Node_ptr __r, _Node_ptr __p)
-                : _M_value(__v), _Rbt_node_base(__l, __r, __p) {}
+                :
+#ifndef __debug_ustl
+                  _M_value(__v),
+#endif
+                  _Rbt_node_base(__l, __r, __p)
+            {
+#ifdef __debug_ustl
+                this->_M_value = __v;
+#endif
+            }
         };
 
         template <typename _Val, typename _Comp>
@@ -170,8 +207,8 @@ namespace ustl
 
         /// @brief find succursor of __p
         /// @param __p
-        _Rbt_node_base::_Node_ptr
-        _rbt_increment(_Rbt_node_base::_Node_ptr __p) noexcept
+        _Rbt_node_base *
+        _rbt_increment(_Rbt_node_base *__p) noexcept
         {
             _Rbt_node_base::_Node_ptr __tmp;
             if (__p->_M_right)
@@ -241,14 +278,14 @@ namespace ustl
             _Self &
             operator--()
             {
-                _M_node = _rbt_increment(_M_node);
+                _M_node = _rbt_decrement(_M_node);
                 return *this;
             }
 
             _Self &
             operator++()
             {
-                _M_node = _rbt_decrement(_M_node);
+                _M_node = _rbt_increment(_M_node);
                 return *this;
             }
 
@@ -256,7 +293,7 @@ namespace ustl
             operator--(int)
             {
                 _Self __tmp = *this;
-                _M_node = _rbt_increment(_M_node);
+                _M_node = _rbt_decrement(_M_node);
                 return __tmp;
             }
 
@@ -264,7 +301,7 @@ namespace ustl
             operator++(int)
             {
                 _Self __tmp = *this;
-                _M_node = _rbt_decrement(_M_node);
+                _M_node = _rbt_increment(_M_node);
                 return __tmp;
             }
 
@@ -396,7 +433,7 @@ namespace ustl
 
             using iterator = _rbtree_itertor<_Val>;
             using const_iterator = _const_rbtree_itertor<_Val>;
-            using _Nallocator_type = typename _Alloc::rebind<_Rbtree_Node<_Val>>::other;
+            using _Nallocator_type = typename _Alloc::template rebind<_Rbtree_Node<_Val>>::other;
 
         protected:
             using _Node_type = _Rbtree_Node<_Val>;
@@ -505,6 +542,12 @@ namespace ustl
                 return static_cast<_Node_ptr>(__itr._M_node);
             }
 
+            _Node_ptr const
+            _M_extract(const_iterator &__citr) noexcept
+            {
+                return static_cast<_Node_ptr const>(__citr._M_node);
+            }
+
             static _Node_ptr
             _S_left(_Node_base_ptr __p) noexcept
             {
@@ -517,24 +560,40 @@ namespace ustl
                 return static_cast<_Node_ptr>(__p->_M_right);
             }
 
-            static key_type &
+            static key_type const &
             _S_key(_Node_ptr __p)
             {
                 return _KeyOfVal()(*(__p->_M_valptr()));
             }
 
             static key_type const &
+            _S_key(_Node_base_ptr __p)
+            {
+                return _S_key(static_cast<_Node_ptr>(__p));
+            }
+
+            static key_type const &
             _S_key(iterator &__itr)
             {
-                return _KeyOfVal()(*_M_extract(__itr));
+                return _S_key(__itr._M_node);
             }
 
             static key_type const &
             _S_key(const_iterator &__itr)
             {
-                return _KeyOfVal()(*_M_extract(__itr));
+                return _S_key(__itr._M_node);
             }
 
+#ifdef __debug_ustl
+        public:
+            using _node_ptr = _Node_ptr;
+            _Node_ptr
+            debug_root()
+            {
+                return static_cast<_Node_ptr>(_M_data_plus->_M_header._M_parent);
+            }
+
+#endif
         public:
             rb_tree()
                 : _M_data_plus(0)
@@ -553,7 +612,7 @@ namespace ustl
 
         private:
             iterator
-            _M_insert(bool, _Node_base_ptr, _Node_base_ptr);
+            _M_insert(_Node_base_ptr, value_type const &);
 
             iterator
             _M_erase(bool, _Node_base_ptr, key_type const &);
@@ -620,8 +679,15 @@ namespace ustl
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            _M_insert(bool __is_right, _Node_base_ptr __new, _Node_base_ptr __ist)
+            _M_insert(_Node_base_ptr __ist,
+                      value_type const &__val)
         {
+            key_type const &__k = _KeyOfVal()(__val);
+            bool __is_left = (__ist == _M_end() || _M_compare_key(__k, _S_key(__ist)));
+            _Node_ptr __new = (*_M_node_pool)(__val);
+            _rbt_insert(__is_left, __new, __ist, &_M_data_plus->_M_header);
+            ++_M_data_plus->_M_header._M_count;
+            return iterator(__new);
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -638,23 +704,33 @@ namespace ustl
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
             _M_get_insert_pos_unique(_Key const &__k) noexcept
         {
-            /**
-             * @brief insertion, must for_each to left node,
-             *      else maybe insertion pos is wrong
-             */
             _Node_ptr __s{_M_begin()};
             _Node_base_ptr __e{_M_end()};
+            bool __comp{true};
             while (__s)
             {
                 __e = __s;
-                __s = _M_compare_key(__k, _S_key(__s)) ? _S_left(__s) : _S_right(__s);
+                __comp = _M_compare_key(__k, _S_key(__s));
+                __s = __comp ? _S_left(__s) : _S_right(__s);
             }
+
             _Node_ptr __pre = static_cast<_Node_ptr>(__e);
-            // 最后如果向左走，那么其前驱键值必然大于等于此键值
-            if (_M_compare_key(__k, _S_key(__s)) && __e != _M_left_most())
-                __pre = static_cast<_Node_ptr>(_rbt_decrement(__e));
-            // 判断是否因为和前驱结点相等才向右走的，如果是false，
-            // 则证明不可能与其前继结点或当前查询结果相等
+            // if go left one last time, the precursor of __e
+            // must >= __k, so we should compare precursor of __e
+            // and __k are equals, but wo must check __e is minimum
+            // node before it, because the node of minimum don`t have
+            // node of precursor
+            if (__comp)
+            {
+                if (static_cast<_Node_ptr>(_M_left_most()) == __pre)
+                    return iterator(__pre);
+                __pre = static_cast<_Node_ptr>(_rbt_decrement(__pre));
+            }
+            // estimate the key(node of precursor) whether is equal to the __k
+            /// @if result of comparsion == true
+            /// @return __e
+            /// @else
+            /// @return end()
             if (_M_compare_key(_S_key(__pre), __k))
                 return iterator(__e);
             return end();
@@ -668,10 +744,12 @@ namespace ustl
         {
             _Node_ptr __s{_M_begin()};
             _Node_base_ptr __e{_M_end()};
+            bool __comp;
             while (__s)
             {
                 __e = __s;
-                __s = _M_compare_key(__k, _S_key(__s)) ? _S_right(__s) : _S_left(__s);
+                __comp = _M_compare_key(__k, _S_key(__s));
+                __s = __comp ? _S_right(__s) : _S_left(__s);
             }
             /// don`t estimate double key is equal, event if it happens,
             /// the result of found are correct
@@ -735,6 +813,17 @@ namespace ustl
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
             insert_unique(value_type const &__val)
         {
+            /// @if null != root && end() = pos
+            ///     then : double key is equals
+            /// @elseif null = root && end() = pos
+            ///     then : root is null
+            using ret_type = pair<iterator, bool>;
+            key_type const &__key = _KeyOfVal()(__val);
+            iterator __pos = _M_get_insert_pos_unique(__key);
+
+            if (_M_root() && end() == __pos)
+                return ret_type(__pos, false);
+            return ret_type(_M_insert(__pos._M_node, __val), true);
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -858,6 +947,36 @@ namespace ustl
          * @brief
          *  use non-template function to eliminate duplication caussed by templates
          */
+
+        void
+        _rbt_insert(bool __is_l, _Rbt_node_base *__new,
+                    _Rbt_node_base *__ist,
+                    _Rbt_header *__header) noexcept
+        {
+            if (__is_l)
+            {
+                if (__header->_M_parent)
+                {
+                    if (__ist == __header->_M_left)
+                        __header->_M_left = __new;
+                    __ist->_M_left = __new;
+                }
+                else
+                {
+                    __ist->_M_parent = __new;
+                    __ist->_M_right = __ist->_M_left = __new;
+                }
+            }
+            else
+            {
+                if (__ist == __header->_M_right)
+                    __header->_M_right = __new;
+                __ist->_M_right = __new;
+            }
+            __new->_M_parent = __ist;
+            _rbt_recolor(__new, __header);
+        }
+
         /// @brief 左旋操作
         /// @param __n 将要旋转的结点
         /// @param __h 红黑树header
@@ -875,7 +994,7 @@ namespace ustl
                 __new->_M_left->_M_parent = __n;
 
             if (__parent == __h)
-                __h->_M_parent = __n;
+                __h->_M_parent = __new;
             else if (__n == __parent->_M_left)
                 __parent->_M_left = __new;
             else
@@ -883,6 +1002,9 @@ namespace ustl
 
             __n->_M_right = __new->_M_left;
             __new->_M_left = __n;
+
+            __new->_M_setcolor(_Block);
+            __n->_M_setcolor(_Red);
         }
 
         /// @brief 右旋操作
@@ -902,7 +1024,7 @@ namespace ustl
                 __new->_M_right->_M_parent = __n;
 
             if (__parent == __h)
-                __h->_M_parent = __n;
+                __h->_M_parent = __new;
             else if (__n == __parent->_M_left)
                 __parent->_M_left = __new;
             else
@@ -910,6 +1032,9 @@ namespace ustl
 
             __n->_M_left = __new->_M_right;
             __new->_M_right = __n;
+
+            __new->_M_setcolor(_Block);
+            __n->_M_setcolor(_Red);
         }
 
         /// @bug 先不处理根节点
@@ -956,6 +1081,12 @@ namespace ustl
         {
             typedef _Rbt_node_base _Node;
             typedef _Rbt_node_base *_Node_ptr;
+
+            if (__n == __h->_M_parent)
+            {
+                __n->_M_setcolor(_Block);
+                return;
+            }
 
             __n->_M_setcolor(_Red);
             _Node_ptr __p = __n->_M_parent;
