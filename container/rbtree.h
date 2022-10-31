@@ -694,7 +694,9 @@ namespace ustl
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            _M_erase(bool __is_right, _Node_base_ptr __del, key_type const &)
+            _M_erase(bool __is_right,
+                     _Node_base_ptr __del,
+                     key_type const &)
         {
         }
 
@@ -749,7 +751,7 @@ namespace ustl
             {
                 __e = __s;
                 __comp = _M_compare_key(__k, _S_key(__s));
-                __s = __comp ? _S_right(__s) : _S_left(__s);
+                __s = __comp ? _S_left(__s) : _S_right(__s);
             }
             /// don`t estimate double key is equal, event if it happens,
             /// the result of found are correct
@@ -760,7 +762,9 @@ namespace ustl
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            _M_lower_bound(_Node_ptr __s, _Node_ptr __e, key_type const &__k) const noexcept
+            _M_lower_bound(_Node_ptr __s,
+                           _Node_ptr __e,
+                           key_type const &__k) const noexcept
         {
             while (__s)
             {
@@ -781,7 +785,9 @@ namespace ustl
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            _M_upper_bound(_Node_ptr __s, _Node_ptr __e, key_type const &__k) const noexcept
+            _M_upper_bound(_Node_ptr __s,
+                           _Node_ptr __e,
+                           key_type const &__k) const noexcept
         {
             while (__e)
             {
@@ -805,6 +811,9 @@ namespace ustl
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
             insert_equal(value_type const &__val)
         {
+            key_type const &__key = _KeyOfVal()(__val);
+            iterator __pos = _M_get_insert_pos_equal(__key);
+            return iterator(_M_insert(__pos._M_node, __val));
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -821,7 +830,7 @@ namespace ustl
             key_type const &__key = _KeyOfVal()(__val);
             iterator __pos = _M_get_insert_pos_unique(__key);
 
-            if (_M_root() && end() == __pos)
+            if (0 != _M_root() && end() == __pos)
                 return ret_type(__pos, false);
             return ret_type(_M_insert(__pos._M_node, __val), true);
         }
@@ -841,6 +850,10 @@ namespace ustl
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
             erase_unique(key_type const &__key)
         {
+            // if (__del->_M_left)
+            //     __del = _rbt_decrement(__del);
+            // if (_Block == _Rbt_node_base::_S_color(__del))
+            //     _rbt_rebalance_erase(__del, _rbt_bro_ptr(__del), __header);
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -1002,9 +1015,6 @@ namespace ustl
 
             __n->_M_right = __new->_M_left;
             __new->_M_left = __n;
-
-            __new->_M_setcolor(_Block);
-            __n->_M_setcolor(_Red);
         }
 
         /// @brief 右旋操作
@@ -1032,9 +1042,6 @@ namespace ustl
 
             __n->_M_left = __new->_M_right;
             __new->_M_right = __n;
-
-            __new->_M_setcolor(_Block);
-            __n->_M_setcolor(_Red);
         }
 
         /// @bug 先不处理根节点
@@ -1055,16 +1062,24 @@ namespace ustl
             typedef _Rbt_node_base *_Node_ptr;
             _Node_ptr __parent = __n->_M_parent;
             _Node_ptr __gparnet = __parent->_M_parent;
+            __parent->_M_setcolor(_Block);
+            __gparnet->_M_setcolor(_Red);
             if (__parent == __gparnet->_M_right)
             {
                 if (__n != __parent->_M_right) // rl
+                {
+                    __n->_M_setcolor(_Block);
                     _rbt_rotate_right(__parent, __h);
+                }
                 _rbt_rotate_left(__gparnet, __h);
             }
             else
             {
                 if (__n == __parent->_M_right) // lr
+                {
+                    __n->_M_setcolor(_Block);
                     _rbt_rotate_left(__parent, __h);
+                }
                 _rbt_rotate_right(__gparnet, __h);
             }
         }

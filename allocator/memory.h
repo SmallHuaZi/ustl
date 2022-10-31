@@ -211,7 +211,7 @@ namespace ustl
         void
         destory(value_type *__p)
         {
-            __p->~Tp();
+            __p->~_Tp();
         }
 
         constexpr size_t
