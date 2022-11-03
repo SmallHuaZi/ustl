@@ -1,10 +1,10 @@
 #include <malloc.h>
 #include <atomic>
 #include <mutex>
-#include "../ustl.h"
-#include "../exception/exception.h"
-#include "../tmp/move.h"
-#include "../config.h"
+#include "ustl.h"
+#include "exception.h"
+#include "move.h"
+#include "config.h"
 
 #ifndef __memory_h
 #define __memory_h

@@ -1,6 +1,6 @@
 #ifndef __debug
-#include "../ustl.h"
-#include "../iterator/iterator.h"
+#include "ustl.h"
+#include "iterator.h"
 #endif
 
 #ifndef __exception_h

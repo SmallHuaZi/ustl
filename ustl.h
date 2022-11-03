@@ -1,7 +1,7 @@
 #include "config.h"
-#include "type/type.h"
-#include "iterator/iterator.h"
-#include "tmp/move.h"
+#include "type.h"
+#include "iterator.h"
+#include "move.h"
 
 #ifndef __ustl_h
 #define __ustl_h

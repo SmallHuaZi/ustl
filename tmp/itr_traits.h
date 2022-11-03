@@ -1,3 +1,6 @@
+#ifndef __itr_traits_h
+#define __itr_traits_h
+
 namespace ustl
 {
     template <typename _Iterator>
@@ -11,3 +14,4 @@ namespace ustl
         typedef typename _Iterator::difference_type difference_type;
     };
 }
+#endif

@@ -1,138 +1,18 @@
-#ifndef __debug_ustl
-#include "../ustl.h"
-#include "../iterator/iterator.h"
-#include "../allocator/memory.h"
-#include "pair.h"
+#ifndef __rbtree_h
+#define __rbtree_h
 
+#ifndef __debug_ustl
+#include "ustl.h"
+#include "iterator.h"
+#include "memory.h"
+#include "pair.h"
+#include "rbtree_fwd.h"
 #endif
 
 namespace ustl
 {
     namespace internal_ustl
     {
-
-#include "rbtree_fwd.h"
-
-        enum _color : unsigned long
-        {
-            _Block,
-            _Red
-        };
-
-        enum _value : unsigned long
-        {
-            _lvalue,
-            _rvalue
-        };
-
-        struct _Rbt_node_base
-        {
-            using _Node_color = _color;
-            using _Node_ptr = _Rbt_node_base *;
-            using _CNode_ptr = const _Rbt_node_base *;
-            /**
-             * take typedef or using to cover function overload
-             */
-
-            _Node_color _M_color;
-            _Node_ptr _M_parent;
-            _Node_ptr _M_left;
-            _Node_ptr _M_right;
-
-#ifdef __debug_ustl
-            int _M_value;
-#endif
-
-            _Rbt_node_base()
-                : _M_color(_Red)
-            {
-            }
-
-            _Rbt_node_base(_Node_ptr __p)
-                : _M_parent(__p) {}
-
-            _Rbt_node_base(_Node_ptr __l,
-                           _Node_ptr __r, _Node_ptr __p)
-                : _M_color(_Red), _M_left(__l),
-                  _M_right(__r), _M_parent(__p) {}
-
-            static _color
-            _S_color(_Rbt_node_base *__p) noexcept
-            {
-                return __p ? __p->_M_color : _Block;
-            }
-
-            void
-            _M_setcolor(_color __c) noexcept
-            {
-                if (this)
-                    this->_M_color = __c;
-            }
-
-            static _Node_ptr
-            maxnode(_Node_ptr __r) noexcept
-            {
-                while (__r->_M_right)
-                    __r = __r->_M_right;
-                return __r;
-            }
-
-            static _CNode_ptr
-            maxnode(_CNode_ptr __r) noexcept
-            {
-                while (__r->_M_right)
-                    __r = __r->_M_right;
-                return __r;
-            }
-
-            static _Node_ptr
-            minnode(_Node_ptr __r) noexcept
-            {
-                while (__r->_M_left)
-                    __r = __r->_M_left;
-                return __r;
-            }
-
-            static _CNode_ptr
-            minnode(_CNode_ptr __r) noexcept
-            {
-                while (__r->_M_left)
-                    __r = __r->_M_left;
-                return __r;
-            }
-        };
-
-        struct _Rbt_header
-            : _Rbt_node_base
-        {
-            size_t _M_count;
-
-            _Rbt_header()
-                : _M_count(0),
-                  _Rbt_node_base(this, this, 0) {}
-
-            _Rbt_header(_Node_ptr __l,
-                        _Node_ptr __r, _Node_ptr __p, size_t __n)
-                : _M_count(__n), _Rbt_node_base(__l, __r, __p) {}
-
-            void _M_reset() noexcept
-            {
-                _M_count = 0;
-                _M_parent = _M_left = _M_right = this;
-            }
-
-            _Node_ptr
-            _S_Min_node() const noexcept
-            {
-                return this->_M_left;
-            }
-
-            _Node_ptr
-            _S_Max_node() const noexcept
-            {
-                return this->_M_right;
-            }
-        };
 
         template <typename _Val>
         struct _Rbtree_Node
@@ -196,6 +76,23 @@ namespace ustl
                 this->_M_value = __v;
 #endif
             }
+
+            static void
+            _S_swap(_Node_ptr __l,
+                    _Node_ptr __r) noexcept
+            {
+                value_type __tmp = __l->_M_value;
+                __l->_M_value = __r->_M_value;
+                __r->_M_value = __tmp;
+            }
+
+            static void
+            _S_swap(_Rbt_node_base *__l,
+                    _Rbt_node_base *__r) noexcept
+            {
+                _S_swap(static_cast<_Node_ptr>(__l),
+                        static_cast<_Node_ptr>(__r));
+            }
         };
 
         template <typename _Val, typename _Comp>
@@ -204,54 +101,6 @@ namespace ustl
             _Comp _M_compare;
             _Rbt_header _M_header;
         };
-
-        /// @brief find succursor of __p
-        /// @param __p
-        _Rbt_node_base *
-        _rbt_increment(_Rbt_node_base *__p) noexcept
-        {
-            _Rbt_node_base::_Node_ptr __tmp;
-            if (__p->_M_right)
-            {
-                __tmp = __p->_M_right;
-                while (__tmp->_M_left)
-                    __tmp = __tmp->_M_left;
-            }
-            else
-            {
-                __tmp = __p->_M_parent;
-                while (__p == __tmp->_M_right)
-                {
-                    __p = __tmp;
-                    __tmp = __tmp->_M_parent;
-                }
-            }
-            return __tmp;
-        }
-
-        /// @brief find presuccor of __p
-        /// @param __p
-        _Rbt_node_base *
-        _rbt_decrement(_Rbt_node_base *__p) noexcept
-        {
-            _Rbt_node_base::_Node_ptr __tmp;
-            if (__p->_M_left)
-            {
-                __tmp = __p->_M_left;
-                while (__tmp->_M_right)
-                    __tmp = __tmp->_M_right;
-            }
-            else
-            {
-                __tmp = __p->_M_parent;
-                while (__p == __tmp->_M_left)
-                {
-                    __p = __tmp;
-                    __tmp = __tmp->_M_parent;
-                }
-            }
-            return __tmp;
-        }
 
         template <typename _Tp>
         struct _rbtree_itertor
@@ -501,37 +350,38 @@ namespace ustl
 
         protected:
             _Node_ptr
-            _M_root() noexcept
+            _M_root() const noexcept
             {
                 return static_cast<_Node_ptr>(_M_data_plus->_M_header._M_parent);
             }
 
             _Node_base_ptr
-            _M_left_most() noexcept
+            _M_left_most() const noexcept
             {
                 return _M_data_plus->_M_header._M_left;
             }
 
             _Node_base_ptr
-            _M_right_most() noexcept
+            _M_right_most() const noexcept
             {
                 return _M_data_plus->_M_header._M_right;
             }
 
             _Node_ptr
-            _M_begin() noexcept
+            _M_begin() const noexcept
             {
                 return _M_root();
             }
 
             _Node_base_ptr
-            _M_end() noexcept
+            _M_end() const noexcept
             {
                 return &_M_data_plus->_M_header;
             }
 
-            bool _M_compare_key(key_type const &__l,
-                                key_type const &__r) noexcept
+            bool
+            _M_compare_key(key_type const &__l,
+                           key_type const &__r) const noexcept
             {
                 return _M_data_plus->_M_compare(__l, __r);
             }
@@ -569,6 +419,10 @@ namespace ustl
             static key_type const &
             _S_key(_Node_base_ptr __p)
             {
+#ifdef __debug_ustl
+                _Node_ptr __tmp = static_cast<_Node_ptr>(__p);
+                return _S_key(__tmp);
+#endif
                 return _S_key(static_cast<_Node_ptr>(__p));
             }
 
@@ -592,8 +446,8 @@ namespace ustl
             {
                 return static_cast<_Node_ptr>(_M_data_plus->_M_header._M_parent);
             }
-
 #endif
+
         public:
             rb_tree()
                 : _M_data_plus(0)
@@ -610,12 +464,18 @@ namespace ustl
             rb_tree(rb_tree &&__other)
                 : _M_data_plus(0) {}
 
+            /**
+             * @brief
+             *      for public interface
+             * @interface
+             * @private
+             */
         private:
             iterator
             _M_insert(_Node_base_ptr, value_type const &);
 
-            iterator
-            _M_erase(bool, _Node_base_ptr, key_type const &);
+            void
+                _M_erase(iterator);
 
             iterator
             _M_get_insert_pos_unique(key_type const &) noexcept;
@@ -623,21 +483,29 @@ namespace ustl
             _M_get_insert_pos_equal(key_type const &) noexcept;
 
             iterator
-            _M_lower_bound(_Node_ptr, _Node_ptr, key_type const &) const noexcept;
+            _M_lower_bound(_Node_base_ptr, _Node_base_ptr, key_type const &) const noexcept;
 
             iterator
-            _M_upper_bound(_Node_ptr, _Node_ptr, key_type const &) const noexcept;
+            _M_upper_bound(_Node_base_ptr, _Node_base_ptr, key_type const &) const noexcept;
 
+            /**
+             * @brief
+             *      provide to client
+             * @interface
+             * @public
+             */
         public:
             iterator
             insert_equal(value_type const &);
             pair<iterator, bool>
             insert_unique(value_type const &);
 
-            pair<iterator, iterator>
-            erase_equal(key_type const &);
             iterator
-            erase_unique(key_type const &);
+                erase(iterator);
+            iterator
+                erase(iterator, iterator);
+            size_t
+            erase(key_type const &);
 
             iterator
             find(key_type const &) const noexcept;
@@ -683,6 +551,7 @@ namespace ustl
                       value_type const &__val)
         {
             key_type const &__k = _KeyOfVal()(__val);
+            // root insertion happen __is_left = false
             bool __is_left = (__ist == _M_end() || _M_compare_key(__k, _S_key(__ist)));
             _Node_ptr __new = (*_M_node_pool)(__val);
             _rbt_insert(__is_left, __new, __ist, &_M_data_plus->_M_header);
@@ -692,12 +561,16 @@ namespace ustl
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
                   typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
+        void
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            _M_erase(bool __is_right,
-                     _Node_base_ptr __del,
-                     key_type const &)
+            _M_erase(iterator __del)
         {
+            _Node_base_ptr __val = _rbt_erase(__del._M_node, &_M_data_plus->_M_header);
+            _Node_type::_S_swap(__val, __del._M_node);
+            /// @bug if recycle, the itr of client taked is unknown
+            /// if no recycle, the memory of heap unable to release
+            (*_M_node_pool)(__val);
+            --_M_data_plus->_M_header._M_count;
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -729,10 +602,8 @@ namespace ustl
                 __pre = static_cast<_Node_ptr>(_rbt_decrement(__pre));
             }
             // estimate the key(node of precursor) whether is equal to the __k
-            /// @if result of comparsion == true
-            /// @return __e
-            /// @else
-            /// @return end()
+            /// @if result of comparsion is true, return __e
+            /// @else return end()
             if (_M_compare_key(_S_key(__pre), __k))
                 return iterator(__e);
             return end();
@@ -762,8 +633,8 @@ namespace ustl
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            _M_lower_bound(_Node_ptr __s,
-                           _Node_ptr __e,
+            _M_lower_bound(_Node_base_ptr __s,
+                           _Node_base_ptr __e,
                            key_type const &__k) const noexcept
         {
             while (__s)
@@ -785,24 +656,24 @@ namespace ustl
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            _M_upper_bound(_Node_ptr __s,
-                           _Node_ptr __e,
+            _M_upper_bound(_Node_base_ptr __s,
+                           _Node_base_ptr __e,
                            key_type const &__k) const noexcept
         {
-            while (__e)
+            while (__s)
             {
                 // __k < __p
-                if (_M_compare_key(__k, _S_key(__e)))
+                if (_M_compare_key(__k, _S_key(__s)))
                 {
                     // find pre of __k
-                    __s = __e;
-                    __e = _S_left(__e);
+                    __e = __s;
+                    __s = _S_left(__s);
                 }
                 // __k >= __p
                 else
-                    __e = _S_right(__e);
+                    __s = _S_right(__s);
             }
-            return iterator(__s);
+            return iterator(__e);
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -837,23 +708,51 @@ namespace ustl
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
                   typename _Compare, typename _Alloc>
-        pair<typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator,
-             typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator>
+        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            erase_equal(key_type const &__key)
+            erase(iterator __begin, iterator __end)
         {
+            if (begin() == __begin && end() == __end)
+            {
+                clear();
+                return end();
+            }
+            else
+            {
+                while (__begin != __end)
+                    _M_erase(__begin++);
+                iterator __ret = __end;
+                ++__ret;
+                return __ret;
+            }
         }
 
+        /// @return return presurcor of node
         template <typename _Key, typename _Val, typename _KeyOfVal,
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            erase_unique(key_type const &__key)
+            erase(iterator __itr)
         {
-            // if (__del->_M_left)
-            //     __del = _rbt_decrement(__del);
-            // if (_Block == _Rbt_node_base::_S_color(__del))
-            //     _rbt_rebalance_erase(__del, _rbt_bro_ptr(__del), __header);
+            if (end() == __itr)
+                return end();
+            iterator __suc = __itr;
+            ++__suc;
+            _M_erase(__itr);
+            return __suc;
+        }
+
+        template <typename _Key, typename _Val, typename _KeyOfVal,
+                  typename _Compare, typename _Alloc>
+        size_t
+        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+            erase(key_type const &__key)
+        {
+            size_t __count = count();
+            pair<iterator, iterator>
+                __range = equal_range(__key);
+            erase(__range._M_fisrt_val, __range._M_second_val);
+            return __count - count();
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -873,16 +772,18 @@ namespace ustl
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            lower_bound(key_type const &) const noexcept
+            lower_bound(key_type const &__k) const noexcept
         {
+            return _M_lower_bound(_M_root(), _M_end(), __k);
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            upper_bound(key_type const &) const noexcept
+            upper_bound(key_type const &__k) const noexcept
         {
+            return _M_upper_bound(_M_root(), _M_end(), __k);
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -892,6 +793,27 @@ namespace ustl
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
             equal_range(key_type const &__k) const noexcept
         {
+            typedef pair<iterator, iterator> ret_type;
+            _Node_ptr __begin = _M_root();
+            _Node_base_ptr __end = _M_end();
+            _Node_ptr __tmp{__begin};
+            while (__tmp)
+            {
+                // __k < key(__tmp)
+                if (_M_compare_key(__k, _S_key(__tmp)))
+                    __tmp = _S_left(__tmp);
+                // key(__tmp) < __k
+                else if (_M_compare_key(_S_key(__tmp), __k))
+                    __begin = __tmp, __tmp = _S_right(__tmp);
+                // key(__tmp) == __k
+                else
+                {
+                    // __begin storage lower key(__tmp)
+                    return ret_type(_M_lower_bound(_S_left(__begin), 0, __k),
+                                    _M_upper_bound(_S_right(__begin), 0, __k));
+                }
+            }
+            return ret_type(iterator(__end), iterator(__end));
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -955,168 +877,6 @@ namespace ustl
         {
             return const_iterator(&_M_data_plus->_M_header);
         }
-
-        /**
-         * @brief
-         *  use non-template function to eliminate duplication caussed by templates
-         */
-
-        void
-        _rbt_insert(bool __is_l, _Rbt_node_base *__new,
-                    _Rbt_node_base *__ist,
-                    _Rbt_header *__header) noexcept
-        {
-            if (__is_l)
-            {
-                if (__header->_M_parent)
-                {
-                    if (__ist == __header->_M_left)
-                        __header->_M_left = __new;
-                    __ist->_M_left = __new;
-                }
-                else
-                {
-                    __ist->_M_parent = __new;
-                    __ist->_M_right = __ist->_M_left = __new;
-                }
-            }
-            else
-            {
-                if (__ist == __header->_M_right)
-                    __header->_M_right = __new;
-                __ist->_M_right = __new;
-            }
-            __new->_M_parent = __ist;
-            _rbt_recolor(__new, __header);
-        }
-
-        /// @brief 左旋操作
-        /// @param __n 将要旋转的结点
-        /// @param __h 红黑树header
-        void
-        _rbt_rotate_left(_Rbt_node_base *__n,
-                         _Rbt_node_base *__h) noexcept
-        {
-            typedef _Rbt_node_base *_Node_ptr;
-            _Node_ptr __parent = __n->_M_parent,
-                      __new = __n->_M_right;
-            __n->_M_parent = __new;
-            __new->_M_parent = __parent;
-
-            if (__new->_M_left)
-                __new->_M_left->_M_parent = __n;
-
-            if (__parent == __h)
-                __h->_M_parent = __new;
-            else if (__n == __parent->_M_left)
-                __parent->_M_left = __new;
-            else
-                __parent->_M_right = __new;
-
-            __n->_M_right = __new->_M_left;
-            __new->_M_left = __n;
-        }
-
-        /// @brief 右旋操作
-        /// @param __n 将要旋转的结点
-        /// @param __h 根节点
-        void
-        _rbt_rotate_right(_Rbt_node_base *__n,
-                          _Rbt_node_base *__h) noexcept
-        {
-            typedef _Rbt_node_base *_Node_ptr;
-            _Node_ptr __parent = __n->_M_parent,
-                      __new = __n->_M_left;
-            __n->_M_parent = __new;
-            __new->_M_parent = __parent;
-
-            if (__new->_M_right)
-                __new->_M_right->_M_parent = __n;
-
-            if (__parent == __h)
-                __h->_M_parent = __new;
-            else if (__n == __parent->_M_left)
-                __parent->_M_left = __new;
-            else
-                __parent->_M_right = __new;
-
-            __n->_M_left = __new->_M_right;
-            __new->_M_right = __n;
-        }
-
-        /// @bug 先不处理根节点
-        inline _Rbt_node_base *
-        _rbt_bro_ptr(_Rbt_node_base *__p) noexcept
-        {
-            _Rbt_node_base *__parent = __p->_M_parent;
-            if (__p == __parent->_M_left)
-                return __parent->_M_right;
-            else
-                return __parent->_M_left;
-        }
-
-        void
-        _rbt_reblance_insert(_Rbt_node_base *__n,
-                             _Rbt_node_base *__h) noexcept
-        {
-            typedef _Rbt_node_base *_Node_ptr;
-            _Node_ptr __parent = __n->_M_parent;
-            _Node_ptr __gparnet = __parent->_M_parent;
-            __parent->_M_setcolor(_Block);
-            __gparnet->_M_setcolor(_Red);
-            if (__parent == __gparnet->_M_right)
-            {
-                if (__n != __parent->_M_right) // rl
-                {
-                    __n->_M_setcolor(_Block);
-                    _rbt_rotate_right(__parent, __h);
-                }
-                _rbt_rotate_left(__gparnet, __h);
-            }
-            else
-            {
-                if (__n == __parent->_M_right) // lr
-                {
-                    __n->_M_setcolor(_Block);
-                    _rbt_rotate_left(__parent, __h);
-                }
-                _rbt_rotate_right(__gparnet, __h);
-            }
-        }
-
-        void
-        _rbt_reblance_erase(_Rbt_node_base *__n,
-                            _Rbt_node_base *__h) noexcept
-        {
-        }
-
-        void
-        _rbt_recolor(_Rbt_node_base *__n,
-                     _Rbt_node_base *__h) noexcept
-        {
-            typedef _Rbt_node_base _Node;
-            typedef _Rbt_node_base *_Node_ptr;
-
-            if (__n == __h->_M_parent)
-            {
-                __n->_M_setcolor(_Block);
-                return;
-            }
-
-            __n->_M_setcolor(_Red);
-            _Node_ptr __p = __n->_M_parent;
-            if (_Block == _Node::_S_color(__p))
-                return;
-
-            _Node_ptr __uncle = _rbt_bro_ptr(__p);
-            if (_Red == _Node::_S_color(__uncle))
-            {
-                __uncle->_M_setcolor(_Block);
-                __p->_M_setcolor(_Block);
-                _rbt_recolor(__p->_M_parent, __h);
-            }
-            else
-                _rbt_reblance_insert(__n, __h);
-        }
     }
 }
+#endif

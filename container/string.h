@@ -1,5 +1,5 @@
-#include "../ustl.h"
-#include "../allocator/memory.h"
+#include "ustl.h"
+#include "memory.h"
 
 namespace ustl
 {
