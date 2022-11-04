@@ -100,6 +100,24 @@ namespace ustl
         {
             _Comp _M_compare;
             _Rbt_header _M_header;
+
+            void
+            _M_move(rb_tree_Impl &__other)
+            {
+                _M_header._M_color = __other._M_header._M_color;
+                _M_header._M_left = __other._M_header._M_left;
+                _M_header._M_right = __other._M_header._M_right;
+                _M_header._M_parent = __other._M_header._M_parent;
+                _M_header._M_count = __other._M_header._M_count;
+            }
+
+            void
+            _M_swap(rb_tree_Impl &__other)
+            {
+                rb_tree_Impl __tmp = *this;
+                _M_move(__other);
+                __other._M_move(__tmp);
+            }
         };
 
         template <typename _Tp>
@@ -343,6 +361,18 @@ namespace ustl
                         _Nallocator_type().deallocate(__n, sizeof(_Node_type));
                 }
 
+                void
+                destory_node(_Node_base_ptr __n) const noexcept
+                {
+                    _Node_base_ptr __p = __n->_M_parent;
+                    if (__n == __p->_M_parent)
+                        __p->_M_parent = __p->_M_left = __p->_M_right = 0;
+                    else if (__n == __p->_M_right)
+                        __p->_M_right = 0;
+                    else if (__n == __p->_M_left)
+                        __p->_M_left = 0;
+                }
+
             private:
                 size_t _M_count;
                 _Node_base_ptr _M_head;
@@ -464,6 +494,10 @@ namespace ustl
             rb_tree(rb_tree &&__other)
                 : _M_data_plus(0) {}
 
+            ~rb_tree()
+            {
+            }
+
             /**
              * @brief
              *      for public interface
@@ -487,6 +521,12 @@ namespace ustl
 
             iterator
             _M_upper_bound(_Node_base_ptr, _Node_base_ptr, key_type const &) const noexcept;
+
+            void
+            _M_copy(rb_tree &) noexcept;
+
+            void
+            _M_assgin() noexcept;
 
             /**
              * @brief
@@ -518,6 +558,9 @@ namespace ustl
 
             void
             clear();
+
+            inline void
+            swap(rb_tree &) noexcept;
 
             inline size_t
             count() const noexcept;
@@ -639,16 +682,14 @@ namespace ustl
         {
             while (__s)
             {
-                // __s < __k
+                // __k > __s, stroge the node that lower __k
                 if (_M_compare_key(_S_key(__s), __k))
                     __s = _S_right(__s);
-                // __s >= __k
+                // __k <= __s
                 else
-                {
-                    __e = __s;
-                    __s = _S_left(__s);
-                }
+                    __e = __s, __s = _S_left(__s);
             }
+            // return succursor or the node
             return iterator(__e);
         }
 
@@ -662,14 +703,10 @@ namespace ustl
         {
             while (__s)
             {
-                // __k < __p
+                // __k < __s
                 if (_M_compare_key(__k, _S_key(__s)))
-                {
-                    // find pre of __k
-                    __e = __s;
-                    __s = _S_left(__s);
-                }
-                // __k >= __p
+                    __e = __s, __s = _S_left(__s);
+                // __k >= __s
                 else
                     __s = _S_right(__s);
             }
@@ -759,7 +796,7 @@ namespace ustl
                   typename _Compare, typename _Alloc>
         typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            find(_Key const &__k) const noexcept
+            find(key_type const &__k) const noexcept
         {
             iterator __ret = lower_bound(__k);
             // check __k = key(__ret) or __k > key(__ret)
@@ -794,34 +831,66 @@ namespace ustl
             equal_range(key_type const &__k) const noexcept
         {
             typedef pair<iterator, iterator> ret_type;
-            _Node_ptr __begin = _M_root();
-            _Node_base_ptr __end = _M_end();
-            _Node_ptr __tmp{__begin};
-            while (__tmp)
+            _Node_ptr __aim = _M_root();
+            _Node_base_ptr __suc = _M_end();
+            while (__aim)
             {
-                // __k < key(__tmp)
-                if (_M_compare_key(__k, _S_key(__tmp)))
-                    __tmp = _S_left(__tmp);
-                // key(__tmp) < __k
-                else if (_M_compare_key(_S_key(__tmp), __k))
-                    __begin = __tmp, __tmp = _S_right(__tmp);
-                // key(__tmp) == __k
+                // __k < key(__tmp), storage it`s succursor
+                //  for which foreach using operator!=()
+                if (_M_compare_key(__k, _S_key(__aim)))
+                    __suc = __aim, __aim = _S_left(__aim);
+                // __k > key(__tmp)
+                else if (_M_compare_key(_S_key(__aim), __k))
+                    __aim = _S_right(__aim);
+                //  __k = key(__tmp)
                 else
                 {
                     // __begin storage lower key(__tmp)
-                    return ret_type(_M_lower_bound(_S_left(__begin), 0, __k),
-                                    _M_upper_bound(_S_right(__begin), 0, __k));
+                    return ret_type(_M_lower_bound(_S_left(__aim), __aim, __k),
+                                    _M_upper_bound(_S_right(__aim), __suc, __k));
                 }
             }
-            return ret_type(iterator(__end), iterator(__end));
+            /** if haven`t the node, return it`s logical succursor */
+            return ret_type(iterator(__suc), iterator(__suc));
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
                   typename _Compare, typename _Alloc>
-        void
+        inline void
+        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+            swap(rb_tree &__other) noexcept
+        {
+            if (0 == _M_root())
+            {
+                if (0 != __other._M_root())
+                    _M_data_plus->_M_move(__other._M_data_plus);
+            }
+            else if (0 == __other._M_root())
+                __other._M_data_plus->_M_move(_M_data_plus);
+            else
+                _M_data_plus->_M_swap(__other._M_data_plus);
+        }
+
+        template <typename _Key, typename _Val, typename _KeyOfVal,
+                  typename _Compare, typename _Alloc>
+        inline void
         rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
             clear()
         {
+            _Node_base_ptr __parent;
+            _Node_base_ptr __root = _M_left_most();
+            while (__root && _M_end() != __root)
+            {
+                while (__root->_M_left)
+                    __root = _S_left(__root);
+                while (__root->_M_right)
+                    __root = _S_right(__root);
+                __parent = __root->_M_parent;
+                _M_node_pool->destory_node(__root);
+                (*_M_node_pool)(__root);
+                __root = __parent;
+            }
+            _M_data_plus->_M_header._M_count = 0;
         }
 
         template <typename _Key, typename _Val, typename _KeyOfVal,
