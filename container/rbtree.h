@@ -9,6 +9,13 @@
 #include "rbtree_fwd.h"
 #endif
 
+#define __rbt_template_parameters                               \
+    template <typename _Key, typename _Val, typename _KeyOfVal, \
+              typename _Compare, typename _Alloc>
+
+#define __rbt_action_scope \
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>
+
 namespace ustl
 {
     namespace internal_ustl
@@ -37,8 +44,7 @@ namespace ustl
                 return &this->_M_value;
             }
 
-            _Rbtree_Node()
-                : _Rbtree_Node() {}
+            _Rbtree_Node() = default;
 
             _Rbtree_Node(value_type __v)
                 :
@@ -109,6 +115,7 @@ namespace ustl
                 _M_header._M_right = __other._M_header._M_right;
                 _M_header._M_parent = __other._M_header._M_parent;
                 _M_header._M_count = __other._M_header._M_count;
+                _M_compare = __other._M_compare;
             }
 
             void
@@ -339,7 +346,7 @@ namespace ustl
                         }
                         else
                             __tmp = _Nallocator_type().allocate(sizeof(_Node_type));
-                        _Nallocator_type().construct(__tmp, forward(__v)...);
+                        construct_node(static_cast<_Node_ptr>(__tmp), forward(__v)...);
                     }
                     catch (...)
                     {
@@ -361,6 +368,13 @@ namespace ustl
                         _Nallocator_type().deallocate(__n, sizeof(_Node_type));
                 }
 
+                template <typename... _Args>
+                _Node_ptr
+                construct_node(_Node_ptr __p, _Args &&...__a)
+                {
+                    return _Nallocator_type().construct(__p, forward(__a)...);
+                }
+
                 void
                 destory_node(_Node_base_ptr __n) const noexcept
                 {
@@ -376,6 +390,66 @@ namespace ustl
             private:
                 size_t _M_count;
                 _Node_base_ptr _M_head;
+            };
+
+            /**
+             * @if reassginment, take all of tree node
+             * don`t recyle root node
+             */
+            struct _rbt_recycle_reuse
+            {
+                _rbt_recycle_reuse(rb_tree &__t)
+                    : _M_tree(__t),
+                      _M_left_most(__t._M_left_most())
+                {
+                    if (_M_tree._M_data_plus->_M_header._M_parent)
+                        _M_tree._M_data_plus->_M_header._M_reset();
+                    else
+                        _M_left_most = 0;
+                }
+
+                template <typename... _Args>
+                _Node_ptr
+                operator()(_Args &&...__a)
+                {
+                    _Node_ptr __ret = static_cast<_Node_ptr>(_M_extract());
+                    if (0 == __ret)
+                        __ret = (*_M_tree._M_node_pool)();
+                    _M_tree._M_node_pool->construct_node(__ret, forward(__a)...);
+                    return __ret;
+                }
+
+            private:
+                _Node_base_ptr
+                _M_extract()
+                {
+                    if (0 == _M_left_most)
+                        return 0;
+
+                    _Node_base_ptr __ret = _M_left_most;
+                    _M_left_most = _M_left_most->_M_parent;
+                    if (0 != _M_left_most)
+                    {
+                        if (_is_lchild(__ret))
+                            _M_left_most->_M_left = 0;
+                        else
+                        {
+                            _M_left_most->_M_right = 0;
+                            while (_M_left_most->_M_right)
+                                _M_left_most = _S_right(_M_left_most);
+                            while (_M_left_most->_M_left)
+                                _M_left_most = _S_left(_M_left_most);
+                            if (_M_left_most->_M_right) // for leafs
+                                _M_left_most = _S_right(_M_left_most);
+                        }
+                    }
+                    else
+                        _M_left_most = 0; /*ROOT*/
+                    return __ret;
+                }
+
+                _Node_base_ptr _M_left_most;
+                rb_tree &_M_tree;
             };
 
         protected:
@@ -485,17 +559,33 @@ namespace ustl
 #ifdef __debug_ustl
                 _M_data_plus = new rb_tree_Impl<value_type, compare_type>;
                 _M_node_pool = new _Node_Manager;
+#else
+
 #endif
             }
 
             rb_tree(const rb_tree &__other)
-                : _M_data_plus(0) {}
+                : _M_data_plus(0)
+            {
+                clear();
+                assign_equal(__other.begin(), __other.end());
+            }
 
             rb_tree(rb_tree &&__other)
-                : _M_data_plus(0) {}
+            {
+                clear();
+                _M_data_plus->_M_move(__other._M_data_plus);
+            }
 
             ~rb_tree()
             {
+                clear();
+#ifdef __debug_ustl
+                delete _M_data_plus;
+                delete _M_node_pool;
+#else
+
+#endif
             }
 
             /**
@@ -506,7 +596,16 @@ namespace ustl
              */
         private:
             iterator
-            _M_insert(_Node_base_ptr, value_type const &);
+            _M_insert(_Node_base_ptr, value_type const &,
+                      _rbt_recycle_reuse *);
+            inline iterator
+            _M_insert_equal(iterator, _rbt_recycle_reuse *);
+            iterator
+            _M_insert_equal(value_type const &, _rbt_recycle_reuse *);
+            inline pair<iterator, bool>
+            _M_insert_unique(iterator, _rbt_recycle_reuse *);
+            pair<iterator, bool>
+            _M_insert_unique(value_type const &, _rbt_recycle_reuse *);
 
             void
                 _M_erase(iterator);
@@ -522,12 +621,6 @@ namespace ustl
             iterator
             _M_upper_bound(_Node_base_ptr, _Node_base_ptr, key_type const &) const noexcept;
 
-            void
-            _M_copy(rb_tree &) noexcept;
-
-            void
-            _M_assgin() noexcept;
-
             /**
              * @brief
              *      provide to client
@@ -535,10 +628,24 @@ namespace ustl
              * @public
              */
         public:
-            iterator
-            insert_equal(value_type const &);
-            pair<iterator, bool>
+            template <typename _Itr>
+            void
+                assign_equal(_Itr, _Itr);
+            template <typename _Itr>
+            void
+                assign_unique(_Itr, _Itr);
+
+            inline pair<iterator, bool>
+                insert_unique(iterator);
+
+            inline iterator
+                insert_equal(iterator);
+
+            inline pair<iterator, bool>
             insert_unique(value_type const &);
+
+            inline iterator
+            insert_equal(value_type const &);
 
             iterator
                 erase(iterator);
@@ -586,26 +693,25 @@ namespace ustl
             _Node_Manager *_M_node_pool;
         };
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             _M_insert(_Node_base_ptr __ist,
-                      value_type const &__val)
+                      value_type const &__val,
+                      _rbt_recycle_reuse *__node_reuse)
         {
             key_type const &__k = _KeyOfVal()(__val);
             // root insertion happen __is_left = false
             bool __is_left = (__ist == _M_end() || _M_compare_key(__k, _S_key(__ist)));
-            _Node_ptr __new = (*_M_node_pool)(__val);
+            _Node_ptr __new = __node_reuse
+                                  ? (*__node_reuse)(__val)
+                                  : (*_M_node_pool)(__val);
             _rbt_insert(__is_left, __new, __ist, &_M_data_plus->_M_header);
             ++_M_data_plus->_M_header._M_count;
             return iterator(__new);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        void
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters void
+        __rbt_action_scope::
             _M_erase(iterator __del)
         {
             _Node_base_ptr __val = _rbt_erase(__del._M_node, &_M_data_plus->_M_header);
@@ -616,10 +722,8 @@ namespace ustl
             --_M_data_plus->_M_header._M_count;
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             _M_get_insert_pos_unique(_Key const &__k) noexcept
         {
             _Node_ptr __s{_M_begin()};
@@ -652,10 +756,8 @@ namespace ustl
             return end();
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             _M_get_insert_pos_equal(_Key const &__k) noexcept
         {
             _Node_ptr __s{_M_begin()};
@@ -672,10 +774,8 @@ namespace ustl
             return iterator(__e);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             _M_lower_bound(_Node_base_ptr __s,
                            _Node_base_ptr __e,
                            key_type const &__k) const noexcept
@@ -693,10 +793,8 @@ namespace ustl
             return iterator(__e);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             _M_upper_bound(_Node_base_ptr __s,
                            _Node_base_ptr __e,
                            key_type const &__k) const noexcept
@@ -713,22 +811,29 @@ namespace ustl
             return iterator(__e);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            insert_equal(value_type const &__val)
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
+            _M_insert_equal(value_type const &__val,
+                            _rbt_recycle_reuse *__rcru)
         {
             key_type const &__key = _KeyOfVal()(__val);
             iterator __pos = _M_get_insert_pos_equal(__key);
-            return iterator(_M_insert(__pos._M_node, __val));
+            return iterator(_M_insert(__pos._M_node, __val, __rcru));
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        pair<typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator, bool>
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            insert_unique(value_type const &__val)
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
+            _M_insert_equal(iterator __itr,
+                            _rbt_recycle_reuse *__rcru)
+        {
+            value_type __val = *static_cast<_Node_ptr>(__itr._M_node)->_M_valptr();
+            return iterator(_M_insert_equal(__val, __rcru));
+        }
+
+        __rbt_template_parameters pair<typename __rbt_action_scope::iterator, bool>
+        __rbt_action_scope::
+            _M_insert_unique(value_type const &__val,
+                             _rbt_recycle_reuse *__rcru)
         {
             /// @if null != root && end() = pos
             ///     then : double key is equals
@@ -740,13 +845,69 @@ namespace ustl
 
             if (0 != _M_root() && end() == __pos)
                 return ret_type(__pos, false);
-            return ret_type(_M_insert(__pos._M_node, __val), true);
+            return ret_type(_M_insert(__pos._M_node, __val, __rcru), true);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters pair<typename __rbt_action_scope::iterator, bool>
+        __rbt_action_scope::
+            _M_insert_unique(iterator __itr,
+                             _rbt_recycle_reuse *__rcru)
+        {
+            value_type __val = *static_cast<_Node_ptr>(__itr._M_node)->_M_valptr();
+            return _M_insert_unique(__val, __rcru);
+        }
+
+        __rbt_template_parameters inline typename __rbt_action_scope::iterator
+        __rbt_action_scope::
+            insert_equal(value_type const &__val)
+        {
+            return _M_insert_equal(__val, 0);
+        }
+
+        __rbt_template_parameters inline pair<
+            typename __rbt_action_scope::iterator, bool>
+        __rbt_action_scope::
+            insert_unique(value_type const &__itr)
+        {
+            return _M_insert_unique(__itr, 0);
+        }
+
+        __rbt_template_parameters inline typename __rbt_action_scope::iterator
+        __rbt_action_scope::
+            insert_equal(iterator __itr)
+        {
+            return _M_insert_equal(__itr, 0);
+        }
+
+        __rbt_template_parameters inline pair<
+            typename __rbt_action_scope::iterator, bool>
+        __rbt_action_scope::
+            insert_unique(iterator __itr)
+        {
+            return _M_insert_unique(__itr, 0);
+        }
+
+        __rbt_template_parameters template <typename _Itr>
+        void __rbt_action_scope::
+            assign_equal(_Itr __b, _Itr __e)
+        {
+            _rbt_recycle_reuse __rcru(*this);
+            while (__b != __e)
+                _M_insert_equal(__b++, &__rcru);
+        }
+
+        __rbt_template_parameters template <typename _Itr>
+        void
+        __rbt_action_scope::
+            assign_unique(_Itr __b, _Itr __e)
+        {
+            _rbt_recycle_reuse __rcru(*this);
+            while (__b != __e)
+                _M_insert_unique(__b++, &__rcru);
+        }
+
+        __rbt_template_parameters typename __rbt_action_scope ::iterator
+        __rbt_action_scope::
             erase(iterator __begin, iterator __end)
         {
             if (begin() == __begin && end() == __end)
@@ -765,10 +926,8 @@ namespace ustl
         }
 
         /// @return return presurcor of node
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             erase(iterator __itr)
         {
             if (end() == __itr)
@@ -779,10 +938,8 @@ namespace ustl
             return __suc;
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        size_t
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters size_t
+        __rbt_action_scope::
             erase(key_type const &__key)
         {
             size_t __count = count();
@@ -792,10 +949,8 @@ namespace ustl
             return __count - count();
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             find(key_type const &__k) const noexcept
         {
             iterator __ret = lower_bound(__k);
@@ -805,30 +960,25 @@ namespace ustl
             return end();
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             lower_bound(key_type const &__k) const noexcept
         {
             return _M_lower_bound(_M_root(), _M_end(), __k);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters typename __rbt_action_scope::iterator
+        __rbt_action_scope ::
             upper_bound(key_type const &__k) const noexcept
         {
             return _M_upper_bound(_M_root(), _M_end(), __k);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        pair<typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator,
-             typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator>
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            equal_range(key_type const &__k) const noexcept
+        __rbt_template_parameters
+            pair<typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator,
+                 typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator>
+            rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+                equal_range(key_type const &__k) const noexcept
         {
             typedef pair<iterator, iterator> ret_type;
             _Node_ptr __aim = _M_root();
@@ -854,10 +1004,8 @@ namespace ustl
             return ret_type(iterator(__suc), iterator(__suc));
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        inline void
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters inline void
+        __rbt_action_scope::
             swap(rb_tree &__other) noexcept
         {
             if (0 == _M_root())
@@ -871,20 +1019,20 @@ namespace ustl
                 _M_data_plus->_M_swap(__other._M_data_plus);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        inline void
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters inline void
+        __rbt_action_scope::
             clear()
         {
             _Node_base_ptr __parent;
             _Node_base_ptr __root = _M_left_most();
             while (__root && _M_end() != __root)
             {
-                while (__root->_M_left)
+                if (__root->_M_left)
                     __root = _S_left(__root);
                 while (__root->_M_right)
                     __root = _S_right(__root);
+                if (__root->_M_left)
+                    __root = _S_left(__root);
                 __parent = __root->_M_parent;
                 _M_node_pool->destory_node(__root);
                 (*_M_node_pool)(__root);
@@ -893,55 +1041,43 @@ namespace ustl
             _M_data_plus->_M_header._M_count = 0;
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        inline size_t
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters inline size_t
+        __rbt_action_scope::
             count() const noexcept
         {
             return _M_data_plus->_M_header._M_count;
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        inline bool
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters inline bool
+        __rbt_action_scope::
             empty() const noexcept
         {
             return (0 == _M_data_plus->_M_header._M_count);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        inline typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters inline typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             begin() noexcept
         {
             return iterator(_M_left_most());
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        inline typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters inline typename __rbt_action_scope::iterator
+        __rbt_action_scope::
             end() noexcept
         {
             return iterator(&_M_data_plus->_M_header);
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        inline typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::const_iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters inline typename __rbt_action_scope::const_iterator
+        __rbt_action_scope::
             cbegin() const noexcept
         {
             return const_iterator(_M_left_most());
         }
 
-        template <typename _Key, typename _Val, typename _KeyOfVal,
-                  typename _Compare, typename _Alloc>
-        inline typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::const_iterator
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        __rbt_template_parameters inline typename __rbt_action_scope::const_iterator
+        __rbt_action_scope::
             cend() const noexcept
         {
             return const_iterator(&_M_data_plus->_M_header);
