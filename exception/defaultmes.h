@@ -10,4 +10,6 @@
 
 #define __default_nullptr_reference_message "nullptr reference error"
 
+#define __default_access_outof_bounds_message "array index out of bounds exception"
+
 #endif

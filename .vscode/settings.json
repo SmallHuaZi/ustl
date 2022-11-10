@@ -71,6 +71,8 @@
         "semaphore": "cpp",
         "stdexcept": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "list": "cpp"
     },
+    "makefile.phonyOnlyTargets": false,
 }

@@ -1,3 +1,4 @@
 ./debug
 ./debug.cpp
+./debug_tree.cpp
 ./obj

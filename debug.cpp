@@ -1,12 +1,15 @@
-
-// #include "./container/tuple.h"
-// #include <string>
-#include <bits/stl_tree.h>
 #include <iostream>
 // #include <map>
+// #include <vector>
 
 #include "rbtree.h"
-using namespace ustl::internal_ustl;
+#include "list.h"
+#include "vector.h"
+#include <vector>
+#include <bits/stl_list.h>
+#include <exception>
+// #include <unistd.h>
+// using namespace ustl::internal_ustl;
 
 struct get_key
 {
@@ -25,31 +28,29 @@ struct compare
         return a < b;
     }
 };
+bool equal_16(int __val)
+{
+    return 16 == __val;
+}
+
+#include "allocate_type.h"
 
 int main(int argc, char **argv)
 {
-
-    rb_tree<int, int, get_key, compare> __rbt;
-    decltype(__rbt)::_node_ptr __root;
-    int __ary[] = {16, 3, 7, 11, 9, 26, 18, 14, 15, 19, 30, 40, 32, 45};
-    // int __ary[] = {6, 2, 15, 10, 18, 9, 12, 20, 8};
+    ustl::vector<int> __vec;
+    std::vector<int> __std_vec;
+    int __ary[] = {1, 2, 3, 4, 5, 6, 7};
     for (auto __tmp : __ary)
+        __std_vec.push_back(__tmp);
+    std::cout << __std_vec.capacity() << std::endl;
+
+    try
     {
-        __rbt.insert_unique(__tmp);
-        // __rbt.insert_equal(__tmp);
-        __root = __rbt.debug_root();
+        __vec[0];
     }
-
-    decltype(__rbt)::iterator __itr = __rbt.upper_bound(9);
-
-    for (auto __tmp : __ary)
+    __ustl_catch(ustl::exception)
     {
-        __rbt.erase(__tmp);
-        __root = __rbt.debug_root();
+        std::cout << __e.message() << std::endl;
     }
-
-    for (auto __tmp : __rbt)
-        std::cout << __tmp << std::endl;
-
     return 0;
 }

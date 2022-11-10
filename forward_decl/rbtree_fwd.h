@@ -121,7 +121,8 @@ namespace ustl
             void _M_reset() noexcept
             {
                 _M_count = 0;
-                _M_parent = _M_left = _M_right = this;
+                _M_parent = 0;
+                _M_left = _M_right = this;
             }
 
             _Node_ptr

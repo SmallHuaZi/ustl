@@ -9,5 +9,7 @@ namespace ustl
 
 #define alignment_criteria 8
 
+#define ustl_cpp_noexcept noexcept
+
 }
 #endif

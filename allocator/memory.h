@@ -56,6 +56,7 @@ namespace ustl
             byte _M_client_data[0];
         };
 
+    public:
         typedef obj *obj_ptr;
         typedef diff_t difference_type;
 
@@ -139,39 +140,39 @@ namespace ustl
             {
                 /** recycle last free memory */
                 obj_ptr *__plist = _M_get_free_list(__pool_size);
-                ((obj_ptr)_S_free_start)->_M_next = (*__plist)->_M_next;
-                (*__plist)->_M_next = (obj_ptr)_S_free_start;
-
-                _S_free_start = (byte *)malloc(__alloc_size);
-                if (!_S_free_start)
-                {
-                    /**
-                     * @brief
-                     * @if alloc failure
-                     *      just find big chuck that size of element > __s
-                     * @if find failure
-                     *      throws bad_alloc
-                     */
-                    size_t __i;
-                    obj_ptr *__list, __had_list;
-                    for (__i = __s; __i <= __MAX_BYTES; __i += __ALIGNMENT)
-                    {
-                        __list = _S_free_list + __s / __ALIGNMENT;
-                        __had_list = *__list;
-                        if (__had_list)
-                        {
-                            _S_free_start = (byte *)__had_list;
-                            _S_free_end = _S_free_start + __i;
-                            return _M_alloc_chuck(__s, __count);
-                        }
-                    }
-                    /** memory alloc failure, throws a exception !  */
-                    __throw_bad_alloc();
-                }
-                _S_heap_size += __alloc_size;
-                _S_free_end = _S_free_start + __alloc_size;
-                return _M_alloc_chuck(__s, __count);
+                ((obj_ptr)_S_free_start)->_M_next = *__plist;
+                *__plist = (obj_ptr)_S_free_start;
             }
+
+            _S_free_start = (byte *)malloc(__alloc_size);
+            if (!_S_free_start)
+            {
+                /**
+                 * @brief
+                 * @if alloc failure
+                 *      just find big chuck that size of element > __s
+                 * @if find failure
+                 *      throws bad_alloc
+                 */
+                size_t __i;
+                obj_ptr *__list, __had_list;
+                for (__i = __s; __i <= __MAX_BYTES; __i += __ALIGNMENT)
+                {
+                    __list = _S_free_list + __s / __ALIGNMENT;
+                    __had_list = *__list;
+                    if (__had_list)
+                    {
+                        _S_free_start = (byte *)__had_list;
+                        _S_free_end = _S_free_start + __i;
+                        return _M_alloc_chuck(__s, __count);
+                    }
+                }
+                /** memory alloc failure, throws a exception !  */
+                __throw_bad_alloc();
+            }
+            _S_heap_size += __alloc_size;
+            _S_free_end = _S_free_start + __alloc_size;
+            return _M_alloc_chuck(__s, __count);
         }
         return __ret;
     }
@@ -183,8 +184,8 @@ namespace ustl
     public:
         typedef _Tp value_type;
         typedef _Tp *pointer;
-        typedef const _Tp *const_pointer;
         typedef _Tp &reference;
+        typedef const _Tp *const_pointer;
         typedef const _Tp &const_reference;
 
     private:
@@ -201,17 +202,18 @@ namespace ustl
             using other = allocator<_OTp>;
         };
 
-        template <typename... _Args>
-        pointer
-        construct(void_ptr __p, _Args &&...__a)
+        template <typename _OTp, typename... _Args>
+        _OTp *
+        construct(_OTp *__p, _Args &&...__a)
         {
-            return new (__p) _Tp(forward<_Args>(__a)...);
+            return new (__p) _OTp(forward<_Args>(__a)...);
         }
 
+        template <typename _OTp>
         void
-        destory(value_type *__p)
+        destory(_OTp *__p)
         {
-            __p->~_Tp();
+            __p->~_OTp();
         }
 
         constexpr size_t
@@ -240,18 +242,21 @@ namespace ustl
             /** lock, adapt multithread envirment */
             std::unique_lock __tmp_mutex(_S_mutex);
             if (!__pobj)
-                __pobj = (obj_ptr)_M_refill(align_compress(__alloc_size, alignment_criteria));
+                __ret = pointer(_M_refill(align_extend(__alloc_size, alignment_criteria)));
             else
+            {
                 *__list = __pobj->_M_next;
-            if (!__pobj)
+                __ret = pointer(__pobj);
+            }
+
+            if (!__ret)
                 __throw_bad_alloc();
         }
         return static_cast<pointer>(__ret);
     }
 
     template <typename _Tp>
-    void
-    allocator<_Tp>::deallocate(void_ptr __p, size_t __n)
+    void allocator<_Tp>::deallocate(void_ptr __p, size_t __n)
     {
         const size_t __recycle_size = __n * sizeof(_Tp);
         if (__p && __n)
@@ -270,13 +275,13 @@ namespace ustl
         }
     }
 
-    constexpr size_t
+    constexpr inline size_t
     align_extend(size_t __s, size_t __a)
     {
         return (__s + --__a) & ~(__a);
     }
 
-    constexpr size_t
+    constexpr inline size_t
     align_compress(size_t __s, size_t __a)
     {
         return __s & ~(--__a);

@@ -58,5 +58,20 @@ namespace ustl
             return _M_message ? _M_message : __default_nullptr_reference_message;
         }
     };
+
+    class access_outof_bounds
+        : public exception
+    {
+    public:
+        access_outof_bounds() = default;
+        access_outof_bounds(const char *__mes)
+            : exception(__mes) {}
+
+        virtual const char *
+        message() noexcept
+        {
+            return _M_message ? _M_message : __default_access_outof_bounds_message;
+        }
+    };
 }
 #endif
