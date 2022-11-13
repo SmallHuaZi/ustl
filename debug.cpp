@@ -6,7 +6,9 @@
 #include "list.h"
 #include "vector.h"
 #include <vector>
+#include <bits/stl_vector.h>
 #include <bits/stl_list.h>
+#include <list>
 #include <exception>
 // #include <unistd.h>
 // using namespace ustl::internal_ustl;
@@ -38,19 +40,18 @@ bool equal_16(int __val)
 int main(int argc, char **argv)
 {
     ustl::vector<int> __vec;
-    std::vector<int> __std_vec;
-    int __ary[] = {1, 2, 3, 4, 5, 6, 7};
-    for (auto __tmp : __ary)
-        __std_vec.push_back(__tmp);
-    std::cout << __std_vec.capacity() << std::endl;
+    int const a = 10;
+    __vec.insert(__vec.cbegin(), a);
 
-    try
-    {
-        __vec[0];
-    }
-    __ustl_catch(ustl::exception)
-    {
-        std::cout << __e.message() << std::endl;
-    }
+    // std::vector<int> __vec;
+
+    // int __ary[] = {1, 2, 3, 4, 5, 6, 7};
+    // for (auto &__tmp : __ary)
+    //     __vec.push_back(__tmp);
+    // __vec.reserve(12);
+
+    // __vec.insert(__vec.begin() + 5, 3, 10);
+    // for (auto &__tmp : __vec)
+    //     std::cout << __tmp << std::endl;
     return 0;
 }

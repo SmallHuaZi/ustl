@@ -14,7 +14,7 @@
     template <typename _Key, typename _Val, typename _KeyOfVal, \
               typename _Compare, typename _Alloc>
 
-#define __rbt_action_scope \
+#define _rbt_type \
     rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>
 
 namespace ustl
@@ -306,7 +306,8 @@ namespace ustl
                     }
                     else
                         __tmp = allocate(1);
-                    construct_node(static_cast<pointer>(__tmp), forward<_Args>(__args)...);
+                    construct_node(static_cast<pointer>(__tmp),
+                                   forward<_Args>(__args)...);
                 }
                 catch (...)
                 {
@@ -331,11 +332,11 @@ namespace ustl
             }
 
             template <typename... _Args>
-            pointer
+            void
             construct_node(base_ptr __p, _Args &&...__a)
             {
-                return construct(static_cast<pointer>(__p),
-                                 forward<_Args>(__a)...);
+                construct(static_cast<pointer>(__p)->_M_valptr(),
+                          forward<_Args>(__a)...);
             }
 
             void
@@ -594,7 +595,7 @@ namespace ustl
             _Node_ptr
             _M_create_node(_Args &&...__a)
             {
-                return (_M_data_plus->_M_node_pool)(forward<_Args>(__a)...);
+                return (_M_data_plus->_M_node_pool)(forward<_Args &&>(__a)...);
             }
 
             template <typename... _Args>
@@ -602,7 +603,8 @@ namespace ustl
             _M_construct_node(_Node_base_ptr __p,
                               _Args &&...__a)
             {
-                return (_M_data_plus->_M_node_pool).construct_node(__p, forward<_Args>(__a)...);
+                (_M_data_plus->_M_node_pool).construct_node(__p, forward<_Args>(__a)...);
+                return static_cast<_Node_ptr>(__p);
             }
 
             void
@@ -641,14 +643,25 @@ namespace ustl
             rb_tree(const rb_tree &__other)
                 : _M_data_plus(0)
             {
+                if (&__other == this)
+                    return;
                 clear();
                 assign_equal(__other.begin(), __other.end());
             }
 
             rb_tree(rb_tree &&__other)
             {
+                if (&__other == this)
+                    return;
                 clear();
                 _M_data_plus->_M_move(__other._M_data_plus);
+            }
+
+            template <typename _Itr>
+            rb_tree(_Itr __first, _Itr __last)
+            {
+                for (; __first != __last; ++__first)
+                    ;
             }
 
             ~rb_tree()
@@ -669,8 +682,7 @@ namespace ustl
              */
         private:
             iterator
-            _M_insert(_Node_base_ptr, value_type const &,
-                      _rbt_recycle_reuse *);
+            _M_insert(_Node_base_ptr, value_type const &, _rbt_recycle_reuse *);
             inline iterator
             _M_insert_equal(iterator, _rbt_recycle_reuse *);
             iterator
@@ -680,8 +692,7 @@ namespace ustl
             pair<iterator, bool>
             _M_insert_unique(value_type const &, _rbt_recycle_reuse *);
 
-            void
-                _M_erase(iterator);
+            void _M_erase(iterator);
 
             iterator
             _M_get_insert_pos_unique(key_type const &) ustl_cpp_noexcept;
@@ -706,8 +717,13 @@ namespace ustl
             template <typename _Itr>
             void assign_unique(_Itr, _Itr);
 
+            template <typename... _Args>
+            inline iterator emplace_equal(_Args &&...);
             inline iterator insert_equal(iterator);
             inline iterator insert_equal(value_type const &);
+
+            template <typename... _Args>
+            inline iterator emplace_unique(_Args &&...);
             inline pair<iterator, bool> insert_unique(iterator);
             inline pair<iterator, bool> insert_unique(value_type const &);
 
@@ -729,28 +745,26 @@ namespace ustl
             inline bool empty() const ustl_cpp_noexcept;
 
             inline iterator begin() ustl_cpp_noexcept;
-
             inline iterator end() ustl_cpp_noexcept;
+            inline const_iterator begin() const ustl_cpp_noexcept;
+            inline const_iterator end() const ustl_cpp_noexcept;
 
+            inline const_iterator cbegin() ustl_cpp_noexcept;
+            inline const_iterator cend() ustl_cpp_noexcept;
             inline const_iterator cbegin() const ustl_cpp_noexcept;
-
             inline const_iterator cend() const ustl_cpp_noexcept;
 
-            void operator=(rb_tree const &);
-            friend bool operator==(rb_tree const &, rb_tree const &)
-            {
-            }
-            friend bool operator!=(rb_tree const &, rb_tree const &)
-            {
-            }
+            rb_tree &operator=(rb_tree const &);
+
+            static inline _Node_ptr root(rb_tree const &) ustl_cpp_noexcept;
 
         private:
             /** use implement pointer, isolation implement and interface */
             _rbt_impl<value_type, allocator_type, compare_type> *_M_data_plus;
         };
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             _M_insert(_Node_base_ptr __ist,
                       value_type const &__val,
                       _rbt_recycle_reuse *__node_reuse)
@@ -767,7 +781,7 @@ namespace ustl
         }
 
         __rbt_template_parameters void
-        __rbt_action_scope::
+        _rbt_type::
             _M_erase(iterator __del)
         {
             _Node_base_ptr __val = _rbt_erase(__del._M_node, &_M_data_plus->_M_header);
@@ -778,8 +792,8 @@ namespace ustl
             --_M_data_plus->_M_header._M_count;
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             _M_get_insert_pos_unique(_Key const &__k) ustl_cpp_noexcept
         {
             _Node_ptr __s{_M_begin()};
@@ -812,8 +826,8 @@ namespace ustl
             return end();
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             _M_get_insert_pos_equal(_Key const &__k) ustl_cpp_noexcept
         {
             _Node_ptr __s{_M_begin()};
@@ -830,8 +844,8 @@ namespace ustl
             return iterator(__e);
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             _M_lower_bound(_Node_base_ptr __s,
                            _Node_base_ptr __e,
                            key_type const &__k) const ustl_cpp_noexcept
@@ -849,8 +863,8 @@ namespace ustl
             return iterator(__e);
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             _M_upper_bound(_Node_base_ptr __s,
                            _Node_base_ptr __e,
                            key_type const &__k) const ustl_cpp_noexcept
@@ -867,8 +881,8 @@ namespace ustl
             return iterator(__e);
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             _M_insert_equal(value_type const &__val,
                             _rbt_recycle_reuse *__rcru)
         {
@@ -877,8 +891,8 @@ namespace ustl
             return iterator(_M_insert(__pos._M_node, __val, __rcru));
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             _M_insert_equal(iterator __itr,
                             _rbt_recycle_reuse *__rcru)
         {
@@ -886,8 +900,8 @@ namespace ustl
             return iterator(_M_insert_equal(__val, __rcru));
         }
 
-        __rbt_template_parameters pair<typename __rbt_action_scope::iterator, bool>
-        __rbt_action_scope::
+        __rbt_template_parameters pair<typename _rbt_type::iterator, bool>
+        _rbt_type::
             _M_insert_unique(value_type const &__val,
                              _rbt_recycle_reuse *__rcru)
         {
@@ -904,8 +918,8 @@ namespace ustl
             return ret_type(_M_insert(__pos._M_node, __val, __rcru), true);
         }
 
-        __rbt_template_parameters pair<typename __rbt_action_scope::iterator, bool>
-        __rbt_action_scope::
+        __rbt_template_parameters pair<typename _rbt_type::iterator, bool>
+        _rbt_type::
             _M_insert_unique(iterator __itr,
                              _rbt_recycle_reuse *__rcru)
         {
@@ -913,38 +927,52 @@ namespace ustl
             return _M_insert_unique(__val, __rcru);
         }
 
-        __rbt_template_parameters inline typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters template <typename... _Args>
+        inline typename _rbt_type::iterator
+        _rbt_type::
+            emplace_equal(_Args &&...__a)
+        {
+            _Node_ptr __new = _M_create_node();
+            _M_construct_node(__new, forward(__a)...);
+            key_type __k = _S_key(__new);
+            iterator __pos = _M_get_insert_pos_equal(__k);
+            bool __is_left = (__pos == _M_end() || _M_compare_key(__k, _S_key(__pos)));
+            _rbt_insert(__is_left, __new, __pos._M_node, &_M_data_plus->_M_header);
+            return iterator(__new);
+        }
+
+        __rbt_template_parameters inline typename _rbt_type::iterator
+        _rbt_type::
             insert_equal(value_type const &__val)
         {
             return _M_insert_equal(__val, 0);
         }
 
         __rbt_template_parameters inline pair<
-            typename __rbt_action_scope::iterator, bool>
-        __rbt_action_scope::
+            typename _rbt_type::iterator, bool>
+        _rbt_type::
             insert_unique(value_type const &__itr)
         {
             return _M_insert_unique(__itr, 0);
         }
 
-        __rbt_template_parameters inline typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters inline typename _rbt_type::iterator
+        _rbt_type::
             insert_equal(iterator __itr)
         {
             return _M_insert_equal(__itr, 0);
         }
 
         __rbt_template_parameters inline pair<
-            typename __rbt_action_scope::iterator, bool>
-        __rbt_action_scope::
+            typename _rbt_type::iterator, bool>
+        _rbt_type::
             insert_unique(iterator __itr)
         {
             return _M_insert_unique(__itr, 0);
         }
 
         __rbt_template_parameters template <typename _Itr>
-        void __rbt_action_scope::
+        void _rbt_type::
             assign_equal(_Itr __b, _Itr __e)
         {
             _rbt_recycle_reuse __rcru(*this);
@@ -954,7 +982,7 @@ namespace ustl
 
         __rbt_template_parameters template <typename _Itr>
         void
-        __rbt_action_scope::
+        _rbt_type::
             assign_unique(_Itr __b, _Itr __e)
         {
             _rbt_recycle_reuse __rcru(*this);
@@ -962,8 +990,8 @@ namespace ustl
                 _M_insert_unique(__b++, &__rcru);
         }
 
-        __rbt_template_parameters typename __rbt_action_scope ::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type ::iterator
+        _rbt_type::
             erase(iterator __begin, iterator __end)
         {
             if (begin() == __begin && end() == __end)
@@ -982,8 +1010,8 @@ namespace ustl
         }
 
         /// @return return presurcor of node
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             erase(iterator __itr)
         {
             if (end() == __itr)
@@ -995,7 +1023,7 @@ namespace ustl
         }
 
         __rbt_template_parameters size_t
-        __rbt_action_scope::
+        _rbt_type::
             erase(key_type const &__key)
         {
             size_t __count = count();
@@ -1005,8 +1033,8 @@ namespace ustl
             return __count - count();
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             find(key_type const &__k) const ustl_cpp_noexcept
         {
             iterator __ret = lower_bound(__k);
@@ -1016,15 +1044,15 @@ namespace ustl
             return end();
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type::
             lower_bound(key_type const &__k) const ustl_cpp_noexcept
         {
             return _M_lower_bound(_M_root(), _M_end(), __k);
         }
 
-        __rbt_template_parameters typename __rbt_action_scope::iterator
-        __rbt_action_scope ::
+        __rbt_template_parameters typename _rbt_type::iterator
+        _rbt_type ::
             upper_bound(key_type const &__k) const ustl_cpp_noexcept
         {
             return _M_upper_bound(_M_root(), _M_end(), __k);
@@ -1061,7 +1089,7 @@ namespace ustl
         }
 
         __rbt_template_parameters inline void
-        __rbt_action_scope::
+        _rbt_type::
             swap(rb_tree &__other) ustl_cpp_noexcept
         {
             if (0 == _M_root())
@@ -1076,7 +1104,7 @@ namespace ustl
         }
 
         __rbt_template_parameters inline void
-        __rbt_action_scope::
+        _rbt_type::
             clear()
         {
             _Node_base_ptr __parent;
@@ -1098,45 +1126,165 @@ namespace ustl
         }
 
         __rbt_template_parameters inline size_t
-        __rbt_action_scope::
+        _rbt_type::
             count() const ustl_cpp_noexcept
         {
             return _M_data_plus->_M_header._M_count;
         }
 
         __rbt_template_parameters inline bool
-        __rbt_action_scope::
+        _rbt_type::
             empty() const ustl_cpp_noexcept
         {
             return (0 == _M_data_plus->_M_header._M_count);
         }
 
-        __rbt_template_parameters inline typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters inline typename _rbt_type::iterator
+        _rbt_type::
             begin() ustl_cpp_noexcept
         {
             return iterator(_M_left_most());
         }
 
-        __rbt_template_parameters inline typename __rbt_action_scope::iterator
-        __rbt_action_scope::
+        __rbt_template_parameters inline typename _rbt_type::iterator
+        _rbt_type::
             end() ustl_cpp_noexcept
         {
             return iterator(&_M_data_plus->_M_header);
         }
 
-        __rbt_template_parameters inline typename __rbt_action_scope::const_iterator
-        __rbt_action_scope::
+        __rbt_template_parameters inline typename _rbt_type::const_iterator
+        _rbt_type::
+            begin() const ustl_cpp_noexcept
+        {
+            return const_iterator(_M_left_most());
+        }
+
+        __rbt_template_parameters inline typename _rbt_type::const_iterator
+        _rbt_type::
+            end() const ustl_cpp_noexcept
+        {
+            return const_iterator(&_M_data_plus->_M_header);
+        }
+        __rbt_template_parameters inline typename _rbt_type::const_iterator
+        _rbt_type::
+            cbegin() ustl_cpp_noexcept
+        {
+            return const_iterator(_M_left_most());
+        }
+
+        __rbt_template_parameters inline typename _rbt_type::const_iterator
+        _rbt_type::
+            cend() ustl_cpp_noexcept
+        {
+            return const_iterator(&_M_data_plus->_M_header);
+        }
+
+        __rbt_template_parameters inline typename _rbt_type::const_iterator
+        _rbt_type::
             cbegin() const ustl_cpp_noexcept
         {
             return const_iterator(_M_left_most());
         }
 
-        __rbt_template_parameters inline typename __rbt_action_scope::const_iterator
-        __rbt_action_scope::
+        __rbt_template_parameters inline typename _rbt_type::const_iterator
+        _rbt_type::
             cend() const ustl_cpp_noexcept
         {
             return const_iterator(&_M_data_plus->_M_header);
+        }
+
+        __rbt_template_parameters _rbt_type &
+        _rbt_type::
+        operator=(rb_tree const &__other)
+        {
+            if (&__other != this)
+                assign_equal(__other);
+            return *this;
+        }
+
+        __rbt_template_parameters typename _rbt_type::_Node_ptr
+        _rbt_type::
+            root(rb_tree const &__other) ustl_cpp_noexcept
+        {
+            return static_cast<_Node_ptr>(__other._M_data_plus->_M_header._M_parent);
+        }
+
+        __rbt_template_parameters bool
+        operator==(_rbt_type const &__l,
+                   _rbt_type const &__r)
+        {
+            typedef typename _rbt_type::const_iterator iterator;
+
+            iterator __frist = __l.begin();
+            iterator __last = __l.end();
+            iterator __frist1 = __r.begin();
+            iterator __last1 = __r.end();
+
+            while (__frist1 != __last1 && __frist != __last &&
+                   *__frist1 == *__frist)
+                ++__frist1, ++__frist;
+            return __frist1 == __last1 && __frist == __last;
+
+#ifdef __tree_struct_equal
+            typedef _Rbt_node_base *base_ptr;
+            typedef _Rbtree_Node<_Val> *node_ptr;
+            base_ptr __Lroot = _rbt_type::root(__l);
+            base_ptr __Rroot = _rbt_type::root(__r);
+            bool __is_go_back = false;
+            bool __from_lchild = false;
+
+            while (*static_cast<node_ptr>(__Lroot)->_M_valptr() ==
+                       *static_cast<node_ptr>(__Rroot)->_M_valptr() &&
+                   0 != __Lroot && 0 != __Rroot)
+            {
+                base_ptr __parent = __Lroot->_M_parent;
+                base_ptr __rparent = __Rroot->_M_parent;
+
+                if (__Lroot == __parent->_M_left && __from_lchild)
+                    return true;
+
+                if (__is_go_back)
+                {
+                    if (__from_lchild)
+                    {
+                        __Rroot = __Rroot->_M_right;
+                        __Lroot = __Lroot->_M_right;
+                        __is_go_back = false;
+                    }
+                    else
+                    {
+                        if (__Lroot == __parent->_M_left)
+                            __from_lchild = true;
+                        __Lroot = __parent;
+                        __Rroot = __rparent;
+                    }
+                }
+                else
+                {
+                    if (__Lroot->_M_left)
+                    {
+                        __Lroot = __Lroot->_M_left;
+                        __Rroot = __Rroot->_M_left;
+                    }
+                    else if (__Lroot->_M_right)
+                    {
+                        __Lroot = __Lroot->_M_right;
+                        __Rroot = __Rroot->_M_right;
+                    }
+                    else
+                    {
+                        if (__parent->_M_parent == __Lroot && !__from_lchild)
+                            break;
+                        __from_lchild = (__Lroot == __parent->_M_left ? true : false);
+                        __is_go_back = true;
+                        __Lroot = __parent;
+                        __Rroot = __rparent;
+                    }
+                }
+            }
+            return false;
+#endif
         }
     }
 }

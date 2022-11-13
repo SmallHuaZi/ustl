@@ -45,6 +45,12 @@ namespace ustl
             __a.deallocate(__p, __s);
         }
 
+        static size_t
+        max_size(allocator_type &__a)
+        {
+            return __a.max_size();
+        }
+
         template <typename _Tp>
         struct rebind
         {

@@ -22,10 +22,15 @@ namespace ustl
     public:
         exception() = default;
         exception(exception &&) = default;
-        exception(const exception &) = default;
-        exception(const char *__mes) : _M_message(__mes) {}
+        exception(exception const &) = default;
+        exception(char const *__mes) : _M_message(__mes) {}
         virtual ~exception() = default;
-        virtual const char *message() noexcept __pure_vritual;
+
+        virtual char const *
+        message()
+        {
+            return _M_message ? _M_message : "exception happends";
+        }
     };
 
     class bad_alloc
@@ -33,45 +38,35 @@ namespace ustl
     {
     private:
     public:
-        bad_alloc() = default;
-        bad_alloc(const char *__message)
+        bad_alloc(
+            const char *__message = __default_bad_alloc_message)
             : exception(__message) {}
-
-        virtual const char *
-        message() noexcept
-        {
-            return _M_message ? _M_message : __default_bad_alloc_message;
-        }
     };
 
     class nullptr_assignment
         : public exception
     {
     public:
-        nullptr_assignment() = default;
-        nullptr_assignment(const char *__mes)
+        nullptr_assignment(
+            const char *__mes = __default_nullptr_reference_message)
             : exception(__mes) {}
-
-        virtual const char *
-        message() noexcept
-        {
-            return _M_message ? _M_message : __default_nullptr_reference_message;
-        }
     };
 
     class access_outof_bounds
         : public exception
     {
     public:
-        access_outof_bounds() = default;
-        access_outof_bounds(const char *__mes)
+        access_outof_bounds(
+            const char *__mes = __default_access_outof_bounds_message)
             : exception(__mes) {}
+    };
 
-        virtual const char *
-        message() noexcept
-        {
-            return _M_message ? _M_message : __default_access_outof_bounds_message;
-        }
+    class array_length_exception
+        : public exception
+    {
+        array_length_exception(
+            const char *__mes = __default_array_length_message)
+            : exception(__mes) {}
     };
 }
 #endif

@@ -2,6 +2,7 @@
 #ifndef __vector_h
 #define __vector_h
 
+#include "algorithm.h"
 #include "memory.h"
 
 namespace ustl
@@ -180,6 +181,9 @@ namespace ustl
 
         _vector_const_iterator() = default;
 
+        _vector_const_iterator(_vector_iterator __itr)
+            : _M_data_ptr(__itr._M_data_ptr) {}
+
         _vector_const_iterator(pointer __p)
             : _M_data_ptr(__p) {}
 
@@ -196,6 +200,8 @@ namespace ustl
         typedef _Tp const *const_pointer;
         typedef _Tp const &const_reference;
         typedef diff_t difference_type;
+        typedef size_t size_type;
+
         typedef _Alloc allocator_type;
         typedef _vector_iterator<_Tp> iterator;
         typedef _vector_const_iterator<_Tp> const_iterator;
@@ -216,10 +222,34 @@ namespace ustl
         }
 
         pointer
-        _M_alloc_block(size_t __n)
+        _M_allocate(size_t __n)
         {
             return _Tp_alloc_traits::allocate(_M_get_allocator(), __n);
         }
+
+        void
+        _M_deallocate()
+        {
+            _Tp_alloc_traits::deallocate(_M_get_allocator(),
+                                         _M_data_plus->_M_begin,
+                                         _M_data_plus->_M_end - _M_data_plus->_M_begin);
+        }
+
+        void _M_default_append(size_type); // append element on default state
+
+        void _M_fll_assgin(size_type, value_type const &);
+        void _M_fill_insert(const_iterator, size_type, value_type const &);
+
+        void _M_insert_rval(iterator, value_type const &);                        // insert rvalue
+        template <typename... _Args>                                              //
+        void _M_insert_aux(iterator, _Args &&...);                                // normal insert
+        template <typename _ForwardIterator>                                      //
+        void _M_range_insert(const_iterator, _ForwardIterator, _ForwardIterator); // range [__first, __last) insert
+        template <typename... _Args>                                              //
+        void _M_realloc_insert(const_iterator, _Args &&...);                      // realloc memory and insert
+
+        void _M_erase(iterator);
+        void _M_erase(iterator, iterator);
 
     public:
         vector()
@@ -272,10 +302,11 @@ namespace ustl
 
         const_iterator begin() const ustl_cpp_noexcept;
         const_iterator end() const ustl_cpp_noexcept;
-        const_iterator scbegin() const ustl_cpp_noexcept;
+        const_iterator cbegin() const ustl_cpp_noexcept;
         const_iterator cend() const ustl_cpp_noexcept;
 
         reference operator[](size_t);
+        void operator=(vector const &);
 
     private:
         _vec_impl<_Tp, _Alloc> _M_data_plus;
@@ -369,6 +400,61 @@ namespace ustl
         if (_M_check_overflow(__idx))
             return *(_M_data_plus._M_begin + __idx);
         __throw_index_outof();
+    }
+}
+
+/**
+ * vector interanl member fucntion implement
+ */
+
+namespace ustl
+{
+    template <typename _Tp, typename _Alloc>
+    template <typename... _Args>
+    void
+    vector<_Tp, _Alloc>::
+        _M_insert_aux(iterator __pos,
+                      _Args &&...__val)
+    {
+        iterator __last = end();
+        ++_M_data_plus._M_stroge;
+        ustl::relocate_back(__pos, __last,
+                            _M_data_plus->_M_stroge,
+                            _M_get_allocator());
+        _Tp_alloc_traits::construct(
+            _M_get_allocator(),
+            &*__pos, ustl::forward<_Args &&>(__val)...);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        _M_insert_rval(iterator __pos,
+                       value_type const &__rval)
+    {
+        iterator __last = end();
+        ++_M_data_plus._M_stroge;
+        ustl::relocate_back(__pos, __last,
+                            _M_data_plus->_M_stroge,
+                            _M_get_allocator());
+        _Tp_alloc_traits::construct(
+            _M_get_allocator(),
+            &*__pos, ustl::move(__rval));
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        _M_fill_insert(const_iterator __pos,
+                       size_type __n,
+                       value_type const &__val)
+    {
+        if (_M_data_plus->_M_end - _M_data_plus->_M_stroge >= __n)
+        {
+        }
+        else
+        {
+        }
     }
 }
 

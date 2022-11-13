@@ -38,15 +38,16 @@ namespace ustl
         void
         _M_reset() ustl_cpp_noexcept
         {
-            _M_pre = _M_suc = 0;
+            _M_pre = _M_suc = this;
         }
 
+        /* insert before this */
         void
         _M_hook(_base_ptr const __p) ustl_cpp_noexcept
         {
+            _M_pre->_M_suc = __p;
+            __p->_M_pre = _M_pre;
             _M_pre = __p;
-            _M_suc = __p->_M_suc;
-            __p->_M_suc->_M_pre = this;
             __p->_M_suc = this;
         }
 
@@ -91,6 +92,13 @@ namespace ustl
         _base_ptr _M_suc;
 
 #ifdef __debug_ustl
+
+        _list_node_basic(int __a)
+            : _list_node_basic()
+        {
+            _M_value_field = __a;
+        }
+
         int _M_value_field;
 #endif
     };
@@ -155,7 +163,11 @@ namespace ustl
     struct _list_node
         : _list_node_basic
     {
-        typedef _Tp vlaue_type;
+#ifdef __debug_ustl
+        typedef int value_type;
+#else
+        typedef _Tp value_type;
+#endif
         typedef _Tp *pointer;
         typedef _Tp &reference;
         typedef _list_node_basic base_type;
@@ -187,8 +199,22 @@ namespace ustl
             _M_move(__tmp);
         }
 
+        _list_node()
+            : _list_node_basic() {}
+
 #ifndef __debug_ustl
-        vlaue_type _M_value_field;
+
+        _list_node(value_type const &__v)
+            : _M_value_field(__v), _list_node()
+        {
+        }
+
+        value_type _M_value_field;
+#else
+        _list_node(value_type const &__v)
+            : _list_node(__v)
+        {
+        }
 #endif
     };
 
@@ -337,6 +363,9 @@ namespace ustl
         explicit _list_const_iterator(_base_ptr __p)
             : _M_node(__p) {}
 
+        explicit _list_const_iterator(_list_iterator<_Tp> __itr)
+            : _M_node(__itr._M_node) {}
+
         _base_ptr _M_node;
     };
 
@@ -403,16 +432,20 @@ namespace ustl
         typedef _list_impl<_Tp, _Alloc> impl_type;
 
     private:
-        base_ptr
+        /**
+         * _M_begin and _M_end
+         * header to tail
+         */
+        iterator
         _M_begin() ustl_cpp_noexcept
         {
-            return &_M_data_plus->_M_header;
+            return iterator(&_M_data_plus->_M_header);
         }
 
-        base_ptr
+        iterator
         _M_end() ustl_cpp_noexcept
         {
-            return _M_data_plus->_M_header._M_last();
+            return iterator(_M_data_plus->_M_header._M_last());
         }
 
         _Node_allocator_type &
@@ -426,6 +459,12 @@ namespace ustl
         {
             node_ptr __ret = _NAlloc_traits::
                 allocate(_M_get_node_allocator(), 1);
+#ifdef __debug_ustl
+
+            _NAlloc_traits::construct(_M_get_node_allocator(),
+                                      __ret);
+
+#endif
             return __ret;
         }
         void
@@ -448,11 +487,8 @@ namespace ustl
                     iterator __last) ustl_cpp_noexcept
         {
             size_t __dis = 0;
-            while (__first != __last)
-            {
+            while (__first++ != __last)
                 ++__dis;
-                ++__first;
-            }
             return __dis;
         }
 
@@ -472,12 +508,54 @@ namespace ustl
             _M_data_plus->_M_header._M_count = __n;
         }
 
-        template <typename... _Args>
-        iterator
-        _M_insert(base_ptr, _Args &&...);
+        void
+        _M_default_append(size_t __n)
+        {
+            size_t __i = 0;
+            while (__i++ < __n)
+                emplace_back();
+        }
 
         void
-            _M_erase(base_ptr);
+        _M_fill(size_t __n, value_type const &__val)
+        {
+            for (; __n != 0; --__n)
+                push_back(__val);
+        }
+
+        template <typename _Itr>
+        void
+        _M_fill(_Itr __first, _Itr __last)
+        {
+            for (; __first != __last; ++__first)
+                emplace_back(*__first);
+        }
+
+        template <typename _Itr>
+        void _M_fill_assign(iterator __pos,
+                            _Itr __first, _Itr __last)
+        {
+            iterator __first2 = __pos;
+            iterator __last2 = end();
+            while (__first != __last && __first2 != __last2)
+            {
+                *__first2 = *__first;
+                ++__first, ++__first2;
+            }
+            if (__first2 != __last2)
+                erase(__first2, __last2);
+            if (__first != __last)
+                _M_fill(__first, __last);
+        }
+
+        template <typename... _Args>
+        iterator _M_insert(iterator, _Args &&...);
+
+        template <typename... _Args>
+        size_t _M_insert(iterator, size_t, _Args &&...);
+
+        void _M_erase(iterator);
+        void _M_erase(iterator, iterator);
 
     public:
         inline size_t insert(iterator, iterator, iterator);
@@ -525,7 +603,7 @@ namespace ustl
         template <typename _CompPredicate>
         void merge(list &, _CompPredicate);
 
-        void splice(iterator, list &, iterator __first);
+        void splice(iterator, list &, iterator);
         void splice(iterator, list &, iterator, iterator);
 
         void sort();
@@ -535,23 +613,29 @@ namespace ustl
         void swap(list &__l);
         void swap(list &&__l);
 
+        void reverse() ustl_cpp_noexcept;
+
+        void resize(size_t);
+        void resize(size_t, value_type const &);
+
         void clear();
 
         inline iterator begin() ustl_cpp_noexcept;
-
         inline iterator end() ustl_cpp_noexcept;
+        inline const_iterator begin() const ustl_cpp_noexcept;
+        inline const_iterator end() const ustl_cpp_noexcept;
 
+        inline const_iterator cbegin() ustl_cpp_noexcept;
+        inline const_iterator cend() ustl_cpp_noexcept;
         inline const_iterator cbegin() const ustl_cpp_noexcept;
-
         inline const_iterator cend() const ustl_cpp_noexcept;
 
         inline size_t size() const ustl_cpp_noexcept;
 
         inline bool empty() const ustl_cpp_noexcept;
 
-        void operator=(list const &);
-        friend bool operator==(list const &, list const &);
-        friend bool operator!=(list const &, list const &);
+        list &operator=(list const &);
+        list &operator=(list &&);
 
     public:
         template <typename _Alloc_Impl = ustl::allocator<impl_type>>
@@ -568,6 +652,26 @@ namespace ustl
             __alloc.construct(_M_data_plus);
         }
 
+        list(list const &__other)
+        {
+            if (&__other != this)
+                assign(__other.begin(), __other.end());
+        }
+
+        list(list &&__other)
+        {
+            if (&__other == this)
+                return;
+            clear();
+            swap(__other);
+        }
+
+        template <typename _InputItr>
+        list(_InputItr __first, _InputItr __last)
+        {
+            _M_fill(__first, __last);
+        }
+
         ~list() ustl_cpp_noexcept
         {
             clear();
@@ -581,22 +685,49 @@ namespace ustl
     template <typename... _Args>
     typename list<_Tp, _Alloc>::iterator
     list<_Tp, _Alloc>::
-        _M_insert(base_ptr __pos,
+        _M_insert(iterator __pos,
                   _Args &&...__a)
     {
         base_ptr __new = _M_create_node(forward<_Args &&>(__a)...);
-        __new->_M_hook(__pos);
+        __pos._M_node->_M_hook(__new);
         _M_data_plus->_M_header._M_inc_size(1);
         return iterator(__new);
     }
 
     template <typename _Tp, typename _Alloc>
-    void list<_Tp, _Alloc>::
-        _M_erase(base_ptr __pos)
+    template <typename... _Args>
+    size_t
+    list<_Tp, _Alloc>::
+        _M_insert(iterator __pos,
+                  size_t __n,
+                  _Args &&...__a)
     {
-        __pos->_M_unhook();
+        if (0 == __n)
+            return 0;
+        while (__n--)
+            _M_insert(__pos, forward<_Args &&>(__a)...);
+        _M_data_plus->_M_header._M_inc_size(__n);
+        return __n;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    list<_Tp, _Alloc>::
+        _M_erase(iterator __pos)
+    {
+        __pos._M_node->_M_unhook();
         _M_data_plus->_M_header._M_dec_size(1);
-        _M_put_node(__pos);
+        _M_put_node(__pos._M_node);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    list<_Tp, _Alloc>::
+        _M_erase(iterator __first,
+                 iterator __last)
+    {
+        for (; __first != __last; ++__first)
+            _M_erase(__first);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -605,7 +736,7 @@ namespace ustl
         insert(const_iterator __itr,
                value_type const &__val)
     {
-        return _M_insert(__itr._M_node, forward(__val));
+        return _M_insert(__itr, forward(__val));
     }
 
     template <typename _Tp, typename _Alloc>
@@ -617,7 +748,7 @@ namespace ustl
     {
         iterator __ret = end();
         while (__count--)
-            __ret = _M_insert(__itr._M_node, __val);
+            __ret = _M_insert(__itr, __val);
         return __ret;
     }
 
@@ -638,7 +769,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         push_back(value_type const &__val)
     {
-        _M_insert(_M_end(), forward(__val));
+        _M_insert(end(), forward(__val));
     }
 
     template <typename _Tp, typename _Alloc>
@@ -646,7 +777,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         push_back(iterator __itr)
     {
-        _M_insert(_M_end(), static_cast<node_ptr>(__itr._M_node)->_M_value());
+        _M_insert(end(), *__itr);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -654,7 +785,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         push_front(value_type const &__val)
     {
-        _M_insert(_M_begin(), forward(__val));
+        _M_insert(begin(), __val);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -662,7 +793,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         push_front(iterator __itr)
     {
-        _M_insert(_M_begin(), static_cast<node_ptr>(__itr._M_node)->_M_value());
+        _M_insert(begin(), *__itr);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -672,7 +803,7 @@ namespace ustl
         emplace(const_iterator __pos,
                 _Args &&...__args)
     {
-        return *_M_insert(__pos._M_node, forward<_Args>(__args)...);
+        return *_M_insert(__pos, forward<_Args>(__args)...);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -681,7 +812,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         emplace_front(_Args &&...__args)
     {
-        return *_M_insert(_M_begin(), forward<_Args>(__args)...);
+        return *_M_insert(begin(), forward<_Args>(__args)...);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -690,7 +821,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         emplace_back(_Args &&...__args)
     {
-        return *_M_insert(_M_end(), forward<_Args>(__args)...);
+        return *_M_insert(end(), forward<_Args>(__args)...);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -699,17 +830,17 @@ namespace ustl
     list<_Tp, _Alloc>::
         assign(_Itr __first, _Itr __last)
     {
-        iterator __first2 = begin();
-        iterator __last2 = end();
-        while (__first != __last && __first2 != __last2)
-        {
-            *__first2 = *__first;
-            ++__first, ++__first2;
-        }
-        if (__first2 != __last2)
-            erase(__first2, __last2);
-        while (__first != __last)
-            push_back(__first++);
+        _M_fill_assign(begin(), __first, __last);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _Itr>
+    void
+    list<_Tp, _Alloc>::
+        assign(iterator __pos,
+               _Itr __first, _Itr __last)
+    {
+        _M_fill_assign(__pos, __first, __last);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -717,7 +848,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         pop_front()
     {
-        _M_erase(_M_begin());
+        _M_erase(begin());
     }
 
     template <typename _Tp, typename _Alloc>
@@ -741,7 +872,7 @@ namespace ustl
             __tmp = __begin;
             ++__begin;
             if (*__tmp == __val)
-                _M_erase(__tmp._M_node);
+                _M_erase(__tmp);
         }
         return size();
     }
@@ -761,7 +892,7 @@ namespace ustl
             __tmp = __begin;
             ++__begin;
             if (__pred(*__tmp))
-                _M_erase(__tmp._M_node);
+                _M_erase(__tmp);
         }
         return __oldsize - size();
     }
@@ -771,7 +902,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         erase(iterator __pos)
     {
-        _M_erase(__pos._M_node);
+        _M_erase(__pos);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -780,8 +911,7 @@ namespace ustl
         erase(iterator __first, iterator __last)
     {
         size_t __dis = _M_distance(__first, __last);
-        while (__first != __last)
-            _M_erase((__first++)._M_node);
+        _M_erase(__first, __last);
         return __dis;
     }
     /**
@@ -797,7 +927,7 @@ namespace ustl
         while (++__next != __end)
         {
             if (*__begin == *__next)
-                _M_erase(__next._M_node);
+                _M_erase(__next);
             else
                 __begin = __next;
             __next = __begin;
@@ -815,7 +945,7 @@ namespace ustl
         while (++__next != __end)
         {
             if (__pred(*__begin, *__next))
-                _M_erase(__next._M_node);
+                _M_erase(__next);
             else
                 __begin = __next;
             __next = __begin;
@@ -916,10 +1046,8 @@ namespace ustl
     template <typename _Tp, typename _Alloc>
     void
     list<_Tp, _Alloc>::
-        splice(iterator __pos,
-               list &__l,
-               iterator __first,
-               iterator __last)
+        splice(iterator __pos, list &__l,
+               iterator __first, iterator __last)
     {
         if (this == &__l)
             return;
@@ -993,9 +1121,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         swap(list &__l)
     {
-        impl_type *__tmp = _M_data_plus;
-        _M_data_plus = __l._M_data_plus;
-        __l._M_data_plus = __tmp;
+        _M_data_plus->_M_swap(__l._M_data_plus);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -1003,9 +1129,44 @@ namespace ustl
     list<_Tp, _Alloc>::
         swap(list &&__l)
     {
-        impl_type *__tmp = _M_data_plus;
-        _M_data_plus = __l._M_data_plus;
-        __l._M_data_plus = __tmp;
+        _M_data_plus->_M_swap(__l._M_data_plus);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    list<_Tp, _Alloc>::
+        resize(size_t __s)
+    {
+        if (__s > size())
+            _M_default_append(__s - size());
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    list<_Tp, _Alloc>::
+        resize(size_t __s, value_type const &__def_val)
+    {
+        if (__s > size())
+            _M_fill(__s - size(), __def_val);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    list<_Tp, _Alloc>::
+        reverse() ustl_cpp_noexcept
+    {
+        if (size() <= 1)
+            return;
+        iterator __first = begin();
+        iterator __last = end();
+        --__last;
+        while (__first != __last)
+        {
+            iterator __tmp = __last;
+            --__last;
+            __tmp._M_node->_M_unhook();
+            __first._M_node->_M_hook(__tmp._M_node);
+        }
     }
 
     template <typename _Tp, typename _Alloc>
@@ -1019,7 +1180,7 @@ namespace ustl
         while (__first != __last)
         {
             __tmp = __first++;
-            _M_erase(__tmp._M_node);
+            _M_erase(__tmp);
         }
         _M_data_plus->_M_reset();
     }
@@ -1029,7 +1190,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         begin() ustl_cpp_noexcept
     {
-        return iterator(_M_begin()->_M_suc);
+        return iterator(_M_data_plus->_M_header._M_first());
     }
 
     template <typename _Tp, typename _Alloc>
@@ -1037,7 +1198,55 @@ namespace ustl
     list<_Tp, _Alloc>::
         end() ustl_cpp_noexcept
     {
-        return iterator(_M_begin());
+        return iterator(&_M_data_plus->_M_header);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename list<_Tp, _Alloc>::const_iterator
+    list<_Tp, _Alloc>::
+        begin() const ustl_cpp_noexcept
+    {
+        return const_iterator(_M_data_plus->_M_header._M_first());
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename list<_Tp, _Alloc>::const_iterator
+    list<_Tp, _Alloc>::
+        end() const ustl_cpp_noexcept
+    {
+        return const_iterator(&_M_data_plus->_M_header);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename list<_Tp, _Alloc>::const_iterator
+    list<_Tp, _Alloc>::
+        cbegin() ustl_cpp_noexcept
+    {
+        return const_iterator(begin());
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename list<_Tp, _Alloc>::const_iterator
+    list<_Tp, _Alloc>::
+        cend() ustl_cpp_noexcept
+    {
+        return const_iterator(end());
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename list<_Tp, _Alloc>::const_iterator
+    list<_Tp, _Alloc>::
+        cbegin() const ustl_cpp_noexcept
+    {
+        return const_iterator(begin());
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename list<_Tp, _Alloc>::const_iterator
+    list<_Tp, _Alloc>::
+        cend() const ustl_cpp_noexcept
+    {
+        return const_iterator(end());
     }
 
     template <typename _Tp, typename _Alloc>
@@ -1045,7 +1254,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         front() ustl_cpp_noexcept
     {
-        return *(static_cast<node_ptr>(begin()._M_node)->_M_valptr());
+        return *begin();
     }
 
     template <typename _Tp, typename _Alloc>
@@ -1053,7 +1262,7 @@ namespace ustl
     list<_Tp, _Alloc>::
         back() ustl_cpp_noexcept
     {
-        return *(static_cast<node_ptr>(_M_end())->_M_valptr());
+        return *iterator(_M_data_plus->_M_header._M_last());
     }
 
     template <typename _Tp, typename _Alloc>
@@ -1069,6 +1278,54 @@ namespace ustl
         empty() const ustl_cpp_noexcept
     {
         return (0 == size());
+    }
+
+    template <typename _Tp, typename _Alloc>
+    list<_Tp, _Alloc> &
+    list<_Tp, _Alloc>::
+    operator=(list &&__other)
+    {
+        if (&__other != this)
+        {
+            clear();
+            swap(__other);
+        }
+        return *this;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    list<_Tp, _Alloc> &
+    list<_Tp, _Alloc>::
+    operator=(list const &__other)
+    {
+        if (&__other != this)
+            _M_fill_assign(begin(), __other.begin(), __other.end());
+        return *this;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    inline bool
+    operator==(list<_Tp, _Alloc> const &__l,
+               list<_Tp, _Alloc> const &__r)
+    {
+        typedef typename list<_Tp, _Alloc>::const_iterator iterator;
+        iterator __first = __l.begin();
+        iterator __last = __l.end();
+        iterator __first1 = __l.begin();
+        iterator __last1 = __l.end();
+        while (__first1 != __last1 && __first != __last &&
+               *__first1 == *__first)
+            ++__first1, ++__first;
+
+        return __first1 == __last1 && __first == __last;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    inline bool
+    operator!=(list<_Tp, _Alloc> const &__l,
+               list<_Tp, _Alloc> const &__r)
+    {
+        return !(__l == __r);
     }
 }
 

@@ -26,10 +26,10 @@ namespace ustl
      */
 
     constexpr size_t
-    align_extend(size_t __s, size_t __a);
+    align_extend(size_t __s, size_t __a) ustl_cpp_noexcept;
 
     constexpr size_t
-    align_compress(size_t __s, size_t __a);
+    align_compress(size_t __s, size_t __a) ustl_cpp_noexcept;
 
     class allocator_basic
     {
@@ -194,7 +194,7 @@ namespace ustl
     public:
         pointer allocate(size_t);
 
-        void deallocate(void_ptr, size_t);
+        void deallocate(void_ptr, size_t) ustl_cpp_noexcept;
 
         template <typename _OTp>
         struct rebind
@@ -256,7 +256,8 @@ namespace ustl
     }
 
     template <typename _Tp>
-    void allocator<_Tp>::deallocate(void_ptr __p, size_t __n)
+    void
+    allocator<_Tp>::deallocate(void_ptr __p, size_t __n) ustl_cpp_noexcept
     {
         const size_t __recycle_size = __n * sizeof(_Tp);
         if (__p && __n)
@@ -276,13 +277,13 @@ namespace ustl
     }
 
     constexpr inline size_t
-    align_extend(size_t __s, size_t __a)
+    align_extend(size_t __s, size_t __a) ustl_cpp_noexcept
     {
         return (__s + --__a) & ~(__a);
     }
 
     constexpr inline size_t
-    align_compress(size_t __s, size_t __a)
+    align_compress(size_t __s, size_t __a) ustl_cpp_noexcept
     {
         return __s & ~(--__a);
     }
