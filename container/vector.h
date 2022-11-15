@@ -4,6 +4,7 @@
 
 #include "algorithm.h"
 #include "memory.h"
+#include "macroexcep.h"
 
 namespace ustl
 {
@@ -17,7 +18,7 @@ namespace ustl
         size_t
         _M_element_count()
         {
-            return _M_stroge - _M_begin;
+            return _M_storage - _M_begin;
         }
 
         void
@@ -25,7 +26,16 @@ namespace ustl
         {
             _M_begin = __other._M_begin;
             _M_end = __other._M_end;
-            _M_stroge = __other._M_stroge;
+            _M_storage = __other._M_stroge;
+        }
+
+        void
+        _M_move_data(_vec_impl &&__other)
+        {
+            _M_copy_data(__other);
+            __other._M_begin = 0;
+            __other._M_storage = 0;
+            __other._M_end = 0;
         }
 
         void
@@ -43,14 +53,17 @@ namespace ustl
         {
             _M_begin = __begin;
             _M_end = __begin + __capacity;
-            _M_stroge = __begin + __size;
+            _M_storage = __begin + __size;
         }
 
-        _vec_impl() = default;
+        _vec_impl()
+            : _M_begin(0),
+              _M_end(0),
+              _M_storage(0) {}
 
         pointer _M_begin;
+        pointer _M_storage;
         pointer _M_end;
-        pointer _M_stroge;
     };
 
     template <typename _Tp>
@@ -58,7 +71,9 @@ namespace ustl
     {
         typedef _Tp *pointer;
         typedef _Tp &reference;
+        typedef ustl::diff_t difference_type;
         typedef _vector_iterator _Self;
+        typedef _random_itertor itr_tag;
 
         pointer
         operator->()
@@ -125,7 +140,9 @@ namespace ustl
     {
         typedef _Tp const *pointer;
         typedef _Tp const &reference;
+        typedef ustl::diff_t difference_type;
         typedef _vector_const_iterator _Self;
+        typedef _random_itertor itr_tag;
 
         pointer
         operator->()
@@ -181,7 +198,7 @@ namespace ustl
 
         _vector_const_iterator() = default;
 
-        _vector_const_iterator(_vector_iterator __itr)
+        _vector_const_iterator(_vector_iterator<_Tp> __itr)
             : _M_data_ptr(__itr._M_data_ptr) {}
 
         _vector_const_iterator(pointer __p)
@@ -203,8 +220,8 @@ namespace ustl
         typedef size_t size_type;
 
         typedef _Alloc allocator_type;
-        typedef _vector_iterator<_Tp> iterator;
-        typedef _vector_const_iterator<_Tp> const_iterator;
+        typedef normal_iterator<_vector_iterator<_Tp>> iterator;
+        typedef normal_iterator<_vector_const_iterator<_Tp>> const_iterator;
 
         typedef allocate_traits<_Alloc> _Tp_alloc_traits;
 
@@ -213,6 +230,14 @@ namespace ustl
         _M_check_overflow(size_t __idx)
         {
             return __idx < size();
+        }
+        size_type
+        _M_check_length(size_type __n)
+        {
+            if (_M_max_size() - size() < __n)
+                __throw_array_length();
+            size_type __new_len = size() + (size() > __n ? size() : __n);
+            return __new_len < _M_max_size() ? __new_len : _M_max_size();
         }
 
         allocator_type &
@@ -228,39 +253,44 @@ namespace ustl
         }
 
         void
-        _M_deallocate()
+        _M_deallocate(pointer __ptr, size_type __len)
         {
             _Tp_alloc_traits::deallocate(_M_get_allocator(),
-                                         _M_data_plus->_M_begin,
-                                         _M_data_plus->_M_end - _M_data_plus->_M_begin);
+                                         __ptr, __len);
+        }
+
+        size_type
+        _M_max_size()
+        {
+            _Tp_alloc_traits::max_size(_M_get_allocator());
         }
 
         void _M_default_append(size_type); // append element on default state
-
         void _M_fll_assgin(size_type, value_type const &);
-        void _M_fill_insert(const_iterator, size_type, value_type const &);
+        void _M_fill_insert(iterator, size_type, value_type const &);
 
-        void _M_insert_rval(iterator, value_type const &);                        // insert rvalue
+        void _M_insert_rval(iterator, value_type &&);                             // insert rvalue
+        template <typename _Args>                                                 //
+        void _M_insert_aux(iterator, _Args &&);                                   // normal insert
         template <typename... _Args>                                              //
-        void _M_insert_aux(iterator, _Args &&...);                                // normal insert
+        void _M_emplace_aux(const_iterator, _Args &&...);                         //
         template <typename _ForwardIterator>                                      //
         void _M_range_insert(const_iterator, _ForwardIterator, _ForwardIterator); // range [__first, __last) insert
         template <typename... _Args>                                              //
         void _M_realloc_insert(const_iterator, _Args &&...);                      // realloc memory and insert
 
-        void _M_erase(iterator);
-        void _M_erase(iterator, iterator);
+        iterator _M_erase(iterator);
+        size_type _M_erase(iterator, iterator);
 
     public:
-        vector()
-        {
-            _M_data_plus._M_amend(_M_alloc_block(1), 0, 1);
-        }
+        vector() = default;
 
     public:
         template <typename... _Args>
-        iterator insert(iterator, _Args &&...);
-        iterator insert(iterator, value_type const &);
+        iterator insert(const_iterator, _Args &&...);
+        template <typename _ForwardIterator>
+        iterator insert(const_iterator, _ForwardIterator, _ForwardIterator);
+        iterator insert(const_iterator, value_type const &);
 
         void push_back(value_type const &);
         void push_front(value_type const &);
@@ -268,23 +298,32 @@ namespace ustl
         void push_front(iterator);
 
         template <typename... _Args>
-        void emplace(_Args &&...);
+        void emplace(const_iterator, _Args &&...);
         template <typename... _Args>
         void emplace_back(_Args &&...);
         template <typename... _Args>
         void emplace_front(_Args &&...);
 
         iterator erase(iterator);
-        iterator erase(value_type const &);
+        size_type erase(value_type const &);
+        size_type erase(iterator, iterator);
 
-        void remove(iterator);
         template <typename _Predicate>
-        void remove_if(_Predicate);
+        size_type remove_if(_Predicate);
 
         template <typename _Itr>
         void assign(_Itr, _Itr);
 
+        void swap(vector &);
+        void swap(vector &&);
+
         void clear();
+
+        void resize(size_type);
+        void resize(size_type, value_type const &);
+        void reserve(size_type);
+
+        void reverse();
 
         bool empty() ustl_cpp_noexcept;
         bool empty() const ustl_cpp_noexcept;
@@ -306,18 +345,200 @@ namespace ustl
         const_iterator cend() const ustl_cpp_noexcept;
 
         reference operator[](size_t);
-        void operator=(vector const &);
+        vector &operator=(vector const &);
 
     private:
         _vec_impl<_Tp, _Alloc> _M_data_plus;
     };
 
     template <typename _Tp, typename _Alloc>
+    typename vector<_Tp, _Alloc>::iterator
+    vector<_Tp, _Alloc>::
+        insert(const_iterator __pos, value_type const &__val)
+    {
+        iterator __p = begin() + ustl::distance(cbegin(), __pos);
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            if (cend() == __pos)
+                ustl::constructor(_M_data_plus._M_storage++, 1,
+                                  __val);
+            else
+                _M_insert_aux(__p, __val);
+        else
+            _M_realloc_insert(__p, __val);
+        return __p;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename... _Args>
+    typename vector<_Tp, _Alloc>::iterator
+    vector<_Tp, _Alloc>::
+        insert(const_iterator __pos, _Args &&...__a)
+    {
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            if (cend() == __pos)
+                ustl::constructor(_M_data_plus._M_storage++, 1,
+                                  ustl::forward<_Args &&>(__a)...);
+            else
+                _M_emplace_aux(__pos, ustl::forward<_Args &&>(__a)...);
+        else
+            _M_realloc_insert(__pos, ustl::forward<_Args &&>(__a)...);
+        return begin() + ustl::distance(cbegin(), __pos);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _ForwardIterator>
+    typename vector<_Tp, _Alloc>::iterator
+    vector<_Tp, _Alloc>::
+        insert(const_iterator __pos, _ForwardIterator __first,
+               _ForwardIterator __last)
+    {
+        _M_range_insert(__pos, __first, __last);
+        return begin() + ustl::distance(cbegin(), __pos);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        push_back(value_type const &__val)
+    {
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            ustl::constructor(_M_data_plus._M_storage++, 1, __val);
+        else
+            _M_realloc_insert(cend(), __val);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        push_front(value_type const &__val)
+    {
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            _M_insert_aux(begin(), __val);
+        else
+            _M_realloc_insert(cbegin(), __val);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        push_back(iterator __itr)
+    {
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            ustl::constructor(_M_data_plus._M_storage++, 1, ustl::move(*__itr));
+        else
+            _M_realloc_insert(end(), ustl::move(*__itr));
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        push_front(iterator __itr)
+    {
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            _M_insert_aux(begin(), ustl::move(*__itr));
+        else
+            _M_realloc_insert(begin(), ustl::move(*__itr));
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename... _Args>
+    void
+    vector<_Tp, _Alloc>::
+        emplace(const_iterator __pos, _Args &&...__a)
+    {
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            if (cend() == __pos)
+                ustl::constructor(_M_data_plus._M_storage++, 1,
+                                  ustl::forward<_Args &&>(__a)...);
+            else
+                _M_emplace_aux(__pos, ustl::forward<_Args &&>(__a)...);
+        else
+            _M_realloc_insert(__pos, ustl::forward<_Args &&>(__a)...);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename... _Args>
+    void
+    vector<_Tp, _Alloc>::
+        emplace_back(_Args &&...__a)
+    {
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            ustl::constructor(_M_data_plus._M_storage++, 1,
+                              ustl::forward<_Args &&>(__a)...);
+        else
+            _M_realloc_insert(cend(), ustl::forward<_Args &&>(__a)...);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename... _Args>
+    void
+    vector<_Tp, _Alloc>::
+        emplace_front(_Args &&...__a)
+    {
+        if (_M_data_plus._M_end != _M_data_plus._M_storage)
+            _M_emplace_aux(cbegin(), ustl::forward<_Args &&>(__a)...);
+        else
+            _M_realloc_insert(cbegin(), ustl::forward<_Args &&>(__a)...);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto
+    vector<_Tp, _Alloc>::
+        erase(iterator __pos) -> iterator
+    {
+        _M_erase(__pos);
+        return __pos;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    size_t
+    vector<_Tp, _Alloc>::
+        erase(value_type const &__val)
+    {
+        size_type __old_size = size();
+        iterator __first = begin();
+        while (__first != end())
+        {
+            if (__val == *__first)
+                _M_erase(__first);
+            else
+                ++__first;
+        }
+        return __old_size - size();
+    }
+
+    template <typename _Tp, typename _Alloc>
+    size_t
+    vector<_Tp, _Alloc>::
+        erase(iterator __first, iterator __last)
+    {
+        return _M_erase(__first, __last);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _CompPredicate>
+    size_t
+    vector<_Tp, _Alloc>::
+        remove_if(_CompPredicate __cmp)
+    {
+        size_type __old_size = size();
+        iterator __first = begin();
+        while (__first != end())
+        {
+            if (__cmp(*__first))
+                _M_erase(__first);
+            else
+                ++__first;
+        }
+        return __old_size - size();
+    }
+
+    template <typename _Tp, typename _Alloc>
     bool
     vector<_Tp, _Alloc>::
         empty() ustl_cpp_noexcept
     {
-        return _M_data_plus._M_begin == _M_data_plus._M_stroge;
+        return _M_data_plus._M_begin == _M_data_plus._M_storage;
     }
 
     template <typename _Tp, typename _Alloc>
@@ -325,7 +546,7 @@ namespace ustl
     vector<_Tp, _Alloc>::
         empty() const ustl_cpp_noexcept
     {
-        return _M_data_plus._M_begin == _M_data_plus._M_stroge;
+        return _M_data_plus._M_begin == _M_data_plus._M_storage;
     }
 
     template <typename _Tp, typename _Alloc>
@@ -361,6 +582,112 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        swap(vector &__other)
+    {
+        _M_data_plus._M_swap(__other._M_data_plus);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        swap(vector &&__other)
+    {
+        _M_data_plus._M_move_data(ustl::move(__other));
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        clear()
+    {
+        pointer __tmp = _M_data_plus._M_begin;
+        /**
+         *  the object`s destructor must be invoked,
+         *otherwise, a memory leak may occur
+         */
+        ustl::destructor(__tmp, _M_data_plus._M_storage - __tmp);
+        _M_deallocate(_M_data_plus._M_begin,
+                      _M_data_plus._M_end - _M_data_plus._M_begin);
+        _M_data_plus._M_amend(0, 0, 0);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _Itr>
+    void
+    vector<_Tp, _Alloc>::
+        assign(_Itr __first, _Itr __last)
+    {
+        size_type __distance = ustl::distance(__first, __last);
+        if (_M_data_plus._M_end - _M_data_plus._M_begin > __distance)
+        {
+            ustl::copy_forward(__first, __last, _M_data_plus._M_begin);
+            _M_data_plus._M_storage = _M_data_plus._M_begin + __distance;
+        }
+        else
+        {
+            size_type __len = _M_check_length(__distance);
+            pointer __new_begin = _M_allocate(__len);
+            pointer __new_storage = __new_begin;
+            __ustl_try
+            {
+                ustl::copy_forward(__first, __last, __new_begin);
+            }
+            __ustl_catch_all
+            {
+                ustl::destructor(__new_begin, __distance);
+                _M_deallocate(__new_begin, __len);
+                __ustl_throw_again;
+            }
+            _M_data_plus._M_amend(__new_begin, __distance, __len);
+        }
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        resize(size_type __n)
+    {
+        if (__n > size())
+            _M_default_append(__n - size());
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        resize(size_type __n, value_type const &__val)
+    {
+        if (__n > size())
+            _M_fill_insert(end(), __n, __val);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        reserve(size_type __n)
+    {
+        if (__n > capacity())
+        {
+            pointer __new_begin = _M_allocate(__n);
+            __ustl_try
+            {
+                ustl::relocate_forward(_M_data_plus._M_begin,
+                                       _M_data_plus._M_storage,
+                                       __new_begin,
+                                       _M_get_allocator());
+            }
+            __ustl_catch_all
+            {
+                ustl::destructor(__new_begin, size());
+                _M_deallocate(__new_begin, __n);
+                __ustl_throw_again;
+            }
+            _M_data_plus._M_amend(__new_begin, size(), __n);
+        }
+    }
+
+    template <typename _Tp, typename _Alloc>
     typename vector<_Tp, _Alloc>::iterator
     vector<_Tp, _Alloc>::
         begin() ustl_cpp_noexcept
@@ -381,7 +708,7 @@ namespace ustl
     vector<_Tp, _Alloc>::
         end() ustl_cpp_noexcept
     {
-        return iterator(_M_data_plus._M_end);
+        return iterator(_M_data_plus._M_storage);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -389,7 +716,39 @@ namespace ustl
     vector<_Tp, _Alloc>::
         end() const ustl_cpp_noexcept
     {
-        return const_iterator(_M_data_plus._M_end);
+        return const_iterator(_M_data_plus._M_storage);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename vector<_Tp, _Alloc>::const_iterator
+    vector<_Tp, _Alloc>::
+        cbegin() ustl_cpp_noexcept
+    {
+        return const_iterator(_M_data_plus._M_begin);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename vector<_Tp, _Alloc>::const_iterator
+    vector<_Tp, _Alloc>::
+        cbegin() const ustl_cpp_noexcept
+    {
+        return const_iterator(_M_data_plus._M_begin);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename vector<_Tp, _Alloc>::const_iterator
+    vector<_Tp, _Alloc>::
+        cend() ustl_cpp_noexcept
+    {
+        return const_iterator(_M_data_plus._M_storage);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename vector<_Tp, _Alloc>::const_iterator
+    vector<_Tp, _Alloc>::
+        cend() const ustl_cpp_noexcept
+    {
+        return const_iterator(_M_data_plus._M_storage);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -399,7 +758,16 @@ namespace ustl
     {
         if (_M_check_overflow(__idx))
             return *(_M_data_plus._M_begin + __idx);
-        __throw_index_outof();
+        __throw_index_outof("vector.operator[]: index out of the overlaps");
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto
+    vector<_Tp, _Alloc>::
+    operator=(vector const &__other) -> vector &
+    {
+        assign(__other.begin(), __other.end());
+        return *this;
     }
 }
 
@@ -410,52 +778,284 @@ namespace ustl
 namespace ustl
 {
     template <typename _Tp, typename _Alloc>
-    template <typename... _Args>
+    template <typename _Arg>
     void
     vector<_Tp, _Alloc>::
         _M_insert_aux(iterator __pos,
-                      _Args &&...__val)
+                      _Arg &&__val)
     {
         iterator __last = end();
-        ++_M_data_plus._M_stroge;
+        ++_M_data_plus._M_storage;
         ustl::relocate_back(__pos, __last,
-                            _M_data_plus->_M_stroge,
+                            _M_data_plus._M_storage,
                             _M_get_allocator());
-        _Tp_alloc_traits::construct(
-            _M_get_allocator(),
-            &*__pos, ustl::forward<_Args &&>(__val)...);
+        *__pos = ustl::forward<_Arg &&>(__val);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename... _Args>
+    void
+    vector<_Tp, _Alloc>::
+        _M_emplace_aux(const_iterator __pos,
+                       _Args &&...__val)
+    {
+        iterator __last = end();
+        ++_M_data_plus._M_storage;
+        iterator __ist_pos = begin() + ustl::distance(cbegin(), __pos);
+        ustl::relocate_back(__ist_pos, __last,
+                            _M_data_plus._M_storage,
+                            _M_get_allocator());
+
+        ustl::constructor(&*__ist_pos, 1, ustl::forward<_Args &&>(__val)...);
     }
 
     template <typename _Tp, typename _Alloc>
     void
     vector<_Tp, _Alloc>::
         _M_insert_rval(iterator __pos,
-                       value_type const &__rval)
+                       value_type &&__rval)
     {
         iterator __last = end();
-        ++_M_data_plus._M_stroge;
+        ++_M_data_plus._M_storage;
         ustl::relocate_back(__pos, __last,
-                            _M_data_plus->_M_stroge,
+                            _M_data_plus._M_storage,
                             _M_get_allocator());
-        _Tp_alloc_traits::construct(
-            _M_get_allocator(),
-            &*__pos, ustl::move(__rval));
+        ustl::constructor(&*__pos, 1, ustl::move(__rval));
     }
 
     template <typename _Tp, typename _Alloc>
     void
     vector<_Tp, _Alloc>::
-        _M_fill_insert(const_iterator __pos,
+        _M_fill_insert(iterator __pos,
                        size_type __n,
                        value_type const &__val)
     {
-        if (_M_data_plus->_M_end - _M_data_plus->_M_stroge >= __n)
+        pointer __pos_ptr = &*__pos;
+
+        if (_M_data_plus._M_end - _M_data_plus._M_storage >= __n)
         {
+            ustl::copy_back(__pos_ptr,
+                            _M_data_plus._M_storage,
+                            _M_data_plus._M_storage + __n);
+            ustl::fill(__pos_ptr, __pos_ptr + __n, __val);
         }
         else
         {
+            size_type __old_size = size();
+            size_type __len = _M_check_length(__n);
+            pointer __new_begin = _M_allocate(__len);
+            pointer __new_storage = __new_begin;
+            difference_type __distance = ustl::distance(begin(), __pos);
+            __ustl_try
+            {
+                /**
+                 * catch constructor exception
+                 */
+                ustl::copy_back(begin(), __pos, __new_storage);
+                ustl::fill(__new_storage + __distance,
+                           __new_storage + __distance + __n, __val);
+                ustl::copy_back(__pos, end(), __new_storage + __distance + __n);
+            }
+            __ustl_catch_all
+            {
+                ustl::destructor(__new_begin, __new_storage - __new_begin);
+                _M_deallocate(__new_begin, __len);
+                __ustl_throw_again;
+            }
+            _M_deallocate(_M_data_plus._M_begin,
+                          _M_data_plus._M_end - _M_data_plus._M_begin);
+            _M_data_plus._M_amend(__new_begin, __old_size + __n, __len);
         }
     }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename... _Args>
+    void
+    vector<_Tp, _Alloc>::
+        _M_realloc_insert(const_iterator __pos,
+                          _Args &&...__a)
+    {
+        size_type __old_size = size();
+        size_type __len = _M_check_length(size_type(1));
+        pointer __new_begin = _M_allocate(__len);
+        pointer __new_storage{__new_begin};
+
+        iterator __first = begin();
+        iterator __last = end();
+        size_type __distance = ustl::distance(cbegin(), __pos);
+        __ustl_try
+        {
+            __new_storage += __distance;
+            iterator __ist_pos = __first + __distance;
+            ustl::copy_forward(__ist_pos, __last, __new_storage + 1);
+            _Tp_alloc_traits::construct(_M_get_allocator(),
+                                        __new_storage,
+                                        forward<_Args &&>(__a)...);
+            ustl::copy_back(__first, __ist_pos, __new_storage);
+        }
+        __ustl_catch_all
+        {
+            ustl::destructor(__new_begin, __old_size + 1);
+            _M_deallocate(__new_begin, __len);
+            __ustl_throw_again;
+        }
+        _M_deallocate(_M_data_plus._M_begin, __old_size);
+        _M_data_plus._M_amend(__new_begin, __old_size + 1, __len);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _ForwardIterator>
+    void
+    vector<_Tp, _Alloc>::
+        _M_range_insert(const_iterator __pos,
+                        _ForwardIterator __first,
+                        _ForwardIterator __last)
+    {
+        size_type __distance = ustl::distance(__first, __last);
+        size_type __ele_before = ustl::distance(cbegin(), __pos);
+        size_type __old_size = size();
+        iterator __ist_pos = begin() + ustl::distance(cbegin(), __pos);
+        if (__distance)
+        {
+            if (_M_data_plus._M_end - _M_data_plus._M_storage >= __distance) // move data
+            {
+                iterator __last = end();
+                _M_data_plus._M_storage += __distance;
+                ustl::relocate_back(__ist_pos, end(),
+                                    _M_data_plus._M_storage,
+                                    _M_get_allocator());
+                ustl::copy_forward(__first, __last, __ist_pos);
+            }
+            else // realloc
+            {
+                size_type __len = _M_check_length(size_type(__distance));
+                pointer __new_begin = _M_allocate(__len);
+                pointer __new_storage = __new_begin;
+                ustl::relocate_forward(_M_data_plus._M_begin,
+                                       _M_data_plus._M_begin + __ele_before,
+                                       __new_storage,
+                                       _M_get_allocator());
+                ustl::copy_forward(__first, __last,
+                                   __new_storage + __ele_before);
+                ustl::relocate_forward(__ist_pos, end(),
+                                       __new_storage + __ele_before + __distance,
+                                       _M_get_allocator());
+                _M_data_plus._M_amend(__new_begin, __distance + __old_size, __len);
+            }
+        }
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        _M_default_append(size_type __n)
+    {
+        if (_M_data_plus._M_end - _M_data_plus._M_storage >= __n)
+        {
+            pointer __old_storage = _M_data_plus._M_storage;
+            size_type __counter = __n;
+            __ustl_try
+            {
+                ustl::constructor(_M_data_plus._M_storage, __n);
+            }
+            __ustl_catch_all
+            {
+                ustl::destructor(_M_data_plus._M_storage, __counter - __n);
+                __ustl_throw_again;
+            }
+            _M_data_plus._M_storage += __n;
+        }
+        else
+        {
+            size_type __len = _M_check_length(__n);
+            pointer __new_begin = _M_allocate(__len);
+            pointer __new_storage = __new_begin + size();
+            ustl::copy_forward(begin(), end(), __new_begin);
+            size_type __counter = __n;
+            __ustl_try
+            {
+                ustl::constructor(__new_storage, __n);
+            }
+            __ustl_catch_all
+            {
+                ustl::destructor(__new_storage, __counter - __n);
+                _M_deallocate(__new_begin, __len);
+                __ustl_throw_again;
+            }
+            _M_data_plus._M_amend(__new_begin, __counter + size(), __len);
+        }
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    vector<_Tp, _Alloc>::
+        _M_fll_assgin(size_type __n,
+                      value_type const &__val)
+    {
+        if (_M_data_plus._M_end - _M_data_plus._M_storage >= __n)
+        {
+            pointer __old_storage = _M_data_plus._M_storage;
+            __ustl_try
+            {
+                ustl::constructor(_M_data_plus._M_storage, __n, __val);
+            }
+            __ustl_catch_all
+            {
+                pointer __new_storage = __old_storage;
+                ustl::destructor(__old_storage, _M_data_plus._M_storage - __old_storage);
+                _M_data_plus._M_storage = __new_storage;
+                __ustl_throw_again;
+            }
+        }
+        else
+        {
+            size_type __len = _M_check_length(__n);
+            pointer __new_begin = _M_allocate(__len);
+            pointer __new_storage = __new_begin;
+            ustl::copy_forward(begin(), end(), __new_begin);
+            size_type __counter = __n;
+            __ustl_try
+            {
+                ustl::constructor(__new_storage, __n, __val);
+            }
+            __ustl_catch_all
+            {
+                ustl::destructor(__new_storage, __counter - __n);
+                _M_deallocate(__new_begin, __len);
+                __ustl_throw_again;
+            }
+            _M_data_plus._M_amend(__new_begin, __counter + size(), __len);
+        }
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto
+    vector<_Tp, _Alloc>::
+        _M_erase(iterator __pos) -> iterator
+    {
+        pointer __del = &*__pos;
+        _Tp_alloc_traits::destory(_M_get_allocator(), __del);
+        ustl::copy_forward(__del + 1, _M_data_plus._M_storage, __del);
+        --_M_data_plus._M_storage;
+        return __pos;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    size_t
+    vector<_Tp, _Alloc>::
+        _M_erase(iterator __first, iterator __last)
+    {
+        pointer __del_first = &*__first;
+        pointer __del_last = &*__last;
+        pointer __tmp = __del_first;
+        size_type __dis = 0;
+        for (; __del_first != __del_last; ++__del_first, ++__dis)
+            _Tp_alloc_traits::destory(_M_get_allocator(), __del_first);
+        ustl::copy_forward(__del_last, _M_data_plus._M_storage, __tmp);
+        _M_data_plus._M_storage -= __dis;
+        return __dis;
+    }
+
 }
 
 #endif
