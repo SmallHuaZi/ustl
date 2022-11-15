@@ -12,10 +12,19 @@ namespace ustl
      */
     template <typename _Tp, typename _Vp>
     _Vp
-    move_back(_Tp __first, _Tp __last, _Vp __result)
+    copy_back(_Tp __first, _Tp __last, _Vp __result)
     {
         while (__first != __last)
             *--__result = *--__last;
+        return __result;
+    }
+
+    template <typename _Tp, typename _Vp>
+    _Vp
+    copy_forward(_Tp __first, _Tp __last, _Vp __result)
+    {
+        while (__first != __last)
+            *__result++ = *__first++;
         return __result;
     }
 
@@ -65,8 +74,8 @@ namespace ustl
     template <typename _InputIterator, typename _ForwardIterator,
               typename _Alloc>
     void
-    relocate_obj(_InputIterator __first, _InputIterator __last,
-                 _ForwardIterator __result, _Alloc &__alloc)
+    relocate_forward(_InputIterator __first, _InputIterator __last,
+                     _ForwardIterator __result, _Alloc &__alloc)
     {
         typedef allocate_traits<_Alloc> __alloc_traits;
         __ustl_try
@@ -84,7 +93,7 @@ namespace ustl
 
     template <typename _ForwardIterator, typename _ForwardIterator2>
     size_t
-    difference(_ForwardIterator __first, _ForwardIterator2 __last)
+    distance(_ForwardIterator __first, _ForwardIterator2 __last)
     {
         size_t __counter = 0;
         while (__first != __last)

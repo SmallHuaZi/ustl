@@ -226,6 +226,7 @@ namespace ustl
         typedef _Tp &reference;
         typedef diff_t difference_type;
 
+        typedef _bothway_itertor itr_tag;
         typedef _list_node<_Tp> *_node_ptr;
         typedef _list_node_basic *_base_ptr;
         typedef _list_iterator _Self;
@@ -300,6 +301,7 @@ namespace ustl
         typedef _Tp const &reference;
         typedef diff_t difference_type;
 
+        typedef _bothway_itertor itr_tag;
         typedef _list_node<_Tp> *_node_ptr;
         typedef _list_node_basic *_base_ptr;
         typedef _list_const_iterator _Self;

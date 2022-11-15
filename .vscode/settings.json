@@ -72,7 +72,8 @@
         "stdexcept": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "ustl_memory": "cpp"
     },
     "makefile.phonyOnlyTargets": false,
 }

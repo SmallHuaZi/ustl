@@ -64,6 +64,7 @@ namespace ustl
     class array_length_exception
         : public exception
     {
+    public:
         array_length_exception(
             const char *__mes = __default_array_length_message)
             : exception(__mes) {}

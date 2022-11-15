@@ -27,7 +27,7 @@ namespace ustl
         construct(allocator_type &__a,
                   _Tp *__p, _Args &&...__args)
         {
-            return __a.construct(__p, forward(__args)...);
+            return __a.construct(__p, ustl::forward(__args)...);
         }
 
         template <typename _OTp>

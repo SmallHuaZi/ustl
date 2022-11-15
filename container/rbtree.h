@@ -4,7 +4,7 @@
 #ifndef __debug_ustl
 #include "ustl.h"
 #include "iterator.h"
-#include "memory.h"
+#include "ustl_memory"
 #include "pair.h"
 #include "rbtree_fwd.h"
 #include "allocate_type.h"
