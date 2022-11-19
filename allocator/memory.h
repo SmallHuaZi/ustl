@@ -1,9 +1,6 @@
 #include <malloc.h>
 #include <atomic>
 #include <mutex>
-#include "ustl.h"
-#include "exception.h"
-#include "move.h"
 #include "config.h"
 
 #ifndef __memory_h
@@ -288,5 +285,33 @@ namespace ustl
         return __s & ~(--__a);
     }
 }
+
+namespace ustl
+{
+
+#define __ustl_safe_checking(__src, __desc) \
+    ((long)__src) > ((long)__desc)
+
+    void
+    memcopy(const void *__s, void *__d, size_t __len)
+    {
+        while (__len--)
+            *(char *)__d = *(char *)__s;
+    }
+
+    void
+    memmove(const void *__s, void *__d, size_t __len)
+    {
+        char const *__ms = (char *)__s;
+        char *__md = (char *)__d;
+        if (__ustl_safe_checking(__ms, __md))
+            while (__len--)
+                *__md++ = *__ms++;
+        else
+            for (__ms += __len, __md += __len; __len--;)
+                *--__md = *--__ms;
+    }
+
+} // namespace ustl
 
 #endif

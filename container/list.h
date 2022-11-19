@@ -1,8 +1,6 @@
 #ifndef __List_h
 #define __list_h
 
-#include "ustl.h"
-
 namespace ustl
 {
     /**

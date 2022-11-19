@@ -1,7 +1,0 @@
-#ifndef __type_traits
-#define __type_traits
-
-#include "type.h"
-#include "allocate_type.h"
-
-#endif

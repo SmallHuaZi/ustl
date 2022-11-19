@@ -1,7 +1,8 @@
 #ifndef __move_h
 #define __move_h
 
-#include "type.h"
+#include "type/type.h"
+
 namespace ustl
 {
     /**

@@ -101,5 +101,26 @@ namespace ustl
         return __counter;
     }
 
+    template <typename _Tp>
+    void
+    swap(_Tp *__l, _Tp *__r, size_t __len)
+    {
+        _Tp __tmp[__len];
+        size_t __idx = 0;
+        for (; __idx < __len; ++__idx, (void)++__l)
+            __tmp[__idx] = *__l;
+        for (__r += __len; __idx > 0; --__idx)
+            *--__l = *--__r;
+        for (; __idx < __len; ++__idx, (void)++__r)
+            *__r = __tmp[__idx];
+    }
+
+    template <typename _Tp, size_t _Size>
+    constexpr size_t
+    arylen(_Tp __tmp[_Size])
+    {
+        return _Size;
+    }
+
 } // namespace ustl
 #endif

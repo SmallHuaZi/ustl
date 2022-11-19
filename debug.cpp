@@ -1,18 +1,5 @@
 #include <iostream>
-// #include <map>
-// #include <vector>
-
-#include "rbtree.h"
-#include "list.h"
-#include "vector.h"
-#include <vector>
-#include <bits/stl_vector.h>
-// #include <bits/stl_list.h>
-// #include <list>
-// #include <exception>
-// #include <iterator>
-// #include <unistd.h>
-// using namespace ustl::internal_ustl;
+#include <string>
 
 struct get_key
 {
@@ -31,12 +18,8 @@ struct compare
         return a < b;
     }
 };
-bool equal_16(int __val)
-{
-    return 16 == __val;
-}
 
-#include "allocate_type.h"
+// #include "allocate_type.h"
 
 struct object
 {
@@ -81,27 +64,23 @@ struct object
     int _M_data;
     long _M_data2;
 };
-int object::_S_count = 0;
-int object::_S_copy_count = 0;
+
+#include "config.h"
+#include "ustl_tmp.h"
+
+#include "ustl_exception.h"
+#include "ustl_memory.h"
+#include "ustl_type_traits.h"
+#include "ustl_algorithm.h"
+#include "ustl_iterator.h"
+#include "ustl_container.h"
 
 int main(int argc, char **argv)
 {
-    ustl::vector<object> __vec;
-    ustl::vector<object> __vec1;
-
-    int __ary[] = {1, 1, 2, 3, 4, 5, 6, 7, 1, 1};
-    for (auto &__tmp : __ary)
-        __vec.emplace_back(__tmp);
-
-    __vec1.assign(__vec.begin(), __vec.end());
-    auto __first = __vec1.cbegin();
-    __vec1.insert(++__first, __vec.begin(), __vec.end());
-    // for (auto &__tmp : __vec)
-    //     std::cout << __tmp._M_data << std::endl;
-    for (auto &__tmp : __vec1)
-        std::cout << __tmp._M_data << std::endl;
-    // std::cout << __vec[10]._M_data << std::endl;
-    // __std_vec.reserve(19);
-    // std::cout << __std_vec.capacity() << std::endl;
+    ustl::string __str;
+    __str.append("hello world");
+    __str.append(__str);
+    auto __idx = __str.rfind('o');
+    std::cout << __str[__idx] << std::endl;
     return 0;
 }

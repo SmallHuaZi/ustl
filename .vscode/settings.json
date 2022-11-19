@@ -73,7 +73,14 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "list": "cpp",
-        "ustl_memory": "cpp"
+        "ustl_memory": "cpp",
+        "ustl_type_traits": "cpp",
+        "ustl_string": "cpp",
+        "cerrno": "cpp",
+        "climits": "cpp",
+        "ios": "cpp",
+        "queue": "cpp",
+        "ustl_exception": "cpp"
     },
     "makefile.phonyOnlyTargets": false,
 }

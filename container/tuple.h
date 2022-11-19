@@ -1,5 +1,3 @@
-#include "ustl.h"
-
 namespace ustl
 {
     template <size_t _Idx, typename _Element>

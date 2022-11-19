@@ -1,16 +1,22 @@
 #ifndef __reverse_iterator_h
 #define __reverse_iterator_h
 
+#include "ustl_type_traits.h"
+
 namespace ustl
 {
     template <typename _Itr>
     struct reverse_iterator
     {
-        typedef typename _Itr::value_type value_type;
-        typedef typename _Itr::pointer pointer;
-        typedef typename _Itr::reference reference;
-        typedef typename _Itr::const_pointer const_pointer;
-        typedef typename _Itr::const_reference const_reference;
+        typedef ustl::itr_traits<_Itr> _iterator_traits;
+        typedef _Itr iterator_type;
+
+        typedef typename _iterator_traits::iterator_tag iterator_tag;
+        typedef typename _iterator_traits::value_type value_type;
+        typedef typename _iterator_traits::pointer pointer;
+        typedef typename _iterator_traits::reference reference;
+        typedef typename _iterator_traits::const_pointer const_pointer;
+        typedef typename _iterator_traits::const_reference const_reference;
         typedef reverse_iterator _Self;
 
         _Self &
@@ -69,8 +75,13 @@ namespace ustl
             return __l._M_current != __r._M_current;
         }
 
+        reverse_iterator() = default;
+
+        reverse_iterator(iterator_type __itr)
+            : _M_current(__itr) {}
+
     private:
-        _Itr _M_current;
+        iterator_type _M_current;
     };
 }
 

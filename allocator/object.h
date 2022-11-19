@@ -1,7 +1,6 @@
 #ifndef __object_h
 #define __object_h
 
-#include "ustl.h"
 #include "move.h"
 
 namespace ustl
