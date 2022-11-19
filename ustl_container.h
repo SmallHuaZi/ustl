@@ -45,7 +45,7 @@ namespace ustl
      *
      */
     typedef basic_string<char, ustl::allocator<char>> string;
-    typedef basic_string<wchar_t, ustl::allocator<char>> wstring;
+    typedef basic_string<wchar_t, ustl::allocator<wchar_t>> wstring;
 } // namespace ustl
 
 #endif

@@ -52,10 +52,15 @@ namespace ustl
 
         typedef ustl::normal_iterator<pointer> iterator;
         typedef ustl::normal_iterator<const_pointer> const_iterator;
-        typedef ustl::reverse_iterator<iterator> reverse_iterator;
-        typedef ustl::reverse_iterator<const_iterator> const_reverse_iterator;
+        typedef ustl::reverse_iterator<pointer> reverse_iterator;
+        typedef ustl::reverse_iterator<const_pointer> const_reverse_iterator;
 
         typedef char_traits<_CharT> _CharT_traits;
+
+        enum
+        {
+            _S_EOF = -1
+        };
 
         /** constructor */
     public:
@@ -71,31 +76,37 @@ namespace ustl
 
     private:
         pointer
-        _M_allocate(size_type &__n) { return _Alloc_traits::allocate(*_M_data_plus, __n); }
+        _M_allocate(size_type &__n) ustl_cpp_noexcept { return _Alloc_traits::allocate(*_M_data_plus, __n); }
 
         void
-        _M_deallocate(pointer __p, size_type __n) { _Alloc_traits::deallocate(*_M_data_plus, __p, __n); }
+        _M_deallocate(pointer __p, size_type __n) ustl_cpp_noexcept { _Alloc_traits::deallocate(*_M_data_plus, __p, __n); }
 
         void
-        _M_set_data(pointer __p) { _M_data_plus->_M_actual_data = __p; }
+        _M_set_data(pointer __p) ustl_cpp_noexcept { _M_data_plus->_M_actual_data = __p; }
 
         void
-        _M_set_len(size_type __new_len) { _M_data_length = __new_len; }
+        _M_set_len(size_type __new_len) ustl_cpp_noexcept { _M_data_length = __new_len; }
 
         void
-        _M_set_capacity(size_type __capacity) { _M_allocated_length = __capacity; }
+        _M_set_capacity(size_type __capacity) ustl_cpp_noexcept { _M_allocated_length = __capacity; }
 
         pointer
-        _M_data() { return _M_data_plus->_M_actual_data; }
+        _M_data() ustl_cpp_noexcept { return _M_data_plus->_M_actual_data; }
 
         pointer
-        _M_data_last() { return _M_data_plus->_M_actual_data + _M_data_length; }
+        _M_data_last() ustl_cpp_noexcept { return _M_data_plus->_M_actual_data + _M_data_length; }
 
         pointer
-        _M_local_data() { return static_cast<pointer>(_M_stack_buf); }
+        _M_local_data() ustl_cpp_noexcept { return static_cast<pointer>(_M_stack_buf); }
 
         bool
-        _M_data_is_local() { return _M_data() == _M_local_data(); }
+        _M_data_is_local() ustl_cpp_noexcept { return _M_data() == _M_local_data(); }
+
+        static bool
+        _S_comp(value_type const __l, value_type const __r) ustl_cpp_noexcept { return _CharT_traits::equal(__l, __r); }
+
+        static size_type
+        _S_strlen(const_pointer __str) ustl_cpp_noexcept { return _CharT_traits::length(__str); }
 
     public:
         pointer
@@ -194,7 +205,12 @@ namespace ustl
         basic_string &append(const_pointer);
         basic_string &append(value_type const, size_type = 1);
 
-        void replace();
+        basic_string &replace(size_type, size_type, const_pointer, size_type);
+        basic_string &replace(size_type, size_type, value_type, size_type);
+        basic_string &replace(const_iterator, const_iterator, value_type const);
+        basic_string &replace(const_iterator, const_iterator, const_pointer);
+        template <typename _InputIterator>
+        basic_string &replace(const_iterator, const_iterator, _InputIterator, _InputIterator);
 
         iterator insert(size_type, value_type const);
         iterator insert(size_type, const_pointer);
@@ -214,18 +230,18 @@ namespace ustl
 
         size_type find(value_type const, size_type = 0) ustl_cpp_noexcept;
         size_type find(const_pointer, size_type = 0) ustl_cpp_noexcept;
-        size_type find(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+        inline size_type find(basic_string const &, size_type = 0) ustl_cpp_noexcept;
 
         size_type rfind(value_type const, size_type = 0) ustl_cpp_noexcept;
         size_type rfind(const_pointer, size_type = 0) ustl_cpp_noexcept;
-        size_type rfind(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+        inline size_type rfind(basic_string const &, size_type = 0) ustl_cpp_noexcept;
 
-        size_type find_last_of(value_type const, size_type = 0) ustl_cpp_noexcept;
-        size_type find_last_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
-        size_type find_last_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
-        size_type find_first_of(value_type const, size_type = 0) ustl_cpp_noexcept;
-        size_type find_first_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
-        size_type find_first_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+        inline size_type find_last_of(value_type const, size_type = 0) ustl_cpp_noexcept;
+        inline size_type find_last_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
+        inline size_type find_last_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+        inline size_type find_first_of(value_type const, size_type = 0) ustl_cpp_noexcept;
+        inline size_type find_first_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
+        inline size_type find_first_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
 
         bool compare(const_pointer) ustl_cpp_noexcept;
         bool compare(basic_string const &) ustl_cpp_noexcept;
@@ -237,9 +253,13 @@ namespace ustl
         void swap(basic_string &);
         inline void swap(basic_string &&);
 
-        void reserve();
+        void reverse();
 
-        void resize();
+        void reserve(size_type);
+
+        void resize(size_type);
+        void resize(size_type, value_type const);
+        void resize(size_type, const_pointer);
 
         void clear();
 
@@ -423,6 +443,61 @@ namespace ustl
     template <typename _Tp, typename _Alloc>
     auto
     basic_string<_Tp, _Alloc>::
+        replace(size_type __pos, size_type __n,
+                const_pointer __str, size_type __len1) -> basic_string &
+    {
+        _M_replace(__pos, __n, __str, __len1);
+        return *this;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto
+    basic_string<_Tp, _Alloc>::
+        replace(size_type __pos, size_type __n,
+                value_type const __val, size_type __len) -> basic_string &
+    {
+        _M_replace_aux(__pos, __n, __val, __len);
+        return *this;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto
+    basic_string<_Tp, _Alloc>::
+        replace(const_iterator __first, const_iterator __last,
+                value_type const __val) -> basic_string &
+    {
+        difference_type __pos = __first - cbegin();
+        difference_type __dis = __last - __first;
+        if (__dis)
+            _M_replace_aux(__pos, __dis, __val);
+        return *this;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto
+    basic_string<_Tp, _Alloc>::
+        replace(const_iterator __first, const_iterator __last,
+                const_pointer __str) -> basic_string &
+    {
+        difference_type __pos = __first - cbegin();
+        difference_type __dis = __last - __first;
+        size_type __len = _S_strlen(__str);
+        if (__dis)
+            _M_replace(__pos, __dis, __val, __len);
+        return *this;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _InputIterator>
+    auto
+    basic_string<_Tp, _Alloc>::
+        replace(const_iterator __first, const_iterator __last,
+                _InputIterator __first1, _InputIterator __last1) -> basic_string &
+    {
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto basic_string<_Tp, _Alloc>::
         insert(size_type __pos, value_type const __val) -> iterator
     {
         _M_replace_aux(__pos, 0, __val);
@@ -518,13 +593,13 @@ namespace ustl
         find(value_type const __val, size_type __pos)
             ustl_cpp_noexcept
     {
-        const_iterator __first = cbegin();
+        const_iterator __first = cbegin() + __pos;
         const_iterator __last = cend();
-        size_type __idx = -1;
+        size_type __idx = 0;
         for (; __first != __last; ++__first, ++__idx)
-            if (_CharT_traits::equal(*__first, __val))
-                return __idx + 1;
-        return __idx;
+            if (_S_comp(*__first, __val))
+                return __idx;
+        return size_type(_S_EOF);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -533,16 +608,16 @@ namespace ustl
         find(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
     {
-        const_iterator __first = cbegin();
-        const_iterator __last = cbegin();
+        const_iterator __first = cbegin() + __pos;
+        const_iterator __last = cend();
         size_type __idx = 0;
         size_type __ret = 0;
         for (; __first != __last && 0 != __val[__ret];
-             ++__first, (void)++__ret)
-            if (!_CharT_traits::equal(*__first, __val[__ret]))
+             ++__first, (void)++__ret, (void)++__idx)
+            if (!_S_comp(*__first, __val[__ret]))
                 __ret = -1;
 
-        return _CharT_traits::equal(value_type(0), __val[__ret]) ? __idx - __ret : -1;
+        return _S_comp(value_type(0), __val[__ret]) ? __idx - __ret : size_type(_S_EOF);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -560,13 +635,13 @@ namespace ustl
         rfind(value_type const __val, size_type __pos)
             ustl_cpp_noexcept
     {
-        reverse_iterator __rfirst = rbegin();
+        reverse_iterator __rfirst = rbegin() + __pos;
         reverse_iterator __rend = rend();
         size_type __ret = size();
         for (; __rfirst != __rend; --__ret)
-            if (_CharT_traits::equal(*++__rfirst, __val))
+            if (_S_comp(*++__rfirst, __val))
                 return __ret - 1;
-        return __ret;
+        return size_type(_S_EOF);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -575,6 +650,16 @@ namespace ustl
         rfind(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
     {
+        reverse_iterator __first = rbegin() + __pos;
+        reverse_iterator __last = rend();
+        size_type __ret = size();
+        size_type __len = _S_strlen(__val);
+        size_type __idx = __len - 1;
+        for (; __first != __last && size_type(_S_EOF) != __idx;
+             --__idx, (void)--__ret)
+            if (!_S_comp(*++__first, __val[__idx]))
+                __idx = __len;
+        return size_type(_S_EOF) == __idx ? __ret : size_type(_S_EOF);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -583,6 +668,16 @@ namespace ustl
         rfind(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
     {
+        return rfind(__val.data(), __pos);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename basic_string<_Tp, _Alloc>::size_type
+    basic_string<_Tp, _Alloc>::
+        find_last_of(value_type __val, size_type __pos)
+            ustl_cpp_noexcept
+    {
+        return rfind(__val, __pos);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -591,6 +686,43 @@ namespace ustl
         find_last_of(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
     {
+        return rfind(__val, __pos);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename basic_string<_Tp, _Alloc>::size_type
+    basic_string<_Tp, _Alloc>::
+        find_last_of(basic_string const &__val, size_type __pos)
+            ustl_cpp_noexcept
+    {
+        return rfind(__val, __pos);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename basic_string<_Tp, _Alloc>::size_type
+    basic_string<_Tp, _Alloc>::
+        find_first_of(value_type const __val, size_type __pos)
+            ustl_cpp_noexcept
+    {
+        return find(__val, __pos);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename basic_string<_Tp, _Alloc>::size_type
+    basic_string<_Tp, _Alloc>::
+        find_first_of(basic_string const &__val, size_type __pos)
+            ustl_cpp_noexcept
+    {
+        return find(__val, __pos);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    typename basic_string<_Tp, _Alloc>::size_type
+    basic_string<_Tp, _Alloc>::
+        find_first_of(const_pointer __val, size_type __pos)
+            ustl_cpp_noexcept
+    {
+        return find(__val, __pos);
     }
 
     template <typename _Tp, typename _Alloc>

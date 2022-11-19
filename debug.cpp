@@ -77,10 +77,12 @@ struct object
 
 int main(int argc, char **argv)
 {
+
     ustl::string __str;
     __str.append("hello world");
     __str.append(__str);
-    auto __idx = __str.rfind('o');
+    auto __idx = __str.rfind("hello");
     std::cout << __str[__idx] << std::endl;
+
     return 0;
 }

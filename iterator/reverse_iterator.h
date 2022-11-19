@@ -19,6 +19,24 @@ namespace ustl
         typedef typename _iterator_traits::const_reference const_reference;
         typedef reverse_iterator _Self;
 
+        _Self
+        operator+(size_t __n)
+        {
+            _Self __ret{*this};
+            while (__n)
+                ++__ret;
+            return __ret;
+        }
+
+        _Self
+        operator-(size_t __n)
+        {
+            _Self __ret{*this};
+            while (__n)
+                --__ret;
+            return __ret;
+        }
+
         _Self &
         operator++()
         {
@@ -61,18 +79,16 @@ namespace ustl
             return _M_current.operator->();
         }
 
-        friend bool
-        operator==(_Self const &__l,
-                   _Self const &__r)
+        iterator_type
+        base_iterator()
         {
-            return __l._M_current == __r._M_current;
+            return _M_current;
         }
 
-        friend bool
-        operator!=(_Self const &__l,
-                   _Self const &__r)
+        iterator_type const
+        base_iterator() const
         {
-            return __l._M_current != __r._M_current;
+            return _M_current;
         }
 
         reverse_iterator() = default;
@@ -83,6 +99,34 @@ namespace ustl
     private:
         iterator_type _M_current;
     };
+
+    template <typename _Iterator>
+    ustl::diff_t
+    operator-(reverse_iterator<_Iterator> &__first,
+              reverse_iterator<_Iterator> &__last)
+    {
+        ustl::diff_t __dis_ret = 0;
+        while (__first != __last)
+            ++__dis_ret, (void)++__first;
+        return __dis_ret;
+    }
+
+    template <typename _Iterator>
+    bool
+    operator==(reverse_iterator<_Iterator> const &__l,
+               reverse_iterator<_Iterator> const &__r)
+    {
+        return __l.base_iterator() == __r.base_iterator();
+    }
+
+    template <typename _Iterator>
+    bool
+    operator!=(reverse_iterator<_Iterator> const &__l,
+               reverse_iterator<_Iterator> const &__r)
+    {
+        return __l.base_iterator() != __r.base_iterator();
+    }
+
 }
 
 #endif

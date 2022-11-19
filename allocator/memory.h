@@ -58,7 +58,7 @@ namespace ustl
         typedef diff_t difference_type;
 
     private:
-        static inline obj_ptr _S_free_list[__TABLE_SIZE];
+        static inline obj_ptr _S_free_list[__TABLE_SIZE]{0};
         static inline byte *_S_free_start;
         static inline byte *_S_free_end;
         static inline size_t _S_heap_size;
@@ -71,7 +71,8 @@ namespace ustl
         obj_ptr *
         _M_get_free_list(size_t __bs)
         {
-            return _S_free_list + __bs / __ALIGNMENT - 1;
+            size_t __offset = __bs / (__ALIGNMENT - 1);
+            return _S_free_list + __offset;
         }
 
         byte *_M_refill(size_t);
