@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <functional>
 
 struct get_key
 {
@@ -75,14 +76,25 @@ struct object
 #include "ustl_iterator.h"
 #include "ustl_container.h"
 
+struct TestYes
+{
+    void What();
+};
+
 int main(int argc, char **argv)
 {
-
     ustl::string __str;
     __str.append("hello world");
     __str.append(__str);
-    auto __idx = __str.rfind("hello");
-    std::cout << __str[__idx] << std::endl;
 
+    __str.resize(10);
+    std::cout << __str.data() << std::endl;
+
+    std::cout << ("nihao" + __str).data() << std::endl;
+
+    auto __idx = __str.rfind("hello");
+    std::cout << __str.data() << std::endl;
+    __str.replace(5, 5, "good day", sizeof("good day") - 1);
+    std::cout << __str.data() << std::endl;
     return 0;
 }

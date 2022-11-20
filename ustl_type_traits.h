@@ -5,6 +5,7 @@
 #include "type/allocate_traits.h"
 #include "type/itr_traits.h"
 #include "type/char_traits.h"
+#include "type/object_traits.h"
 
 namespace ustl
 {

@@ -67,22 +67,32 @@ namespace ustl
         basic_string()
             : _M_data_length(0)
         {
-#ifdef __debug_ustl
-            _M_data_plus = new impl_type();
-#endif
-            _M_data_plus->_M_actual_data = _M_stack_buf;
-            _M_data_plus->_M_ref_count = 0;
+            _M_data_plus._M_actual_data = _M_stack_buf;
+            _M_data_plus._M_ref_count = 0;
+        }
+
+        basic_string(basic_string const &__other)
+            : basic_string(__other.data()) {}
+
+        basic_string(const_pointer __str)
+        {
+            _M_data_plus._M_actual_data = _M_stack_buf;
+            _M_data_plus._M_ref_count = 0;
+            _M_assign(__str, _S_strlen(__str));
         }
 
     private:
         pointer
-        _M_allocate(size_type &__n) ustl_cpp_noexcept { return _Alloc_traits::allocate(*_M_data_plus, __n); }
+        _M_allocate(size_type &__n) ustl_cpp_noexcept { return _Alloc_traits::allocate(_M_data_plus, __n); }
 
         void
-        _M_deallocate(pointer __p, size_type __n) ustl_cpp_noexcept { _Alloc_traits::deallocate(*_M_data_plus, __p, __n); }
+        _M_deallocate(pointer __p, size_type __n) ustl_cpp_noexcept { _Alloc_traits::deallocate(_M_data_plus, __p, __n); }
 
         void
-        _M_set_data(pointer __p) ustl_cpp_noexcept { _M_data_plus->_M_actual_data = __p; }
+        _M_destory(pointer __p, size_type __n) ustl_cpp_noexcept { ustl::destructor(__p, __n); }
+
+        void
+        _M_set_data(pointer __p) ustl_cpp_noexcept { _M_data_plus._M_actual_data = __p; }
 
         void
         _M_set_len(size_type __new_len) ustl_cpp_noexcept { _M_data_length = __new_len; }
@@ -91,10 +101,10 @@ namespace ustl
         _M_set_capacity(size_type __capacity) ustl_cpp_noexcept { _M_allocated_length = __capacity; }
 
         pointer
-        _M_data() ustl_cpp_noexcept { return _M_data_plus->_M_actual_data; }
+        _M_data() ustl_cpp_noexcept { return _M_data_plus._M_actual_data; }
 
         pointer
-        _M_data_last() ustl_cpp_noexcept { return _M_data_plus->_M_actual_data + _M_data_length; }
+        _M_data_last() ustl_cpp_noexcept { return _M_data_plus._M_actual_data + _M_data_length; }
 
         pointer
         _M_local_data() ustl_cpp_noexcept { return static_cast<pointer>(_M_stack_buf); }
@@ -108,69 +118,72 @@ namespace ustl
         static size_type
         _S_strlen(const_pointer __str) ustl_cpp_noexcept { return _CharT_traits::length(__str); }
 
+        static int
+        _S_compare(const_pointer __l, const_pointer __r, size_type __len) { return _CharT_traits::compare(__l, __r, __len); }
+
     public:
         pointer
-        data() ustl_cpp_noexcept { return _M_data_plus->_M_actual_data; }
+        data() ustl_cpp_noexcept { return _M_data_plus._M_actual_data; }
 
         const_pointer
-        data() const ustl_cpp_noexcept { return _M_data_plus->_M_actual_data; }
+        data() const ustl_cpp_noexcept { return _M_data_plus._M_actual_data; }
 
         reference
-        front() ustl_cpp_noexcept { return *_M_data_plus->_M_actual_data; }
+        front() ustl_cpp_noexcept { return *_M_data_plus._M_actual_data; }
 
         reference
-        back() ustl_cpp_noexcept { return *(_M_data_plus->_M_actual_data + _M_data_length - 1); }
+        back() ustl_cpp_noexcept { return *(_M_data_plus._M_actual_data + _M_data_length - 1); }
 
         const_reference
-        front() const ustl_cpp_noexcept { return *_M_data_plus->_M_actual_data; }
+        front() const ustl_cpp_noexcept { return *_M_data_plus._M_actual_data; }
 
         const_reference
-        back() const ustl_cpp_noexcept { return *(_M_data_plus->_M_actual_data + _M_data_length - 1); }
+        back() const ustl_cpp_noexcept { return *(_M_data_plus._M_actual_data + _M_data_length - 1); }
 
         iterator
-        begin() ustl_cpp_noexcept { return iterator(_M_data_plus->_M_actual_data); }
+        begin() ustl_cpp_noexcept { return iterator(_M_data_plus._M_actual_data); }
 
         const_iterator
-        begin() const ustl_cpp_noexcept { return const_iterator(_M_data_plus->_M_actual_data); }
+        begin() const ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data); }
 
         const_iterator
-        end() const ustl_cpp_noexcept { return const_iterator(_M_data_plus->_M_actual_data + _M_data_length); }
+        end() const ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
 
         const_iterator
-        cbegin() ustl_cpp_noexcept { return const_iterator(_M_data_plus->_M_actual_data); }
+        cbegin() ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data); }
 
         const_iterator
-        cend() ustl_cpp_noexcept { return const_iterator(_M_data_plus->_M_actual_data + _M_data_length); }
+        cend() ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
 
         const_iterator
-        cbegin() const ustl_cpp_noexcept { return const_iterator(_M_data_plus->_M_actual_data); }
+        cbegin() const ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data); }
 
         const_iterator
-        cend() const ustl_cpp_noexcept { return const_iterator(_M_data_plus->_M_actual_data + _M_data_length); }
+        cend() const ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
 
         reverse_iterator
-        rbegin() ustl_cpp_noexcept { return reverse_iterator(_M_data_plus->_M_actual_data + _M_data_length); }
+        rbegin() ustl_cpp_noexcept { return reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
 
         reverse_iterator
-        rend() ustl_cpp_noexcept { return reverse_iterator(_M_data_plus->_M_actual_data); }
+        rend() ustl_cpp_noexcept { return reverse_iterator(_M_data_plus._M_actual_data); }
 
         const_reverse_iterator
-        rbegin() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus->_M_actual_data + _M_data_length); }
+        rbegin() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
 
         const_reverse_iterator
-        rend() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus->_M_actual_data); }
+        rend() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data); }
 
         const_reverse_iterator
-        crbegin() ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus->_M_actual_data + _M_data_length); }
+        crbegin() ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
 
         const_reverse_iterator
-        crend() ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus->_M_actual_data); }
+        crend() ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data); }
 
         const_reverse_iterator
-        crbegin() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus->_M_actual_data + _M_data_length); }
+        crbegin() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
 
         const_reverse_iterator
-        crend() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus->_M_actual_data); }
+        crend() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data); }
 
         bool
         empty() ustl_cpp_noexcept { return 0 == _M_data_length; }
@@ -191,8 +204,7 @@ namespace ustl
         capacity() const ustl_cpp_noexcept { return _M_data_is_local() ? _S_stack_buffer_size : _M_allocated_length; }
 
     private:
-        void _M_assign();
-        void _M_swap(basic_string &);
+        void _M_assign(const_pointer, size_type);
         void _M_erase(size_type, size_type);
         void _M_append(const_pointer, size_type = 1);
         void _M_replace(size_type, size_type, const_pointer, size_type);
@@ -243,8 +255,8 @@ namespace ustl
         inline size_type find_first_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
         inline size_type find_first_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
 
-        bool compare(const_pointer) ustl_cpp_noexcept;
-        bool compare(basic_string const &) ustl_cpp_noexcept;
+        int compare(const_pointer) const ustl_cpp_noexcept;
+        inline int compare(basic_string const &) const ustl_cpp_noexcept;
 
         basic_string substr(size_type, size_type);
 
@@ -259,7 +271,6 @@ namespace ustl
 
         void resize(size_type);
         void resize(size_type, value_type const);
-        void resize(size_type, const_pointer);
 
         void clear();
 
@@ -270,10 +281,6 @@ namespace ustl
         basic_string &operator+=(basic_string const &);
         basic_string &operator+=(value_type const);
         basic_string &operator+=(const_pointer);
-
-        basic_string operator+(basic_string const &);
-        basic_string operator+(value_type const);
-        basic_string operator+(const_pointer);
 
         inline reference operator[](size_type);
         inline const_reference operator[](size_type) const;
@@ -300,37 +307,50 @@ namespace ustl
         };
 
         size_type _M_data_length;
-        impl_type *_M_data_plus;
+        impl_type _M_data_plus;
     };
 
 } // namespace ustl
 
 namespace ustl
 {
-    template <typename _Tp, typename _Alloc>
+
+    template <typename _CharT, typename _Alloc>
+    void
+    basic_string<_CharT, _Alloc>::
+        _M_assign(const_pointer __str, size_type __len)
+    {
+        if (__len > capacity())
+            _M_amend(__str, __len, 0, 0, __len);
+        else
+            ustl::memmove(__str, data(), __len);
+        _M_set_len(__len);
+    }
+
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         _M_check_length(size_type __len) -> size_type
     {
         size_type __old_capacity = capacity();
-        if (__len > _Alloc_traits::max_size(*_M_data_plus))
+        if (__len > _Alloc_traits::max_size(_M_data_plus))
             __throw_array_length("basic_string::_M_check_length : size of requested memory overlaps");
         if (__len > __old_capacity && __len < (__old_capacity << 1))
             __len = __old_capacity << 1;
         return __len;
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         _M_amend(const_pointer __str, size_type __len,
                  const_pointer __str1, size_type __len1,
-                 size_type __retain)
+                 size_type __new_size)
     {
         size_type __old_capacity = capacity();
-        size_type __new_capacity = __old_capacity + __retain;
-        __new_capacity = _M_check_length(__len);
-        pointer __new_begin = _M_allocate(__new_capacity);
+        size_type __retain = __new_size - __len - __len1;
+        __new_size = _M_check_length(__new_size);
+        pointer __new_begin = _M_allocate(__new_size);
         pointer __storage = __new_begin;
 
         if (__str && __len)
@@ -338,12 +358,14 @@ namespace ustl
         __storage += (__len + __retain);
         if (__str1 && __len1)
             ustl::copy_forward(__str1, __str1 + __len1, __storage);
-        _M_data_plus->_M_actual_data = __new_begin;
+        clear();
+        _M_set_data(__new_begin);
+        _M_set_capacity(__new_size);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         _M_replace_aux(size_type __pos, size_type __len1,
                        value_type __char, size_type __n)
     {
@@ -354,48 +376,47 @@ namespace ustl
         if (__new_size <= capacity())
             ustl::memmove(__p + __len1, __p + __n, __move_len);
         else
-            _M_amend(data(), __pos, __p + __n, __move_len, __n);
+            _M_amend(data(), __pos, __p + __n, __move_len, __new_size);
         __p = data();
         ustl::fill(__p + __pos, __p + __pos + __n, __char);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         _M_replace(size_type __pos, size_type __len1,
                    const_pointer __str, size_type __len2)
     {
         size_type __new_size = size() + __len2 - __len1;
-        size_type __move_len = size() - __pos - __len2;
+        size_type __move_len = size() - __pos - __len1;
         pointer __p = data() + __pos;
 
         if (__new_size <= capacity())
             ustl::memmove(__p + __len1, __p + __len2, __move_len);
         else
-            _M_amend(data(), __pos, __p + __len2, __move_len, __len2);
+            _M_amend(data(), __pos, __p + __len2, __move_len, __new_size);
         __p = data();
         ustl::copy_forward(__str, __str + __len2, __p + __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         _M_append(const_pointer __str, size_type __len)
     {
         size_type __old_size = size();
         size_type __new_size = __old_size + __len;
         if (__new_size <= capacity())
-            ustl::memcopy(__str, _M_data_last(), __len);
+            ustl::memcopy(__str, _M_data(), __len);
         else
-            _M_amend(data(), size(), 0, 0, __len);
+            _M_amend(data(), size(), __str, __len, __new_size);
         pointer __p = data();
-        ustl::copy_forward(__str, __str + __len, __p + __old_size);
         _M_set_len(__new_size);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         _M_erase(size_type __pos, size_type __len)
     {
         size_type __move_len = size() - __pos - __len;
@@ -414,17 +435,17 @@ namespace ustl
 namespace ustl
 {
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         append(basic_string const &__other) -> basic_string &
     {
         _M_append(__other.data(), __other.size());
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         append(const_pointer __str) -> basic_string &
     {
         size_type __len = _CharT_traits::length(__str);
@@ -432,17 +453,17 @@ namespace ustl
             _M_append(__str, __len);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         append(value_type const __val, size_type __n) -> basic_string &
     {
         _M_replace_aux(size(), 0, __val, __n);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         replace(size_type __pos, size_type __n,
                 const_pointer __str, size_type __len1) -> basic_string &
     {
@@ -450,9 +471,9 @@ namespace ustl
         return *this;
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         replace(size_type __pos, size_type __n,
                 value_type const __val, size_type __len) -> basic_string &
     {
@@ -460,9 +481,9 @@ namespace ustl
         return *this;
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         replace(const_iterator __first, const_iterator __last,
                 value_type const __val) -> basic_string &
     {
@@ -473,9 +494,9 @@ namespace ustl
         return *this;
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         replace(const_iterator __first, const_iterator __last,
                 const_pointer __str) -> basic_string &
     {
@@ -483,30 +504,36 @@ namespace ustl
         difference_type __dis = __last - __first;
         size_type __len = _S_strlen(__str);
         if (__dis)
-            _M_replace(__pos, __dis, __val, __len);
+            _M_replace(__pos, __dis, __str, __len);
         return *this;
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     template <typename _InputIterator>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         replace(const_iterator __first, const_iterator __last,
                 _InputIterator __first1, _InputIterator __last1) -> basic_string &
     {
+        difference_type __dis = cbegin() - __first;
+        difference_type __len = ustl::distance(__first1, __last1);
+        size_type __new_size = size() + __len - __dis;
+        resize(__new_size);
+        /// @SmallHuaZi Write On 2022_11_20
+        return *this;
     }
 
-    template <typename _Tp, typename _Alloc>
-    auto basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    auto basic_string<_CharT, _Alloc>::
         insert(size_type __pos, value_type const __val) -> iterator
     {
         _M_replace_aux(__pos, 0, __val);
         return iterator(data() + __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         insert(size_type __pos, const_pointer __str) -> iterator
     {
         size_type __len = _CharT_traits::length(__str);
@@ -514,52 +541,52 @@ namespace ustl
         return iterator(data() + __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         insert(size_type __pos, basic_string const &__str) -> iterator
     {
         _M_replace(__pos, 0, __str.data(), __str.size());
         return iterator(data() + __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     template <typename _InputIterator>
     auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         insert(size_type __pos, _InputIterator __first,
                _InputIterator __last) -> iterator
     {
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         push_back(value_type const __val)
     {
         _M_append(&__val);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         push_back(const_pointer __str)
     {
         size_type __len = _CharT_traits::length(__str);
         _M_append(__str, __len);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         push_back(basic_string const &__str)
     {
         _M_append(__str.data(), __str.size());
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         erase(const_iterator __pos)
     {
         difference_type __dis = ustl::distance(cbegin(), __pos);
@@ -567,9 +594,9 @@ namespace ustl
             _M_erase(__dis);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         erase(const_iterator __first, const_iterator __last)
     {
         difference_type __dis = ustl::distance(cbegin(), __first);
@@ -578,18 +605,18 @@ namespace ustl
             _M_erase(__dis, __len);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         erase(size_type __pos, size_type __count)
     {
         if (__pos < size() && __count)
             _M_erase(__pos, __count);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find(value_type const __val, size_type __pos)
             ustl_cpp_noexcept
     {
@@ -602,9 +629,9 @@ namespace ustl
         return size_type(_S_EOF);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
     {
@@ -620,18 +647,18 @@ namespace ustl
         return _S_comp(value_type(0), __val[__ret]) ? __idx - __ret : size_type(_S_EOF);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
     {
         return find(__val.data());
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         rfind(value_type const __val, size_type __pos)
             ustl_cpp_noexcept
     {
@@ -644,9 +671,9 @@ namespace ustl
         return size_type(_S_EOF);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         rfind(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
     {
@@ -662,71 +689,104 @@ namespace ustl
         return size_type(_S_EOF) == __idx ? __ret : size_type(_S_EOF);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         rfind(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
     {
         return rfind(__val.data(), __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find_last_of(value_type __val, size_type __pos)
             ustl_cpp_noexcept
     {
         return rfind(__val, __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find_last_of(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
     {
         return rfind(__val, __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find_last_of(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
     {
         return rfind(__val, __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find_first_of(value_type const __val, size_type __pos)
             ustl_cpp_noexcept
     {
         return find(__val, __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find_first_of(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
     {
         return find(__val, __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
-    typename basic_string<_Tp, _Alloc>::size_type
-    basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    typename basic_string<_CharT, _Alloc>::size_type
+    basic_string<_CharT, _Alloc>::
         find_first_of(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
     {
         return find(__val, __pos);
     }
 
-    template <typename _Tp, typename _Alloc>
-    void basic_string<_Tp, _Alloc>::
+    template <typename _CharT, typename _Alloc>
+    int
+    basic_string<_CharT, _Alloc>::
+        compare(const_pointer __str) const ustl_cpp_noexcept
+    {
+        size_type __my_len = size();
+        size_type __olen = _S_strlen(__str);
+        __my_len = ustl::min(__my_len, __olen);
+        pointer __p = data();
+        __my_len = _S_compare(__p, __str, __my_len);
+        if (0 == __my_len)
+            return __olen > size() ? -1 : 1;
+        return __my_len;
+    }
+
+    template <typename _CharT, typename _Alloc>
+    int
+    basic_string<_CharT, _Alloc>::
+        compare(basic_string const &__other) const ustl_cpp_noexcept
+    {
+        return compare(__other.data());
+    }
+
+    template <typename _CharT, typename _Alloc>
+    auto
+    basic_string<_CharT, _Alloc>::
+        substr(size_type __pos, size_type __len) -> basic_string
+    {
+        pointer __first = data() + __pos;
+        pointer __last = __first + __len;
+        return basic_string(__first, __last);
+    }
+
+    template <typename _CharT, typename _Alloc>
+    void basic_string<_CharT, _Alloc>::
         copy(pointer __buf, size_type __n,
              size_type __pos) const
     {
@@ -734,9 +794,9 @@ namespace ustl
             ustl::memcopy(data() + __pos, __buf, __n);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         swap(basic_string &__other)
     {
         if (this == &__other)
@@ -781,17 +841,92 @@ namespace ustl
         __other._M_set_len(__my_len);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     inline void
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
         swap(basic_string &&__other)
     {
         swap(__other);
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
+    inline void
+    basic_string<_CharT, _Alloc>::
+        reverse()
+    {
+    }
+
+    template <typename _CharT, typename _Alloc>
+    inline void
+    basic_string<_CharT, _Alloc>::
+        reserve(size_type __new_size)
+    {
+        if (__new_size < capacity())
+            return;
+
+        pointer __new_begin = _M_allocate(__new_size);
+        pointer __p = data();
+        size_type __old_size = size();
+        ustl::copy_forward(__p, __p + __old_size, __new_begin);
+        _M_destory(__p, __old_size);
+        _M_deallocate(__p, __old_size);
+        _M_set_data(__new_begin);
+        _M_set_capacity(__new_size);
+    }
+
+    template <typename _CharT, typename _Alloc>
+    inline void
+    basic_string<_CharT, _Alloc>::
+        resize(size_type __new_size)
+    {
+        if (__new_size > size())
+        {
+            if (__new_size > capacity())
+            {
+                pointer __p = data();
+                _M_amend(__p, size(), 0, 0, __new_size);
+            }
+            _M_set_len(__new_size);
+        }
+    }
+
+    template <typename _CharT, typename _Alloc>
+    inline void
+    basic_string<_CharT, _Alloc>::
+        resize(size_type __new_size, value_type const __val)
+    {
+        if (__new_size > size())
+        {
+            pointer __p = data();
+            size_type __old_len = size();
+            if (__new_size > capacity())
+                _M_amend(__p, __p + __old_len, 0, 0, __new_size);
+            ustl::fill(__p + __old_len, __new_size - __old_len);
+            _M_set_len(__new_size);
+        }
+    }
+
+    template <typename _CharT, typename _Alloc>
+    void
+    basic_string<_CharT, _Alloc>::
+        clear()
+    {
+        if (!_M_data_is_local())
+        {
+            pointer __begin = data();
+            size_type __len = size();
+            size_type __capacity = capacity();
+            _M_destory(__begin, __len);
+            _M_deallocate(__begin, __capacity);
+            _M_set_data(_M_local_data());
+            _M_set_capacity(0);
+        }
+        _M_set_len(0);
+    }
+
+    template <typename _CharT, typename _Alloc>
     inline auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
     operator[](size_type __idx) -> reference
     {
         if (__idx < size())
@@ -799,9 +934,9 @@ namespace ustl
         __throw_index_outof("basic_string::operator[]: index overlaps");
     }
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _CharT, typename _Alloc>
     inline auto
-    basic_string<_Tp, _Alloc>::
+    basic_string<_CharT, _Alloc>::
     operator[](size_type __idx) const -> const_reference
     {
         if (__idx < size())
@@ -815,58 +950,116 @@ namespace ustl
 namespace ustl
 {
 
-    template <typename _Tp, typename _Alloc>
-    bool
-    operator<=(basic_string<_Tp, _Alloc> const &__l,
-               basic_string<_Tp, _Alloc> const &__r)
+    template <typename _CharT, typename _Alloc>
+    inline bool
+    operator<=(basic_string<_CharT, _Alloc> const &__l,
+               basic_string<_CharT, _Alloc> const &__r)
         ustl_cpp_noexcept
     {
-        typedef typename basic_string<_Tp, _Alloc>::const_iterator iterator;
-        iterator __first1 = __l.begin();
-        iterator __last1 = __l.end();
-        iterator __frist2 = __r.begin();
-        iterator __last2 = __r.end();
+        int __result = __l.compare(__r);
+        return -1 == __result ? true : false;
     }
 
-    template <typename _Tp, typename _Alloc>
-    bool
-    operator<=(basic_string<_Tp, _Alloc> const &__l,
-               _Tp const *__r)
+    template <typename _CharT, typename _Alloc>
+    inline bool
+    operator<=(basic_string<_CharT, _Alloc> const &__l,
+               _CharT const *__r)
         ustl_cpp_noexcept
     {
+        int __result = __l.compare(__r);
+        return -1 == __result ? true : false;
     }
 
-    template <typename _Tp, typename _Alloc>
-    bool
-    operator<=(_Tp const *__l,
-               basic_string<_Tp, _Alloc> const &__r)
+    template <typename _CharT, typename _Alloc>
+    inline bool
+    operator<=(_CharT const *__l,
+               basic_string<_CharT, _Alloc> const &__r)
         ustl_cpp_noexcept
     {
+        int __result = __r.compare(__l);
+        return -1 == __result ? true : false;
     }
 
-    template <typename _Tp, typename _Alloc>
-    bool
-    operator>=(basic_string<_Tp, _Alloc> const &__l,
-               basic_string<_Tp, _Alloc> const &__r)
+    template <typename _CharT, typename _Alloc>
+    inline bool
+    operator>=(basic_string<_CharT, _Alloc> const &__l,
+               basic_string<_CharT, _Alloc> const &__r)
         ustl_cpp_noexcept
     {
+        int __result = __l.compare(__r);
+        return 1 == __result ? true : false;
     }
 
-    template <typename _Tp, typename _Alloc>
-    bool
-    operator>=(basic_string<_Tp, _Alloc> const &__l,
-               _Tp const *__r)
+    template <typename _CharT, typename _Alloc>
+    inline bool
+    operator>=(basic_string<_CharT, _Alloc> const &__l,
+               _CharT const *__r)
         ustl_cpp_noexcept
     {
+        int __result = __l.compare(__r);
+        return 1 == __result ? true : false;
     }
 
-    template <typename _Tp, typename _Alloc>
-    bool
-    operator>=(_Tp const *__l,
-               basic_string<_Tp, _Alloc> const &__r)
+    template <typename _CharT, typename _Alloc>
+    inline bool
+    operator>=(_CharT const *__l,
+               basic_string<_CharT, _Alloc> const &__r)
         ustl_cpp_noexcept
     {
+        int __result = __r.compare(__l);
+        return 1 == __result ? true : false;
     }
+
+    template <typename _CharT, typename _Alloc>
+    inline basic_string<_CharT, _Alloc>
+    operator+(_CharT const *__l,
+              basic_string<_CharT, _Alloc> const &__r)
+    {
+        basic_string<_CharT, _Alloc> __tmp(__l);
+        __tmp.append(__r);
+        return __tmp;
+    }
+
+    template <typename _CharT, typename _Alloc>
+    inline basic_string<_CharT, _Alloc>
+    operator+(basic_string<_CharT, _Alloc> const &__l,
+              _CharT const *__r)
+    {
+        basic_string<_CharT, _Alloc> __tmp(__l);
+        __tmp.append(__r);
+        return __tmp;
+    }
+
+    template <typename _CharT, typename _Alloc>
+    basic_string<_CharT, _Alloc>
+    operator+(_CharT const __l,
+              basic_string<_CharT, _Alloc> const &__r)
+    {
+        basic_string<_CharT, _Alloc> __tmp(__l);
+        __tmp.append(__r);
+        return __tmp;
+    }
+
+    template <typename _CharT, typename _Alloc>
+    inline basic_string<_CharT, _Alloc>
+    operator+(basic_string<_CharT, _Alloc> const &__r,
+              _CharT const __l)
+    {
+        basic_string<_CharT, _Alloc> __tmp(__l);
+        __l.append(__r);
+        return __tmp;
+    }
+
+    template <typename _CharT, typename _Alloc>
+    inline basic_string<_CharT, _Alloc>
+    operator+(basic_string<_CharT, _Alloc> const &__l,
+              basic_string<_CharT, _Alloc> const &__r)
+    {
+        basic_string<_CharT, _Alloc> __tmp(__l);
+        __l.append(__r);
+        return __tmp;
+    }
+
 } // namespace ustl::basic_string
 
 #endif

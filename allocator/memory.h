@@ -296,15 +296,17 @@ namespace ustl
     void
     memcopy(const void *__s, void *__d, size_t __len)
     {
+        char *__md = (char *)__d;
+        char const *__ms = (char const *)__s;
         while (__len--)
-            *(char *)__d = *(char *)__s;
+            *__md++ = *__ms++;
     }
 
     void
     memmove(const void *__s, void *__d, size_t __len)
     {
-        char const *__ms = (char *)__s;
         char *__md = (char *)__d;
+        char const *__ms = (char *)__s;
         if (__ustl_safe_checking(__ms, __md))
             while (__len--)
                 *__md++ = *__ms++;
