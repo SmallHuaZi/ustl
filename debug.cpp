@@ -20,8 +20,6 @@ struct compare
     }
 };
 
-// #include "allocate_type.h"
-
 struct object
 {
     object() = default;
@@ -76,25 +74,15 @@ struct object
 #include "ustl_iterator.h"
 #include "ustl_container.h"
 
-struct TestYes
-{
-    void What();
-};
-
 int main(int argc, char **argv)
 {
     ustl::string __str;
+    ustl::string __tmp;
+    __tmp.append("nihaoahaojiaaaaaaaaaaaaaa");
     __str.append("hello world");
-    __str.append(__str);
 
-    __str.resize(10);
-    std::cout << __str.data() << std::endl;
-
-    std::cout << ("nihao" + __str).data() << std::endl;
-
-    auto __idx = __str.rfind("hello");
-    std::cout << __str.data() << std::endl;
-    __str.replace(5, 5, "good day", sizeof("good day") - 1);
-    std::cout << __str.data() << std::endl;
+    bool __result = __str > __tmp;
+    __str = __tmp;
+    __str.clear();
     return 0;
 }

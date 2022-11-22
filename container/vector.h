@@ -265,7 +265,7 @@ namespace ustl
         size_type
         _M_max_size()
         {
-            _Tp_alloc_traits::max_size(_M_get_allocator());
+            return _Tp_alloc_traits::max_size(_M_get_allocator());
         }
 
         void _M_default_append(size_type); // append element on default state

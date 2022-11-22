@@ -239,5 +239,35 @@ namespace ustl
         using type = _Tp;
     };
 
+    template <typename _Tp>
+    struct remove_cv
+    {
+        using type = _Tp;
+    };
+
+    template <typename _Tp>
+    struct remove_cv<_Tp const>
+    {
+        using type = _Tp;
+    };
+
+    template <typename _Tp>
+    struct remove_cv<_Tp const *>
+    {
+        using type = _Tp *;
+    };
+
+    template <typename _Tp>
+    struct remove_cv<_Tp volatile>
+    {
+        using type = _Tp;
+    };
+
+    template <typename _Tp>
+    struct remove_cv<_Tp volatile *>
+    {
+        using type = _Tp *;
+    };
+
 }
 #endif

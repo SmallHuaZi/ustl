@@ -1,6 +1,9 @@
 #ifndef __ustl_container_standard
 #define __ustl_container_standard
 
+/**
+ * container
+ */
 #include "container/bvector.h"
 #include "container/deque.h"
 #include "container/hashtable.h"
@@ -44,8 +47,12 @@ namespace ustl
      *
      *
      */
-    typedef basic_string<char, ustl::allocator<char>> string;
-    typedef basic_string<wchar_t, ustl::allocator<wchar_t>> wstring;
+    typedef basic_string<char, ustl::allocator<char>>
+        string;
+
+    typedef basic_string<wchar_t, ustl::allocator<wchar_t>>
+        wstring;
+
 } // namespace ustl
 
 #endif

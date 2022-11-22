@@ -48,6 +48,34 @@ namespace ustl
             }
             return 0;
         }
+
+        static void
+        assign(char const &__s, char &__d)
+        {
+            __d = __s;
+        }
+
+        static void
+        copy(char const *__s, char *__d, size_t __len)
+        {
+            ustl::memmove(__s, __d, __len);
+        }
+
+        static void
+        swap(char &__x, char &__y)
+        {
+            char __buf = __x;
+            __x = __y;
+            __y = __buf;
+        }
+    };
+
+    template <>
+    struct char_traits<wchar_t>
+    {
+        typedef wchar_t value_type;
+        typedef wchar_t *pointer;
+        typedef wchar_t &reference;
     };
 
 } // namespace ustl

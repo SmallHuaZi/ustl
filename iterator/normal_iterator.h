@@ -9,7 +9,7 @@ namespace ustl
     {
     public:
         typedef normal_iterator _Self;
-        typedef _Iterator iterator_type;
+        typedef typename ustl::remove_cv<_Iterator>::type iterator_type;
         typedef ustl::itr_traits<_Iterator> _iterator_traits;
 
         typedef typename _iterator_traits::iterator_tag iterator_tag;
@@ -111,17 +111,21 @@ namespace ustl
         normal_iterator(iterator_type __itr)
             : _M_current(__itr) {}
 
+        normal_iterator(normal_iterator<iterator_type> const &__non_cv)
+            : _M_current(__non_cv.base_iterator()) {}
+
     protected:
         iterator_type _M_current;
     };
 
     template <typename _Iterator>
     ustl::diff_t
-    operator-(normal_iterator<_Iterator> &__l,
-              normal_iterator<_Iterator> &__r)
+    operator-(normal_iterator<_Iterator> const &__l,
+              normal_iterator<_Iterator> const &__r)
     {
         ustl::diff_t __dis = 0;
-        for (; __l != __r; ++__dis, (void)++__l)
+        normal_iterator<_Iterator> __tmp = __r;
+        for (; __tmp != __l; ++__dis, (void)++__tmp)
             ;
         return __dis;
     }
@@ -142,6 +146,7 @@ namespace ustl
         return __l.base_iterator() != __r.base_iterator();
     }
 
-} // namespace ustl
+}
+// namespace ustl
 
 #endif

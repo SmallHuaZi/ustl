@@ -14,7 +14,7 @@ namespace ustl
     };
 
     template <typename _Tp, typename _Comp = ustl::less<_Tp>>
-    bool
+    _Tp
     min(_Tp __x, _Tp __y, _Comp __cmp = _Comp())
     {
         return __cmp(__x, __y) ? __x : __y;
