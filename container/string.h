@@ -512,7 +512,7 @@ namespace ustl
         _M_erase(size_type __pos, size_type __len)
     {
         size_type __move_len = size() - __pos - __len;
-        if (__move_len && __len)
+        if (__len)
         {
             size_type __old_len = size();
             pointer __begin = data();

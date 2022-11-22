@@ -81,8 +81,5 @@ int main(int argc, char **argv)
     __tmp.append("nihaoahaojiaaaaaaaaaaaaaa");
     __str.append("hello world");
 
-    bool __result = __str > __tmp;
-    __str = __tmp;
-    __str.clear();
     return 0;
 }
