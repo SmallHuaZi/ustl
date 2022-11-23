@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include <forward_list>
 
 struct get_key
 {
@@ -58,8 +59,8 @@ struct object
                __l._M_data != __r._M_data;
     }
 
-    static int _S_count;
-    static int _S_copy_count;
+    static inline int _S_count = 0;
+    static inline int _S_copy_count = 0;
     int _M_data;
     long _M_data2;
 };
@@ -80,6 +81,9 @@ int main(int argc, char **argv)
     ustl::string __tmp;
     __tmp.append("nihaoahaojiaaaaaaaaaaaaaa");
     __str.append("hello world");
+    std::forward_list<int> __s;
 
-    return 0;
+    __s.
+
+        return 0;
 }

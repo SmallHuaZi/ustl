@@ -80,7 +80,8 @@
         "climits": "cpp",
         "ios": "cpp",
         "queue": "cpp",
-        "ustl_exception": "cpp"
+        "ustl_exception": "cpp",
+        "forward_list": "cpp"
     },
     "makefile.phonyOnlyTargets": false,
 }
