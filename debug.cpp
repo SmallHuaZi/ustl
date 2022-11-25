@@ -77,13 +77,30 @@ struct object
 
 int main(int argc, char **argv)
 {
-    ustl::string __str;
-    ustl::string __tmp;
-    __tmp.append("nihaoahaojiaaaaaaaaaaaaaa");
-    __str.append("hello world");
-    std::forward_list<int> __s;
+    ustl::slist<int> __si;
+    ustl::slist<int> __sint;
+    int __ary[] = {1, 3, 5, 7, 9};
+    int __ary2[] = {2, 4, 6, 8, 10};
 
-    __s.
+    __sint.assign(__ary, __ary + sizeof(__ary) / sizeof(int));
+    __si.assign(__ary2, __ary2 + sizeof(__ary2) / sizeof(int));
+    __sint.merge(__si);
 
-        return 0;
+    for (auto __tmp : __sint)
+        std::cout << __tmp << std::endl;
+
+    return 0;
 }
+
+struct basic
+{
+    int _M_value_field;
+    basic *_M_next;
+};
+
+struct derived
+    : basic
+{
+    // derived(int a)
+    //     : _M_value_field(a) {}
+};

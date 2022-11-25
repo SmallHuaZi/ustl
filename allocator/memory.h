@@ -185,6 +185,7 @@ namespace ustl
         typedef _Tp &reference;
         typedef const _Tp *const_pointer;
         typedef const _Tp &const_reference;
+        typedef allocator allocator_type;
 
     private:
         static inline std::mutex _S_mutex;
