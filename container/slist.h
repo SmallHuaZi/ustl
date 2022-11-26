@@ -92,7 +92,7 @@ namespace ustl
         }
 
         slist_header()
-            : _M_last(this) {}
+            : _M_count(0), _M_last(this) {}
 
         size_t _M_count;
         _base_ptr _M_last;
@@ -357,6 +357,13 @@ namespace ustl
         slist()
             : _M_data_plus(impl_type()) {}
 
+        template <typename _ForwardIterator>
+        slist(_ForwardIterator __first, _ForwardIterator __last)
+            : _M_data_plus(impl_type())
+        {
+            _M_assign_copy(before_begin(), __first, __last);
+        }
+
     public:
         Nallocator_type &
         _M_get_allocator()
@@ -418,7 +425,7 @@ namespace ustl
         _M_change_length(ustl::diff_t __n) { _M_data_plus._M_header._M_change_len(__n); }
 
         iterator
-        _M_const_cast(const_iterator __itr) { return iterator(_M_const_cast(__itr).data()); }
+        _M_const_cast(const_iterator __itr) { return iterator(const_cast<base_ptr>(__itr.data())); }
 
         static base_ptr
         _S_next(base_ptr __p) { return __p->_M_next; }
@@ -479,9 +486,9 @@ namespace ustl
         empty() { return 0 == size(); }
 
     private:
-        void _M_assign_aux(const_iterator, value_type const &, size_type);
+        void _M_assign_copy_aux(const_iterator, value_type const &, size_type);
         template <typename _ForwardIterator>
-        void _M_assign(const_iterator, _ForwardIterator, _ForwardIterator);
+        void _M_assign_copy(const_iterator, _ForwardIterator, _ForwardIterator);
 
         template <typename... _Args>
         void _M_fill(size_type, _Args &&...);
@@ -489,6 +496,11 @@ namespace ustl
         size_t _M_range_copy(const_iterator, _ForwardIterator, _ForwardIterator);
 
         void _M_splice_after(const_iterator, const_iterator, const_iterator);
+        template <typename _ForwardIterator>
+        void _M_splice_after(const_iterator, _ForwardIterator, _ForwardIterator, ustl::false_type);
+        template <typename _ForwardIterator>
+        void _M_splice_after(const_iterator, _ForwardIterator, _ForwardIterator, ustl::true_type);
+
         template <typename... _Args>
         void _M_insert_back(_Args &&...);
         template <typename... _Args>
@@ -517,11 +529,11 @@ namespace ustl
         template <typename _ForwardIterator>
         inline iterator insert_after(const_iterator, _ForwardIterator, _ForwardIterator);
 
-        size_type splice(const_iterator, slist &);
-        size_type splice(const_iterator, slist &&);
-        size_type splice(const_iterator, const_iterator, const_iterator);
+        slist &splice_after(const_iterator, slist &);
+        slist &splice_after(const_iterator, slist &&);
+        slist &splice_after(const_iterator, const_iterator, const_iterator);
         template <typename _ForwardIterator>
-        size_type splice(const_iterator, _ForwardIterator, _ForwardIterator);
+        slist &splice_after(const_iterator, _ForwardIterator, _ForwardIterator);
 
         void pop_front();
 
@@ -540,14 +552,13 @@ namespace ustl
         void resize(size_type);
         void resize(size_type, value_type const &);
 
-        void merge(slist &);
-        void merge(slist &&);
-        template <typename _Predicate>
-        void merge(slist &, _Predicate);
+        template <typename _Predicate = ustl::less<_Tp>>
+        void merge(slist &, _Predicate = ustl::less<_Tp>());
+        template <typename _Predicate = ustl::less<_Tp>>
+        void merge(slist &&, _Predicate = ustl::less<_Tp>());
 
-        void sort();
-        template <typename _Predicate>
-        void sort(_Predicate const &);
+        template <typename _Predicate = ustl::less<_Tp>>
+        void sort(_Predicate = ustl::less<_Tp>());
 
         void clear();
 
@@ -558,9 +569,9 @@ namespace ustl
     template <typename _Tp, typename _Alloc>
     void
     slist<_Tp, _Alloc>::
-        _M_assign_aux(const_iterator __pos,
-                      value_type const &__val,
-                      size_type __n)
+        _M_assign_copy_aux(const_iterator __pos,
+                           value_type const &__val,
+                           size_type __n)
     {
         size_type __counter = __n;
         iterator __first = begin();
@@ -583,9 +594,9 @@ namespace ustl
     template <typename _ForwardIterator>
     void
     slist<_Tp, _Alloc>::
-        _M_assign(const_iterator __pos,
-                  _ForwardIterator __first,
-                  _ForwardIterator __last)
+        _M_assign_copy(const_iterator __pos,
+                       _ForwardIterator __first,
+                       _ForwardIterator __last)
     {
         size_type __old_size = size();
         size_type __counter = 0;
@@ -640,15 +651,16 @@ namespace ustl
     {
         base_ptr __bef = _M_const_cast(__before).data();
         base_ptr __end = _M_const_cast(__last).data();
-        base_ptr __tmp = __bef->_M_next;
+        base_ptr __tmp = _S_next(__bef);
+        __bef->_M_next = __end;
         difference_type __counter = 0;
-        __bef->_M_next = 0;
-        while (__tmp && __tmp != __end)
+        while (__tmp != __end)
         {
             __bef = __tmp->_M_next;
+            _M_destory_node(__tmp);
             _M_deallocate_node(__tmp);
             __tmp = __bef;
-            __counter++;
+            --__counter;
         }
         _M_change_length(__counter);
         return __counter;
@@ -716,16 +728,45 @@ namespace ustl
     void
     slist<_Tp, _Alloc>::
         _M_splice_after(const_iterator __pos,
-                        const_iterator __first,
+                        const_iterator __before,
                         const_iterator __last)
     {
         base_ptr __p = _S_get_node(__pos);
-        base_ptr __begin = _S_get_node(__first);
+        base_ptr __begin = _S_get_node(__before);
         base_ptr __end = _S_get_node(__last);
 
         __end = slist_node_basic::_S_find_pre(__begin, __end);
 
         __p->_M_transer_after(__begin, __end);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _ForwardIterator>
+    void
+    slist<_Tp, _Alloc>::
+        _M_splice_after(const_iterator __pos,
+                        _ForwardIterator __before,
+                        _ForwardIterator __last,
+                        ustl::false_type)
+    {
+        slist __tmp(++__before, __last);
+        if (!__tmp.empty())
+        {
+            _M_splice_after(__pos, __tmp.before_cbegin(), __tmp.end());
+            _M_change_length(__tmp.size());
+        }
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _ForwardIterator>
+    void
+    slist<_Tp, _Alloc>::
+        _M_splice_after(const_iterator __pos,
+                        _ForwardIterator __before,
+                        _ForwardIterator __last,
+                        ustl::true_type)
+    {
+        _M_splice_after(__pos, const_iterator(__before), const_iterator(__last));
     }
 
     template <typename _Tp, typename _Alloc>
@@ -814,12 +855,64 @@ namespace ustl
         _M_insert_after(before_cbegin(), __val);
     }
 
+    /**
+     * (__before,   __last) loro
+     */
+    template <typename _Tp, typename _Alloc>
+    auto
+    slist<_Tp, _Alloc>::
+        splice_after(const_iterator __pos,
+                     slist &__other) -> slist &
+    {
+        size_type __add_len = __other.size();
+        if (!__other.empty())
+        {
+            _M_splice_after_after(__pos, __other.before_begin(), __other.end());
+            _M_change_length(__add_len);
+            __other._M_data_plus._M_reset();
+        }
+        return __add_len;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto
+    slist<_Tp, _Alloc>::
+        splice_after(const_iterator __pos,
+                     slist &&__other) -> slist &
+    {
+        return splice_after(__pos, __other);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    auto
+    slist<_Tp, _Alloc>::
+        splice_after(const_iterator __pos,
+                     const_iterator __before,
+                     const_iterator __last) -> slist &
+    {
+        _M_splice_after(__pos, __before, __last, ustl::true_type());
+        return *this;
+    }
+
+    template <typename _Tp, typename _Alloc>
+    template <typename _ForwardIterator>
+    auto
+    slist<_Tp, _Alloc>::
+        splice_after(const_iterator __pos,
+                     _ForwardIterator __before,
+                     _ForwardIterator __last) -> slist &
+    {
+        _M_splice_after(__pos, __before, __last,
+                        ustl::is_same<_ForwardIterator, iterator>());
+        return *this;
+    }
+
     template <typename _Tp, typename _Alloc>
     void
     slist<_Tp, _Alloc>::
         assign(value_type const &__val, size_type __n)
     {
-        _M_assign_aux(before_cbegin(), __val, __n);
+        _M_assign_copy_aux(before_cbegin(), __val, __n);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -828,7 +921,7 @@ namespace ustl
     slist<_Tp, _Alloc>::
         assign(_ForwardIterator __first, _ForwardIterator __last)
     {
-        _M_assign(before_cbegin(), __first, __last);
+        _M_assign_copy(before_cbegin(), __first, __last);
     }
 
     template <typename _Tp, typename _Alloc>
@@ -970,61 +1063,136 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
+    template <typename _Predicate>
     void
     slist<_Tp, _Alloc>::
-        merge(slist &__other)
+        merge(slist &__other, _Predicate __cmp)
     {
         iterator __first = begin();
         iterator __last = end();
         iterator __first1 = __other.begin();
         iterator __last1 = __other.end();
-        iterator __tmp = before_begin();
-        iterator __tmp1 = __other.before_begin();
+        iterator __before = before_begin();
+        iterator __before1 = __other.before_begin();
 
         while (__first != __last && __first1 != __last1)
         {
-            if (*__first < *__first1)
-                __tmp = __first++;
+            if (__cmp(*__first * __first1))
+                __before = __first++;
             else
             {
-                iterator __next = __tmp1;
-                __first1.data()->_M_unhook(__tmp1.data());
-                __first1.data()->_M_hook(__tmp.data());
+                iterator __next = __before1;
+                __first1.data()->_M_unhook(__before1.data());
+                __first1.data()->_M_hook(__before.data());
                 __first1 = ++__next;
             }
         }
         if (__first1 != __last1)
         {
             _M_back(__other._M_back());
-            __tmp.data()->_M_transer_after(__first1.data(), __last1.data());
+            __before.data()->_M_transer_after(__before1.data(), __last1.data());
         }
         else
-            _M_back(__tmp.data());
+            _M_back(__before.data());
         _M_change_length(__other.size());
         __other._M_data_plus._M_reset();
-    }
-
-    template <typename _Tp, typename _Alloc>
-    void
-    slist<_Tp, _Alloc>::
-        merge(slist &&__other)
-    {
-        merge(__other);
-    }
-
-    template <typename _Tp, typename _Alloc>
-    void
-    slist<_Tp, _Alloc>::
-        sort()
-    {
     }
 
     template <typename _Tp, typename _Alloc>
     template <typename _Predicate>
     void
     slist<_Tp, _Alloc>::
-        sort(_Predicate const &__cmp)
+        merge(slist &&__other, _Predicate __cmp)
     {
+        merge(__other, __cmp);
+    }
+
+    /**
+     * @GNU stadard forward_list::sort
+     * 主要思想就是通过遍历链表与增加每次摘取的结点进行归并，放置于新的局部有序链表中
+     * 在此对 GNU 的前辈们表示钦佩
+     */
+    template <typename _Tp, typename _Alloc>
+    template <typename _Predicate>
+    void
+    slist<_Tp, _Alloc>::
+        sort(_Predicate __cmp)
+    {
+        size_type __ysize;
+        size_type __xsize;
+        size_type __counter;
+        size_type __len = size() >> 1;
+        size_type __merge_size = 1;
+
+        node_ptr __head = static_cast<node_ptr>(_M_front());
+        node_ptr __tail;
+
+        while (__merge_size <= __len)
+        {
+            node_ptr __x = __head;
+            node_ptr __y = __x;
+
+            __tail = 0;
+            while (__x)
+            {
+                __ysize = __merge_size;
+                __xsize = __merge_size;
+
+                // Extract nodes from __x linked list to fill the
+                // linked list pick node for __y list
+                for (__counter = 0;
+                     __counter < __merge_size && __x;
+                     ++__counter)
+                {
+                    __x = static_cast<node_ptr>(_S_next(__x));
+                }
+
+                // find the node that`s min and insert sorted linker list
+                node_ptr __lower;
+                while (__ysize || (__xsize && __x))
+                {
+                    if (!__ysize)
+                    {
+                        __lower = __x;
+                        __x = static_cast<node_ptr>(_S_next(__x));
+                        --__xsize;
+                    }
+                    else if (!__xsize || !__x)
+                    {
+                        __lower = __y;
+                        __y = static_cast<node_ptr>(_S_next(__y));
+                        --__ysize;
+                    }
+                    else if (__cmp(__x->_M_value(), __y->_M_value()))
+                    {
+                        __lower = __x;
+                        __x = static_cast<node_ptr>(_S_next(__x));
+                        --__xsize;
+                    }
+                    else
+                    {
+                        __lower = __y;
+                        __y = static_cast<node_ptr>(_S_next(__y));
+                        --__ysize;
+                    }
+
+                    // add to new head
+                    if (0 == __tail)
+                        __head = __lower;
+                    else
+                        __tail->_M_next = __lower;
+                    __tail = __lower;
+                }
+                __y = __x;
+            }
+            // new end is pointer to 0
+            __tail->_M_next = 0;
+
+            // merge size 2*n
+            __merge_size <<= 1;
+        }
+        _M_front(__head);
+        _M_back(__tail);
     }
 
     template <typename _Tp, typename _Alloc>

@@ -79,13 +79,22 @@ int main(int argc, char **argv)
 {
     ustl::slist<int> __si;
     ustl::slist<int> __sint;
-    int __ary[] = {1, 3, 5, 7, 9};
-    int __ary2[] = {2, 4, 6, 8, 10};
+    int __ary[] = {2, 6, 1, 3, -1, -5, 9, 4};
+    // int __ary2[] = {2, 4, 6, 8, 10};
 
     __sint.assign(__ary, __ary + sizeof(__ary) / sizeof(int));
-    __si.assign(__ary2, __ary2 + sizeof(__ary2) / sizeof(int));
-    __sint.merge(__si);
+    __sint.sort();
 
+    auto __first = __sint.begin();
+    ++ ++ ++__first;
+    auto __end = __first;
+    ++ ++ ++__end;
+
+    __sint.splice_after(__first, __ary, __ary + 4);
+    for (auto __tmp : __sint)
+        std::cout << __tmp << std::endl;
+
+    __sint.erase_after(__first, __end);
     for (auto __tmp : __sint)
         std::cout << __tmp << std::endl;
 
