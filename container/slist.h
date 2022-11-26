@@ -497,9 +497,9 @@ namespace ustl
 
         void _M_splice_after(const_iterator, const_iterator, const_iterator);
         template <typename _ForwardIterator>
-        void _M_splice_after(const_iterator, _ForwardIterator, _ForwardIterator, ustl::false_type);
+        inline void _M_splice_after(const_iterator, _ForwardIterator, _ForwardIterator, ustl::false_type);
         template <typename _ForwardIterator>
-        void _M_splice_after(const_iterator, _ForwardIterator, _ForwardIterator, ustl::true_type);
+        inline void _M_splice_after(const_iterator, _ForwardIterator, _ForwardIterator, ustl::true_type);
 
         template <typename... _Args>
         void _M_insert_back(_Args &&...);
@@ -529,20 +529,20 @@ namespace ustl
         template <typename _ForwardIterator>
         inline iterator insert_after(const_iterator, _ForwardIterator, _ForwardIterator);
 
-        slist &splice_after(const_iterator, slist &);
-        slist &splice_after(const_iterator, slist &&);
-        slist &splice_after(const_iterator, const_iterator, const_iterator);
+        inline slist &splice_after(const_iterator, slist &);
+        inline slist &splice_after(const_iterator, slist &&);
+        inline slist &splice_after(const_iterator, const_iterator, const_iterator);
         template <typename _ForwardIterator>
-        slist &splice_after(const_iterator, _ForwardIterator, _ForwardIterator);
+        inline slist &splice_after(const_iterator, _ForwardIterator, _ForwardIterator);
 
-        void pop_front();
+        inline void pop_front();
 
-        void erase_after(const_iterator);
-        difference_type erase_after(const_iterator, const_iterator);
+        inline void erase_after(const_iterator);
+        inline difference_type erase_after(const_iterator, const_iterator);
 
-        size_type remove(value_type const &);
+        inline size_type remove(value_type const &);
         template <typename _Predicate>
-        size_type remove_if(_Predicate);
+        inline size_type remove_if(_Predicate);
 
         void swap(slist &);
         void swap(slist &&);
