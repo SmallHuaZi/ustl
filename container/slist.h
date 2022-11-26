@@ -493,7 +493,7 @@ namespace ustl
         template <typename... _Args>
         void _M_fill(size_type, _Args &&...);
         template <typename _ForwardIterator>
-        size_t _M_range_copy(const_iterator, _ForwardIterator, _ForwardIterator);
+        size_t _M_fill_range(const_iterator, _ForwardIterator, _ForwardIterator);
 
         void _M_splice_after(const_iterator, const_iterator, const_iterator);
         template <typename _ForwardIterator>
@@ -608,7 +608,7 @@ namespace ustl
             --__old_size;
         }
         if (!__old_size)
-            __counter = _M_range_copy(_M_back(), __first, __last);
+            __counter = _M_fill_range(_M_back(), __first, __last);
         _M_change_length(__counter);
     }
 
@@ -686,7 +686,7 @@ namespace ustl
     template <typename _ForwardIterator>
     size_t
     slist<_Tp, _Alloc>::
-        _M_range_copy(const_iterator __pos,
+        _M_fill_range(const_iterator __pos,
                       _ForwardIterator __first,
                       _ForwardIterator __last)
     {
@@ -695,16 +695,8 @@ namespace ustl
         for (; __first != __last; ++__first, (void)++__len)
         {
             node_ptr __next = static_cast<node_ptr>(_S_next(__tmp));
-            if (0 == __next || __next == __tmp)
-            {
-                __next = static_cast<node_ptr>(_M_create_node(*__first));
-                __tmp->_M_next = __next;
-            }
-            else
-            {
-                pointer __val = __next->_M_valptr();
-                *__val = *__first;
-            }
+            __next = static_cast<node_ptr>(_M_create_node(*__first));
+            __tmp->_M_next = __next;
             __tmp = __next;
         }
         _M_back(__tmp);
