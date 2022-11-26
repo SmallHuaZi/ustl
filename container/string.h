@@ -1189,7 +1189,7 @@ namespace ustl
     {
         if (__idx < size())
             return _M_data_plus->_M_actual_data[__idx];
-        __throw_index_outof("basic_string::operator[]: index overlaps");
+        __throw_out_of_range("basic_string::operator[]: index overlaps");
     }
 
     template <typename _CharT, typename _Alloc>
@@ -1199,7 +1199,7 @@ namespace ustl
     {
         if (__idx < size())
             return _M_data_plus->_M_actual_data[__idx];
-        __throw_index_outof("basic_string::operator[] const: index overlaps");
+        __throw_out_of_range("basic_string::operator[] const: index overlaps");
     }
 
 } // namespace ustl

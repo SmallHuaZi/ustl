@@ -7,14 +7,14 @@
 
 #define __ustl_throw_again throw;
 
-#define __throw_exception(mes) throw exception(mes)
+#define __throw_exception(mes) throw ustl::exception(mes)
 
-#define __throw_bad_alloc(mes) throw bad_alloc(mes)
+#define __throw_bad_alloc(mes) throw ustl::bad_alloc(mes)
 
-#define __throw_nullptr_assignment(mes) throw nullptr_assignment(mes)
+#define __throw_nullptr_assignment(mes) throw ustl::nullptr_assignment(mes)
 
-#define __throw_index_outof(mes) throw access_outof_bounds(mes)
+#define __throw_out_of_range(mes) throw ustl::out_of_range(mes)
 
-#define __throw_array_length(mes) throw array_length_exception(mes)
+#define __throw_array_length(mes) throw ustl::array_length_exception(mes)
 
 #endif

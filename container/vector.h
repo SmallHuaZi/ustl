@@ -372,6 +372,7 @@ namespace ustl
         inline const_reverse_iterator crend() const ustl_cpp_noexcept;
 
         inline reference operator[](size_t);
+        inline const_reference operator[](size_t) const;
         vector &operator=(vector const &);
         vector &operator=(vector &&);
 
@@ -863,7 +864,17 @@ namespace ustl
     {
         if (_M_check_overflow(__idx))
             return *(_M_data_plus._M_begin + __idx);
-        __throw_index_outof("vector.operator[]: index out of the overlaps");
+        __throw_out_of_range("vector.operator[]: index out of the overlaps");
+    }
+
+    template <typename _Tp, typename _Alloc>
+    _Tp const &
+    vector<_Tp, _Alloc>::
+    operator[](size_t __idx) const
+    {
+        if (_M_check_overflow(__idx))
+            return *(_M_data_plus._M_begin + __idx);
+        __throw_out_of_range("vector.operator[]: index out of the overlaps");
     }
 
     template <typename _Tp, typename _Alloc>

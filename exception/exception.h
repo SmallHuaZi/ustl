@@ -52,12 +52,12 @@ namespace ustl
             : exception(__mes) {}
     };
 
-    class access_outof_bounds
+    class out_of_range
         : public exception
     {
     public:
-        access_outof_bounds(
-            const char *__mes = __default_access_outof_bounds_message)
+        out_of_range(
+            const char *__mes = __default_out_of_range_message)
             : exception(__mes) {}
     };
 

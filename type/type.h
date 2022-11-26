@@ -23,7 +23,6 @@ namespace ustl
         constexpr T
         operator()() { return v; }
 
-    private:
         static constexpr T value = v;
     };
 
@@ -35,6 +34,9 @@ namespace ustl
 
     typedef boolean<true> true_type;
     typedef boolean<false> false_type;
+
+    template <bool v>
+    using __bool_constant = ustl::boolean<v>;
 
     /** double type is equals
      *  @if T == U
@@ -218,7 +220,7 @@ namespace ustl
     template <typename _Tp>
     struct type_idextity
     {
-        typedef _Tp type;
+        using type = _Tp;
     };
 
     template <typename _Tp>
@@ -269,5 +271,68 @@ namespace ustl
         using type = _Tp *;
     };
 
+    template <typename _Tp>
+    struct make_void
+    {
+        using type = void;
+    };
+
+    template <typename _Tp>
+    using __uvoid_t = typename ustl::make_void<_Tp>::type;
+
+    template <typename _Tp>
+    _Tp
+    __decl_value();
+
+    template <typename _Tp, typename _Up, typename = void>
+    struct __is_assign
+        : ustl::false_type
+    {
+    };
+
+    template <typename _Tp, typename _Up>
+    struct __is_assign<_Tp, _Up,
+                       ustl::__uvoid_t<decltype(__decl_value<_Tp>() = __decl_value<_Up>())>>
+        : ustl::true_type
+#ifdef __debug_ustl
+        ,
+          type_idextity<typename remove_reference<_Up>::type>
+#endif
+    {
+    };
+
+    template <typename _Tp, typename _Up, typename = void>
+    struct __is_copy_assign
+        : ustl::false_type
+    {
+    };
+
+    template <typename _Tp, typename _Up>
+    struct __is_copy_assign<_Tp, _Up,
+                            ustl::__uvoid_t<decltype(__decl_value<_Tp &>() = __decl_value<_Up const &>())>>
+        : ustl::true_type
+#ifdef __debug_ustl
+        ,
+          type_idextity<decltype(__decl_value<_Up const &>())>
+#endif
+    {
+    };
+
+    template <typename _Tp, typename _Up, typename = void>
+    struct __is_move_assign
+        : ustl::false_type
+    {
+    };
+
+    template <typename _Tp, typename _Up>
+    struct __is_move_assign<_Tp, _Up,
+                            ustl::__uvoid_t<decltype(__decl_value<_Tp &>() = __decl_value<_Up &&>())>>
+        : ustl::true_type
+#ifdef __debug_ustl
+        ,
+          type_idextity<decltype(__decl_value<_Up &&>())>
+#endif
+    {
+    };
 }
 #endif

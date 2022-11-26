@@ -535,30 +535,30 @@ namespace ustl
         template <typename _ForwardIterator>
         inline slist &splice_after(const_iterator, _ForwardIterator, _ForwardIterator);
 
-        inline void pop_front();
+        inline void pop_front() ustl_cpp_noexcept;
 
-        inline void erase_after(const_iterator);
-        inline difference_type erase_after(const_iterator, const_iterator);
+        inline void erase_after(const_iterator) ustl_cpp_noexcept;
+        inline difference_type erase_after(const_iterator, const_iterator) ustl_cpp_noexcept;
 
-        inline size_type remove(value_type const &);
+        inline size_type remove(value_type const &) ustl_cpp_noexcept;
         template <typename _Predicate>
-        inline size_type remove_if(_Predicate);
+        inline size_type remove_if(_Predicate) ustl_cpp_noexcept;
 
         void swap(slist &);
         void swap(slist &&);
 
-        void reverse();
+        void reverse() ustl_cpp_noexcept;
 
         void resize(size_type);
         void resize(size_type, value_type const &);
 
         template <typename _Predicate = ustl::less<_Tp>>
-        void merge(slist &, _Predicate = ustl::less<_Tp>());
+        void merge(slist &, _Predicate = ustl::less<_Tp>()) ustl_cpp_noexcept;
         template <typename _Predicate = ustl::less<_Tp>>
-        void merge(slist &&, _Predicate = ustl::less<_Tp>());
+        void merge(slist &&, _Predicate = ustl::less<_Tp>()) ustl_cpp_noexcept;
 
         template <typename _Predicate = ustl::less<_Tp>>
-        void sort(_Predicate = ustl::less<_Tp>());
+        void sort(_Predicate = ustl::less<_Tp>()) ustl_cpp_noexcept;
 
         void clear();
 
@@ -919,7 +919,7 @@ namespace ustl
     template <typename _Tp, typename _Alloc>
     void
     slist<_Tp, _Alloc>::
-        pop_front()
+        pop_front() ustl_cpp_noexcept
     {
         _M_erase_after(before_cbegin());
     }
@@ -927,7 +927,7 @@ namespace ustl
     template <typename _Tp, typename _Alloc>
     void
     slist<_Tp, _Alloc>::
-        erase_after(const_iterator __pos)
+        erase_after(const_iterator __pos) ustl_cpp_noexcept
     {
         _M_erase_after(__pos);
     }
@@ -935,7 +935,7 @@ namespace ustl
     template <typename _Tp, typename _Alloc>
     typename slist<_Tp, _Alloc>::difference_type
     slist<_Tp, _Alloc>::
-        erase_after(const_iterator __before, const_iterator __last)
+        erase_after(const_iterator __before, const_iterator __last) ustl_cpp_noexcept
     {
         return _M_erase_after_range(__before, __last);
     }
@@ -943,7 +943,7 @@ namespace ustl
     template <typename _Tp, typename _Alloc>
     typename slist<_Tp, _Alloc>::size_type
     slist<_Tp, _Alloc>::
-        remove(value_type const &__val)
+        remove(value_type const &__val) ustl_cpp_noexcept
     {
         size_type __del_counter = 0;
         base_ptr __first = _M_header();
@@ -965,7 +965,7 @@ namespace ustl
     template <typename _Predicate>
     typename slist<_Tp, _Alloc>::size_type
     slist<_Tp, _Alloc>::
-        remove_if(_Predicate __comp)
+        remove_if(_Predicate __comp) ustl_cpp_noexcept
     {
         size_type __del_counter = 0;
         base_ptr __first = _M_header();
@@ -1007,7 +1007,7 @@ namespace ustl
     template <typename _Tp, typename _Alloc>
     void
     slist<_Tp, _Alloc>::
-        reverse()
+        reverse() ustl_cpp_noexcept
     {
         base_ptr __first = 0;
         base_ptr __second = _M_front();
@@ -1058,7 +1058,7 @@ namespace ustl
     template <typename _Predicate>
     void
     slist<_Tp, _Alloc>::
-        merge(slist &__other, _Predicate __cmp)
+        merge(slist &__other, _Predicate __cmp) ustl_cpp_noexcept
     {
         iterator __first = begin();
         iterator __last = end();
@@ -1094,7 +1094,7 @@ namespace ustl
     template <typename _Predicate>
     void
     slist<_Tp, _Alloc>::
-        merge(slist &&__other, _Predicate __cmp)
+        merge(slist &&__other, _Predicate __cmp) ustl_cpp_noexcept
     {
         merge(__other, __cmp);
     }
@@ -1108,7 +1108,7 @@ namespace ustl
     template <typename _Predicate>
     void
     slist<_Tp, _Alloc>::
-        sort(_Predicate __cmp)
+        sort(_Predicate __cmp) ustl_cpp_noexcept
     {
         size_type __ysize;
         size_type __xsize;

@@ -10,7 +10,7 @@
 
 #define __default_nullptr_reference_message "nullptr reference error"
 
-#define __default_access_outof_bounds_message "array index out of bounds exception"
+#define __default_out_of_range_message "array index out of bounds exception"
 
 #define __default_array_length_message "array length is vaild! overflow max size"
 
