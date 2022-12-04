@@ -20,8 +20,8 @@ namespace ustl
         typedef typename _iterator_traits::const_reference const_reference;
         typedef typename _iterator_traits::difference_type difference_type;
 
-        static_assert(ustl::is_same<iterator_tag, _bothway_itertor>()() ||
-                          ustl::is_same<iterator_tag, _random_itertor>()(),
+        static_assert(ustl::is_same<iterator_tag, _bothway_iterator>()() ||
+                          ustl::is_same<iterator_tag, _random_iterator>()(),
                       "template paramater::type _Iterator is not bothway iterator");
 
     public:

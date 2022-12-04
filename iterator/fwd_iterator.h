@@ -19,9 +19,9 @@ namespace ustl
         typedef typename _iterator_traits::const_pointer const_pointer;
         typedef typename _iterator_traits::const_reference const_reference;
 
-        static_assert(ustl::is_same<iterator_tag, _forword_itertor>()() ||
-                          ustl::is_same<iterator_tag, _bothway_itertor>()() ||
-                          ustl::is_same<iterator_tag, _random_itertor>()(),
+        static_assert(ustl::is_same<iterator_tag, _forword_iterator>()() ||
+                          ustl::is_same<iterator_tag, _bothway_iterator>()() ||
+                          ustl::is_same<iterator_tag, _random_iterator>()(),
                       "template paramater::type _ForwardIterator is not forward iterator");
 
     public:

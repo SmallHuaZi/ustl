@@ -29,8 +29,7 @@ namespace ustl
     template <bool v>
     struct boolean
         : public type_base<bool, v>
-    {
-    };
+    {};
 
     typedef boolean<true> true_type;
     typedef boolean<false> false_type;
@@ -47,15 +46,11 @@ namespace ustl
      */
     template <typename T, typename U>
     struct is_same
-        : false_type
-    {
-    };
+        : false_type {};
 
     template <typename T>
     struct is_same<T, T>
-        : true_type
-    {
-    };
+        : true_type {};
 
     /** if - else
      *
@@ -143,9 +138,7 @@ namespace ustl
 
     template <typename _Tp>
     struct is_integer
-        : false_type
-    {
-    };
+        : false_type {};
     IS_WHAT(integer, char)
     IS_WHAT(integer, short)
     IS_WHAT(integer, int)
@@ -154,24 +147,18 @@ namespace ustl
 
     template <typename _Tp>
     struct is_floating
-        : false_type
-    {
-    };
+        : false_type {};
     IS_WHAT(floating, float)
     IS_WHAT(floating, double)
 
     template <typename _Tp>
     struct is_pointer
-        : false_type
-    {
-    };
+        : false_type {};
     IS_WHAT_PS(_Tp, pointer, _Tp *)
 
     template <typename _Tp>
     struct is_reference
-        : false_type
-    {
-    };
+        : false_type {};
     IS_WHAT_PS(_Tp, reference, _Tp &)
     IS_WHAT_PS(_Tp, reference, _Tp &&)
 
@@ -185,9 +172,8 @@ namespace ustl
 
     template <typename _Tp>
     struct type_of
-    {
-        using type = _Tp;
-    };
+    { using type = _Tp; };
+
     TYPEOF(const)
     TYPEOF(volatile)
 
@@ -203,9 +189,7 @@ namespace ustl
 
     /** control type display, void if default value  */
     template <bool, typename _Tp = void>
-    struct enable_if
-    {
-    };
+    struct enable_if {};
 
     template <typename _Tp>
     struct enable_if<true, _Tp>
@@ -280,15 +264,17 @@ namespace ustl
     template <typename _Tp>
     using __uvoid_t = typename ustl::make_void<_Tp>::type;
 
+
+    /**
+     * 
+     */
     template <typename _Tp>
     _Tp
     __decl_value();
 
     template <typename _Tp, typename _Up, typename = void>
     struct __is_assign
-        : ustl::false_type
-    {
-    };
+        : ustl::false_type {};
 
     template <typename _Tp, typename _Up>
     struct __is_assign<_Tp, _Up,
@@ -298,14 +284,11 @@ namespace ustl
         ,
           type_idextity<typename remove_reference<_Up>::type>
 #endif
-    {
-    };
+    {};
 
     template <typename _Tp, typename _Up, typename = void>
     struct __is_copy_assign
-        : ustl::false_type
-    {
-    };
+        : ustl::false_type {};
 
     template <typename _Tp, typename _Up>
     struct __is_copy_assign<_Tp, _Up,
@@ -315,14 +298,11 @@ namespace ustl
         ,
           type_idextity<decltype(__decl_value<_Up const &>())>
 #endif
-    {
-    };
+    {};
 
     template <typename _Tp, typename _Up, typename = void>
     struct __is_move_assign
-        : ustl::false_type
-    {
-    };
+        : ustl::false_type {};
 
     template <typename _Tp, typename _Up>
     struct __is_move_assign<_Tp, _Up,
@@ -331,8 +311,24 @@ namespace ustl
 #ifdef __debug_ustl
         ,
           type_idextity<decltype(__decl_value<_Up &&>())>
-#endif
-    {
-    };
+#endif 
+    {};
+
+
+    /**
+     * 
+     */
+    template<typename _Base>
+    void
+    __check_inherit(_Base *);
+
+    template<typename _Base, typename _Derived, typename = void>
+    struct __is_base
+        : ustl::false_type {};
+        
+    template<typename _Base, typename _Derived>
+    struct __is_base<_Base, _Derived, ustl::__uvoid_t<decltype(__check_inherit<_Base>(new (0) _Derived))>>
+        : ustl::true_type {};
+
 }
 #endif

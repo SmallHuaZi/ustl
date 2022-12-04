@@ -71,7 +71,7 @@ namespace ustl
         typedef _Tp const &const_reference;
         typedef ustl::diff_t difference_type;
         typedef _vector_iterator _Self;
-        typedef _random_itertor iterator_tag;
+        typedef _random_iterator iterator_tag;
 
         pointer
         operator->()
@@ -143,7 +143,7 @@ namespace ustl
         typedef _Tp const &const_reference;
         typedef ustl::diff_t difference_type;
         typedef _vector_const_iterator _Self;
-        typedef _random_itertor iterator_tag;
+        typedef _random_iterator iterator_tag;
 
         pointer
         operator->()

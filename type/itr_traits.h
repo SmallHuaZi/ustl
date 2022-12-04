@@ -27,7 +27,7 @@ namespace ustl
         typedef _Tp &reference;
         typedef _Tp const *const_pointer;
         typedef _Tp const &const_reference;
-        typedef ustl::_random_itertor iterator_tag;
+        typedef ustl::_random_iterator iterator_tag;
 
         typedef ustl::diff_t difference_type;
     };
@@ -40,7 +40,7 @@ namespace ustl
         typedef _Tp const &reference;
         typedef _Tp const *const_pointer;
         typedef _Tp const &const_reference;
-        typedef ustl::_random_itertor iterator_tag;
+        typedef ustl::_random_iterator iterator_tag;
 
         typedef ustl::diff_t difference_type;
     };

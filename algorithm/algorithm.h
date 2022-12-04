@@ -10,29 +10,46 @@ namespace ustl
      * __restart = __last- __first
      * move [__first, __last] to [__restart, __result)
      */
-    template <typename _Tp, typename _Vp>
-    _Vp
-    copy_back(_Tp __first, _Tp __last, _Vp __result)
+    template <typename _BothIterator, typename _BothIterator2>
+    _BothIterator2
+    copy_back(_BothIterator __first, _BothIterator __last, _BothIterator2 __result)
     {
+
+        static_assert(ustl::__is_base<ustl::_bothway_iterator, typename ustl::itr_traits<_BothIterator>::iterator_tag>()(),
+                      "ustl::copy_back: template argument 1 -> _BothIterator is not a bothway iterator");
+        static_assert(ustl::__is_base<ustl::_bothway_iterator, typename ustl::itr_traits<_BothIterator2>::iterator_tag>()(),
+                      "ustl::copy_back: template argument 2 -> _BothIterator2 is not a bothway iterator");
+
         while (__first != __last)
             *--__result = *--__last;
         return __result;
     }
 
-    template <typename _Tp, typename _Vp>
-    _Vp
-    copy_forward(_Tp __first, _Tp __last, _Vp __result)
+    template <typename _ForwardIterator, typename _ForwardIterator2>
+    _ForwardIterator2
+    copy_forward(_ForwardIterator __first, _ForwardIterator __last,_ForwardIterator2  __result)
     {
+        static_assert(ustl::__is_base<ustl::_forword_iterator, typename ustl::itr_traits<_ForwardIterator>::iterator_tag>()(),
+                      "ustl::copy_forward: template argument 1 -> _ForwardIterator is not a forward iterator");
+        static_assert(ustl::__is_base<ustl::_forword_iterator, typename ustl::itr_traits<_ForwardIterator2>::iterator_tag>()(),
+                      "ustl::copy_forward: template argument 2 -> _ForwardIterator2 is not a forward iterator");
+
         while (__first != __last)
             *__result++ = *__first++;
         return __result;
     }
 
-    template <typename _Tp, typename _Vp, typename _Alloc>
+    template <typename _BothIterator, typename _BothIterator2, typename _Alloc>
     void
-    relocate_back(_Tp __first, _Tp __last,
-                  _Vp __result, _Alloc &__alloc)
+    relocate_back(_BothIterator __first, _BothIterator __last,
+                  _BothIterator2 __result, _Alloc &__alloc)
     {
+
+        static_assert(ustl::__is_base<ustl::_bothway_iterator, typename ustl::itr_traits<_BothIterator>::iterator_tag>()(),
+                      "ustl::relocate_back: template argument 1 -> _BothIterator is not a bothway iterator");
+        static_assert(ustl::__is_base<ustl::_bothway_iterator, typename ustl::itr_traits<_BothIterator2>::iterator_tag>()(),
+                      "ustl::relocate_back: template argument 2 -> _BothIterator2 is not a bothway iterator");
+
         typedef allocate_traits<_Alloc> __alloc_traits;
         while (__last != __first)
             __alloc_traits::construct(__alloc, &*--__result,
@@ -43,12 +60,15 @@ namespace ustl
      *
      *
      */
-    template <typename _Tp, typename _Alloc>
-    void fill_default(_Tp __first, size_t __n, _Alloc &__alloc)
+    template <typename _ForwardIterator, typename _Alloc>
+    void fill_default(_ForwardIterator __first, size_t __n, _Alloc &__alloc)
     {
+        static_assert(ustl::__is_base<ustl::_forword_iterator, typename ustl::itr_traits<_ForwardIterator>::iterator_tag>()(),
+                     "ustl::fill_default: template argument 1 -> _ForwardIterator is not a forward iterator");
+
         typedef allocate_traits<_Alloc> __alloc_traits;
         size_t const __x = __n;
-        _Tp __tmp = __first;
+        _ForwardIterator __tmp = __first;
         __ustl_try
         {
             for (; 0 != __n; --__n, ++__tmp)
@@ -69,6 +89,15 @@ namespace ustl
     {
         while (__first != __last)
             *__first++ = __val;
+    }
+
+    template<typename _BothIterator, typename _Val>
+    void
+    fill_backward(_BothIterator __first, _BothIterator __last, 
+                  _Val const &__val)
+    {
+        while(__first != __last)
+            *--__last = __val;
     }
 
     template <typename _InputIterator, typename _ForwardIterator,
@@ -115,12 +144,10 @@ namespace ustl
             *__r = __tmp[__idx];
     }
 
-    template <typename _Tp, size_t _Size>
+    template <typename _Tp, ustl::size_t _Size>
     constexpr size_t
-    arylen(_Tp __tmp[_Size])
-    {
-        return _Size;
-    }
+    arylen(_Tp (&__tmp)[_Size])
+    { return _Size; }
 
 } // namespace ustl
 #endif

@@ -44,13 +44,20 @@ struct b
     }
 };
 
+template<typename _Base>
+void
+func(_Base *){}
 
-int main(int argc, char **argv)
+
+int 
+main(int argc, char **argv)
 {
     std::deque<int> __deque;
     __deque.push_back(0);
     __deque.push_back(1);
     __deque.push_back(2);
-    std::cout<< sizeof(__deque)<< std::endl;
+    __deque.insert(__deque.begin(), 10);
+    for(auto &__a : __deque)
+        std::cout<< __a<< std::endl;
     return 0;
 }

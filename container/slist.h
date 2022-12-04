@@ -184,7 +184,7 @@ namespace ustl
         typedef _Tp &reference;
         typedef _Tp const *const_pointer;
         typedef _Tp const &const_reference;
-        typedef ustl::_forword_itertor iterator_tag;
+        typedef ustl::_forword_iterator iterator_tag;
 
         typedef slist_node_basic *base_ptr;
         typedef slist_node_basic const *const_base_ptr;
@@ -257,7 +257,7 @@ namespace ustl
         typedef _Tp &reference;
         typedef _Tp const *const_pointer;
         typedef _Tp const &const_reference;
-        typedef ustl::_forword_itertor iterator_tag;
+        typedef ustl::_forword_iterator iterator_tag;
 
         typedef slist_node_basic *base_ptr;
         typedef slist_node_basic const *const_base_ptr;

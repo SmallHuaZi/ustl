@@ -100,7 +100,7 @@ namespace ustl
         using reference = _Tp &;
 
         using difference_type = ustl::diff_t;
-        using itr_tag = _bothway_itertor;
+        using itr_tag = _bothway_iterator;
 
         using _Self = _rbtree_itertor<_Tp>;
         using base_ptr = _Rbt_node_base::_Node_ptr;
@@ -179,7 +179,7 @@ namespace ustl
         using reference = _Tp const &;
 
         using difference_type = ustl::diff_t;
-        using itr_tag = _bothway_itertor;
+        using itr_tag = _bothway_iterator;
 
         using _Self = _const_rbtree_itertor<_Tp>;
         using base_ptr = _Rbt_node_base::_Node_ptr;

@@ -13,29 +13,29 @@ namespace ustl
      *      @memberof diffence_type : diffence between begin itr and end itr;
      *      @memberof iterator_tag : iterator category
      */
-    struct _input_itertor
+    struct _input_iterator
     {
         /**/
     };
 
-    struct _output_itertor
+    struct _output_iterator
     {
         /**/
     };
 
-    struct _forword_itertor
-        : _input_itertor
+    struct _forword_iterator
+        : _input_iterator
     {
         /**/
     };
 
-    struct _bothway_itertor
-        : _forword_itertor
+    struct _bothway_iterator
+        : _forword_iterator
     {
     };
 
-    struct _random_itertor
-        : _bothway_itertor
+    struct _random_iterator
+        : _bothway_iterator
     {
     };
 
