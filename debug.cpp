@@ -23,8 +23,8 @@ struct compare
 };
 
 #include "config.h"
-#include "ustl_tmp.h"
 
+#include "ustl_tmp.h"
 #include "ustl_exception.h"
 #include "ustl_memory.h"
 #include "ustl_type_traits.h"
@@ -32,32 +32,30 @@ struct compare
 #include "ustl_iterator.h"
 #include "ustl_container.h"
 
-struct a
-{
-    /* data */
-};
 
-struct b
-{
-    b &operator=(a &&__a)
-    {
-    }
-};
-
-template<typename _Base>
-void
-func(_Base *){}
-
+#define __IS_STD 0
 
 int 
 main(int argc, char **argv)
 {
-    std::deque<int> __deque;
-    __deque.push_back(0);
-    __deque.push_back(1);
-    __deque.push_back(2);
-    __deque.insert(__deque.begin(), 10);
-    for(auto &__a : __deque)
-        std::cout<< __a<< std::endl;
+#if defined(__IS_STD) && __IS_STD == 1
+    std
+#else
+    ustl
+#endif
+    ::deque<int> __ustl_deque;
+
+    for(int __i = 0; __i < 258; ++__i) {
+        __ustl_deque.push_front(__i);
+    }
+
+    for(int __i = 258; __i < 512; ++__i) {
+        __ustl_deque.push_back(__i);
+    }
+
+    auto __end = __ustl_deque.end();
+
+    for(auto __x : __ustl_deque)
+        std::cout << __x << std::endl;
     return 0;
 }

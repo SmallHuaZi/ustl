@@ -16,9 +16,9 @@ namespace ustl
     struct _Rbtree_Node
         : _Rbt_node_base
     {
-        typedef _Val value_type;
-        typedef _Rbtree_Node<_Val> *_Node_ptr;
-        typedef const _Rbtree_Node<_Val> *_CNode_ptr;
+        typedef     _Val    value_type;
+        typedef         _Rbtree_Node<_Val> *    _Node_ptr;
+        typedef const   _Rbtree_Node<_Val> *    _CNode_ptr;
 
 #ifndef __debug_ustl
         value_type _M_value;
@@ -95,16 +95,16 @@ namespace ustl
     template <typename _Tp>
     struct _rbtree_itertor
     {
-        using value_type = _Tp;
-        using pointer = _Tp *;
-        using reference = _Tp &;
+        using   value_type  =   _Tp;
+        using   pointer     =   _Tp *;
+        using   reference   =   _Tp &;
 
-        using difference_type = ustl::diff_t;
-        using itr_tag = _bothway_iterator;
+        using   itr_tag     = _bothway_iterator;
+        using   difference_type =   ustl::diff_t;
 
-        using _Self = _rbtree_itertor<_Tp>;
-        using base_ptr = _Rbt_node_base::_Node_ptr;
-        using _link_type = _Rbtree_Node<_Tp> *;
+        using   _Self       =   _rbtree_itertor<_Tp>;
+        using   base_ptr    =   _Rbt_node_base::_Node_ptr;
+        using   _link_type  =   _Rbtree_Node<_Tp> *;
 
         _rbtree_itertor() = default;
 
@@ -409,21 +409,21 @@ namespace ustl
     class rb_tree
     {
     public:
-        using key_type = _Key;
-        using value_type = _Val;
-        using pointer = _Val *;
-        using reference = _Val &;
-        using compare_type = _Compare;
-        using allocator_type = _Alloc;
-        using difference_type = diff_t;
+        using   key_type            =   _Key;
+        using   value_type          =   _Val;
+        using   pointer             =   _Val *;
+        using   reference           =   _Val &;
+        using   compare_type        =  _Compare;
+        using   allocator_type      =   _Alloc;
+        using   difference_type     =   diff_t;
 
-        using iterator = _rbtree_itertor<_Val>;
-        using const_iterator = _const_rbtree_itertor<_Val>;
+        using   iterator            =   _rbtree_itertor<_Val>;
+        using   const_iterator      =   _const_rbtree_itertor<_Val>;
 
     protected:
-        using _Node_type = _Rbtree_Node<_Val>;
-        using _Node_ptr = _Rbtree_Node<_Val> *;
-        using _Node_base_ptr = _Rbt_node_base *;
+        using   _Node_type          =   _Rbtree_Node<_Val>;
+        using   _Node_ptr           =   _Rbtree_Node<_Val> *;
+        using   _Node_base_ptr      =   _Rbt_node_base *;
 
     private:
         /**

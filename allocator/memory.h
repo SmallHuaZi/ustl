@@ -31,7 +31,7 @@ namespace ustl
     class allocator_basic
     {
     protected:
-        enum
+        enum 
         {
             __ALIGNMENT = 0x10UL,
             __MAX_BYTES = 0x100UL,

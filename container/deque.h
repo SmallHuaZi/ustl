@@ -37,12 +37,13 @@ namespace ustl
         _Self &
         operator++()
         {
-            ++_M_data;
             if (_M_data == _M_ele_last)
             {
                 _M_update(_M_bucket_cur + 1);
                 _M_data = _M_ele_first;
             }
+            else
+                ++_M_data;
             return *this;
         }
 
@@ -57,12 +58,13 @@ namespace ustl
         _Self &
         operator--()
         {
-            --_M_data;
             if (_M_data == _M_ele_first)
             {
                 _M_update(_M_bucket_cur - 1);
                 _M_data = _M_ele_last;
             }
+            --_M_data;
+
         }
 
         _Self
@@ -155,6 +157,8 @@ namespace ustl
             return __l._M_data != __r._M_data;
         }
 
+        deque_iterator() = default;
+
         _ele_pointer        _M_data;
         _ele_pointer        _M_ele_first;
         _ele_pointer        _M_ele_last;
@@ -162,9 +166,9 @@ namespace ustl
     };
 
     template <typename _Tp, typename _Alloc>
-    struct debue_impl
+    struct deque_impl
         : _Alloc,
-          _Alloc::template rebind<_Tp **>::other
+          _Alloc::template rebind<_Tp *>::other
     {
         typedef     _Tp *       _ele_pointer;
         typedef     _Tp **      _bc_pointer;
@@ -181,6 +185,11 @@ namespace ustl
         size_t
         _M_ele_size() ustl_cpp_noexcept
         { return    size_t(_M_end - _M_begin); }
+
+        deque_impl()
+            : _M_bucket(0), _M_begin(),
+              _M_end(), _M_bucket_size(0)
+        {}
 
         _bc_pointer     _M_bucket;
         iterator        _M_begin;
@@ -202,11 +211,11 @@ namespace ustl
         typedef     ustl::diff_t    difference_type;
         typedef     _Tp **          _bc_pointer;
 
-        typedef     debue_impl<_Tp, _Alloc>           impl_type;
+        typedef     deque_impl<_Tp, _Alloc>           impl_type;
         typedef     allocate_traits<_Alloc>           _Ele_allocator_traits;
-        typedef     allocate_traits<_bc_pointer>      _Bc_allocator_traits;
-        typedef     typename allocate_traits<_Alloc>::template rebind<_Tp **>::other       
-                        bc_allocator_type;
+        typedef     typename allocate_traits<_Alloc>::template rebind<pointer>::other       
+                        _Bc_allocator_type;
+        typedef     allocate_traits<_Bc_allocator_type>      _Bc_allocator_traits;
 
         enum { __MIN_BUCKET_TABLE_SIZE = 16 };
 
@@ -215,7 +224,7 @@ namespace ustl
         _M_get_allocator()
         { return    _M_data_plus; }
 
-        _Bc_allocator_traits &
+         _Bc_allocator_type &
         _M_get_bc_allocator()
         { return    _M_data_plus; }
 
@@ -234,10 +243,10 @@ namespace ustl
         }
 
         _bc_pointer
-        _M_allocate_bucket_table(size_type __len)
+        _M_allocate_bucket_table(size_type &__len)
         {
-            size_type __new_size = ustl::max(__len + 1, size_type(__MIN_BUCKET_TABLE_SIZE));
-            return _Bc_allocator_traits::allocate(_M_get_bc_allocator(), __new_size);
+            __len = ustl::max(__len, size_type(__MIN_BUCKET_TABLE_SIZE));
+            return _Bc_allocator_traits::allocate(_M_get_bc_allocator(), __len);
         }
 
         void
@@ -280,18 +289,18 @@ namespace ustl
         _M_initialize_table(size_t __element_number)
         {
             size_t const __bucket_count     =   __element_number / _S_size_of_bucket(sizeof(_Tp)) + 1;
-            _M_data_plus._M_bucket_size     =   ustl::max(__element_number, __MIN_BUCKET_TABLE_SIZE);
+            _M_data_plus._M_bucket_size     =   ustl::max(__element_number, size_type(__MIN_BUCKET_TABLE_SIZE));
             _M_data_plus._M_bucket          =   _M_allocate_bucket_table(_M_data_plus._M_bucket_size);
-
-            _M_create_bucket(_M_data_plus._M_bucket, _M_data_plus._M_bucket + _M_data_plus._M_bucket_size);
             
             _bc_pointer __new_begin         =   _M_data_plus._M_bucket + ((_M_data_plus._M_bucket_size - __bucket_count) >> 1);
             _bc_pointer __new_end           =   __new_begin + __bucket_count;
 
+            _M_create_bucket(__new_begin, __new_end);
+
             _M_data_plus._M_begin._M_data   =   *__new_begin;
-            _M_data_plus._M_end._M_data     =   (*__new_end + __element_number % _S_size_of_bucket(sizeof(_Tp)));
+            _M_data_plus._M_end._M_data     =   (*(__new_end - 1) + __element_number % _S_size_of_bucket(sizeof(_Tp)));
             _M_data_plus._M_begin._M_update(__new_begin);
-            _M_data_plus._M_end._M_update(__new_end);
+            _M_data_plus._M_end._M_update(__new_end - 1);
         }
 
         template <typename... _Args>
@@ -308,10 +317,16 @@ namespace ustl
             _Ele_allocator_traits::destory(_M_get_allocator(), __p);
         }
 
+        deque_basic()
+            : _M_data_plus()
+        {
+            _M_initialize_table(0);
+        }
+
         impl_type       _M_data_plus;
     };
 
-    template <typename _Tp, typename _Alloc>
+    template <typename _Tp, typename _Alloc = ustl::allocator<_Tp>>
     class deque
         : public deque_basic<_Tp, _Alloc>
     {
@@ -333,7 +348,10 @@ namespace ustl
         typedef     ustl::reverse_iterator<iterator>                reverse_iterator;
         typedef     ustl::reverse_iterator<const_iterator>          const_reverse_iterator;
 
-    private:
+    public:
+        deque()
+            : _Base_type() {}
+
     public:
         iterator
         begin() 
@@ -573,7 +591,7 @@ namespace ustl
         using   _Base_type::_M_deallocate_bucket_table;
         using   _Base_type::_M_desotry;
         using   _Base_type::_M_destory_bucket;
-        using   _Base_type::_M_initializaion_bucket_table;
+        using   _Base_type::_M_initialize_table;
 
     protected:
         using   _Base_type::_M_data_plus;
@@ -586,7 +604,8 @@ namespace ustl
     {
         size_type const __tail_surplus = _M_data_plus._M_end._M_ele_last -
                                          _M_data_plus._M_end._M_data;
-        if(__n > __tail_surplus)
+        // 使用 __n + 1是为了在末尾插入时图个方便
+        if(__n + 1 > __tail_surplus)
             _M_new_at_back(__n - __tail_surplus);
         return _M_data_plus._M_end + __n;
     }
@@ -598,7 +617,7 @@ namespace ustl
     {
         size_type const __start_surplus = _M_data_plus._M_begin._M_data - 
                                           _M_data_plus._M_begin._M_ele_first;
-        if(__n > __start_surplus)
+        if(__n + 1 > __start_surplus)
             _M_new_at_front(__n - __start_surplus);
         return  _M_data_plus._M_begin - __n;
     }
@@ -614,12 +633,12 @@ namespace ustl
         // catch allocate exception
         _M_relocate_table(__add_bucket_count);
         __ustl_try {
-            for(__idx = 0; __idx < __add_bucket_count; ++__idx)
-                *(_M_data_plus._M_end._M_bucket + __idx + 1) = _M_allocate_bucket();
+            for(__idx = 1; __idx < __add_bucket_count; ++__idx)
+                *(_M_data_plus._M_end._M_bucket_cur + __idx) = _M_allocate_bucket();
         }
         __ustl_catch_all {
-            for(size_type __r = 0; __r < __idx; ++__r)
-                _M_deallocate_bucket(*(_M_data_plus._M_end._M_bucket + __idx + 1));
+            for(size_type __r = 1; __r < __idx; ++__r)
+                _M_deallocate_bucket(*(_M_data_plus._M_end._M_bucket_cur + __idx));
                 __ustl_throw_again;
         }
     }
@@ -635,12 +654,12 @@ namespace ustl
         // catch allocate exception
         _M_relocate_table(__add_bucket_count);
         __ustl_try {
-            for(__idx = 0; __idx < __add_bucket_count; ++__idx)
-                *(_M_data_plus._M_begin._M_bucket -__idx -1) = _M_allocate_bucket();
+            for(__idx = 1; __idx < __add_bucket_count; ++__idx)
+                *(_M_data_plus._M_begin._M_bucket_cur -__idx) = _M_allocate_bucket();
         }
         __ustl_catch_all {
-            for(size_type __r = 0; __r < __idx; ++__r)
-                _M_deallocate_bucket(*(_M_data_plus._M_begin._M_bucket - __idx -1));
+            for(size_type __r = 1; __r < __idx; ++__r)
+                _M_deallocate_bucket(*(_M_data_plus._M_begin._M_bucket_cur - __idx));
             __ustl_throw_again;
         }
     }
@@ -657,10 +676,10 @@ namespace ustl
         _M_relocate_table(size_type __add)
     {
         if(__add > size_type(_M_data_plus._M_bucket + _M_data_plus._M_bucket_size
-                           - _M_data_plus._M_end._M_bucket))
+                           - _M_data_plus._M_end._M_bucket_cur))
         {
-            size_type const __old_bucket_number = _M_data_plus._M_end._M_bucket -
-                                            _M_data_plus._M_begin._M_bucket + 1;
+            size_type const __old_bucket_number = _M_data_plus._M_end._M_bucket_cur -
+                                            _M_data_plus._M_begin._M_bucket_cur + 1;
             size_type const __new_bucket_number = __old_bucket_number + __add; 
 
             _bc_pointer __new_start;
@@ -669,7 +688,7 @@ namespace ustl
                 // 此处是为了均衡队列两端空余，使得插入与删除操作可以减少 reallocate 操作
                 __new_start = _M_data_plus._M_bucket + ((_M_data_plus._M_bucket_size -
                               __new_bucket_number) >> 1);
-                ustl::memmove(_M_data_plus._M_begin._M_bucket,
+                ustl::memmove(_M_data_plus._M_begin._M_bucket_cur,
                               __new_start, __old_bucket_number);
             }
             else // reallocate memory
@@ -677,11 +696,13 @@ namespace ustl
                 size_type   __new_table_len = __old_bucket_number + (__old_bucket_number > __add 
                                             ? __old_bucket_number : __add);
                 _bc_pointer __new_table = _M_allocate_bucket_table(__new_table_len);
-                __new_start = __new_table + ((_M_data_plus._M_bucket_size -
-                              __new_bucket_number) >> 1);
-                ustl::memcopy(_M_data_plus._M_begin._M_bucket, __new_start, 
-                              _M_data_plus._M_end._M_bucket - _M_data_plus._M_end._M_bucket);
-                _M_deallocate_bucket_table(_M_data_plus._M_bucket);
+                __new_start = __new_table + ((__new_table_len - __new_bucket_number) >> 1);
+                ustl::memcopy(_M_data_plus._M_begin._M_bucket_cur, __new_start, 
+                              _M_data_plus._M_end._M_bucket_cur - _M_data_plus._M_end._M_bucket_cur);
+                
+                // free old table
+                _M_deallocate_bucket_table(_M_data_plus._M_bucket, 
+                                           _M_data_plus._M_bucket + _M_data_plus._M_bucket_size);
                 _M_data_plus._M_bucket = __new_table;
                 _M_data_plus._M_bucket_size = __new_table_len;
             }
@@ -748,7 +769,7 @@ namespace ustl
         {
             iterator __last = end();
             iterator __new_last = _M_reserve_at_back(__len); // reserve new elemens space
-            ustl::relocate_back(__pos, __pos + __dis, __new_last);
+            ustl::relocate_back(__pos, __pos + __len, __new_last);
             ustl::relocate_forward(__first, __last, __pos);
             _M_data_plus._M_begin = __new_last;
         }
@@ -895,7 +916,7 @@ namespace ustl
     {
         ustl::destructor(__start_pos, _M_data_plus._M_end, _M_get_allocator());
         _M_deallocate_bucket_table(__start_pos._M_bucket_cur, 
-                                   _M_data_plus._M_end._M_bucket_cut);
+                                   _M_data_plus._M_end._M_bucket_cur);
         _M_data_plus._M_end = __start_pos;
     }
 
@@ -966,10 +987,13 @@ namespace ustl
     {
         _M_reserve_at_back(1);
         __ustl_try {
-            _M_construct(_M_data_plus._M_end._M_data, ustl::forward<_Args&&>(__val)...);
+            _M_construct(_M_data_plus._M_end._M_data, ustl::forward<_Args&&>(__val)...); 
+            *(_M_data_plus._M_end._M_bucket_cur + 1) = _M_allocate_bucket();
+            ++_M_data_plus._M_end; 
         }
         __ustl_catch_all {
-            _M_desotry(_M_data_plus._M_end._M_data);
+            --_M_data_plus._M_end;
+            _M_deallocate_bucket(*(_M_data_plus._M_end._M_bucket_cur));
             __ustl_throw_again;
         }
     }
@@ -980,7 +1004,17 @@ namespace ustl
     deque<_Tp, _Alloc>::
         _M_push_front(_Args &&...__val)
     {
-
+        _M_reserve_at_front(1);
+        __ustl_try {
+            *(_M_data_plus._M_begin._M_bucket_cur - 1) = _M_allocate_bucket();
+            --_M_data_plus._M_begin;
+            _M_construct(_M_data_plus._M_begin._M_data, ustl::forward<_Args&&>(__val)...);
+        }
+        __ustl_catch_all {
+            ++_M_data_plus._M_begin;
+            _M_deallocate_bucket(*(_M_data_plus._M_begin._M_bucket_cur));
+            __ustl_throw_again;
+        }
     }
 
     template<typename _Tp, typename _Alloc>
@@ -988,7 +1022,7 @@ namespace ustl
     deque<_Tp, _Alloc>::
         push_back(value_type const &__val)
     {
-        if(_M_data_plus._M_end._M_data != _M_data_plus._M_end._M_last)
+        if(_M_data_plus._M_end._M_data != _M_data_plus._M_end._M_ele_last - 1)
         {
             _M_construct(_M_data_plus._M_end._M_data, __val);
             ++_M_data_plus._M_end;
@@ -1002,7 +1036,13 @@ namespace ustl
     deque<_Tp, _Alloc>::
         push_back(value_type &&__rval)
     {
-
+        if(_M_data_plus._M_end._M_data != _M_data_plus._M_end._M_ele_last - 1)
+        {
+            _M_construct(_M_data_plus._M_end._M_data, ustl::forward<value_type &&>(__rval));
+            ++_M_data_plus._M_end;
+        }
+        else
+            _M_push_back(ustl::forward<value_type &&>(__rval));
     }
 
     template<typename _Tp, typename _Alloc>
@@ -1010,7 +1050,13 @@ namespace ustl
     deque<_Tp, _Alloc>::
         push_front(value_type const &__val)
     {
-
+        if(_M_data_plus._M_begin._M_data != _M_data_plus._M_begin._M_ele_first)
+        {
+            _M_construct(_M_data_plus._M_begin._M_data, ustl::forward<value_type const&>(__val));
+            --_M_data_plus._M_begin;
+        }
+        else
+            _M_push_front(ustl::forward<value_type const&>(__val));
     }
 
     template<typename _Tp, typename _Alloc>
@@ -1018,7 +1064,44 @@ namespace ustl
     deque<_Tp, _Alloc>::
         push_front(value_type &&__rval)
     {
+        if(_M_data_plus._M_begin._M_data != _M_data_plus._M_begin._M_ele_first)
+        {
+            --_M_data_plus._M_begin;
+            _M_construct(_M_data_plus._M_begin._M_data, ustl::forward<value_type &&>(__rval));
+        }
+        else
+            _M_push_front(ustl::forward<value_type &&>(__rval));
+    }
 
+    template<typename _Tp, typename _Alloc>
+    template<typename ..._Args>
+    void
+    deque<_Tp, _Alloc>::
+        emplace_back(_Args &&... __init_args)
+    {
+        if(_M_data_plus._M_end._M_data != _M_data_plus._M_end._M_ele_last - 1)
+        {
+            _M_construct(_M_data_plus._M_end._M_data, ustl::forward<_Args &&>(__init_args)...);
+            ++_M_data_plus._M_end;
+        }
+        else
+            _M_push_back(ustl::forward<_Args &&>(__init_args)...);
+
+    }
+
+    template<typename _Tp, typename _Alloc>
+    template<typename ..._Args>
+    void
+    deque<_Tp, _Alloc>::
+        emplace_front(_Args &&... __init_args)
+    {
+        if(_M_data_plus._M_begin._M_data != _M_data_plus._M_begin._M_ele_first)
+        {
+            --_M_data_plus._M_begin;
+            _M_construct(_M_data_plus._M_begin._M_data, ustl::forward<_Args &&>(__init_args)...);
+        }
+        else
+            _M_push_front(ustl::forward<_Args &&>(__init_args)...);
     }
 
 } // namespace ustl
