@@ -22,15 +22,15 @@ struct compare
     }
 };
 
-#include "config.h"
+#include "include/config.h"
 
-#include "ustl_tmp.h"
-#include "ustl_exception.h"
-#include "ustl_memory.h"
-#include "ustl_type_traits.h"
-#include "ustl_algorithm.h"
-#include "ustl_iterator.h"
-#include "ustl_container.h"
+#include "include/ustl_tmp.h"
+#include "include/ustl_exception.h"
+#include "include/ustl_memory.h"
+#include "include/ustl_type_traits.h"
+#include "include/ustl_algorithm.h"
+#include "include/ustl_iterator.h"
+#include "include/ustl_container.h"
 
 
 #define __IS_STD 0

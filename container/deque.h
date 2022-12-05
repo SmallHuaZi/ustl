@@ -1,7 +1,7 @@
 #ifndef __ustl_deque_h
 #define __ustl_deque_h
 
-#include "config.h"
+#include "include/config.h"
 
 #define _DEQUE_ALLOC_SIZE 512
 

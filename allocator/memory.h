@@ -1,7 +1,7 @@
 #include <malloc.h>
 #include <atomic>
 #include <mutex>
-#include "config.h"
+#include "include/config.h"
 
 #ifndef __memory_h
 #define __memory_h
