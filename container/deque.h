@@ -659,10 +659,10 @@ namespace ustl
         operator=(deque const &)ustl_cpp_noexcept;
 
         reference 
-        operator[](size_type);
+        operator[](size_type) ustl_cpp_noexcept;
 
         const_reference 
-        operator[](size_type) const;
+        operator[](size_type) const ustl_cpp_noexcept;
 
     protected:
         using   _Base_type::_M_get_allocator;
@@ -1452,7 +1452,7 @@ namespace ustl
     template<typename _Tp, typename _Alloc>
     auto
     deque<_Tp, _Alloc>::
-        operator[](size_type __idx) -> reference
+        operator[](size_type __idx) ustl_cpp_noexcept -> reference
     {
         const deque &__cv = *this;
         return  const_cast<reference>(__cv[__idx]);
@@ -1461,7 +1461,7 @@ namespace ustl
     template<typename _Tp, typename _Alloc>
     auto
     deque<_Tp, _Alloc>::
-        operator[](size_type __idx) const -> const_reference
+        operator[](size_type __idx) const ustl_cpp_noexcept -> const_reference
     {
         constexpr  size_type __bucket_capacity = _S_size_of_bucket(sizeof(_Tp));
         if(__idx > size())
@@ -1509,6 +1509,49 @@ namespace ustl
         }
         return __totality;
     }
+
+    
+    template<typename _Tp, typename _Alloc>
+    auto
+    deque<_Tp, _Alloc>::
+        operator=(deque const &__val) ustl_cpp_noexcept -> deque & 
+    {
+        assign(__val.begin(), __val.end());
+        return *this;
+    }
+
+    template<typename _Tp, typename _Alloc>
+    auto
+    deque<_Tp, _Alloc>::
+        operator=(deque &&__rval) ustl_cpp_noexcept -> deque &
+    {
+        swap(ustl::move(__rval));
+        return *this;
+    }
+
+    template<typename _Tp, typename _Alloc>
+    bool
+    operator==(deque<_Tp, _Alloc> const &__l, deque<_Tp, _Alloc> const &__r) ustl_cpp_noexcept
+    {
+        typedef typename deque<_Tp, _Alloc>::iterator iterator;
+        iterator __first  = __l.begin();
+        iterator __last   = __l.end();
+        iterator __first1 = __r.begin();
+        iterator __last1  = __r.end();
+
+        while( __first1 != __last1 && __first != __last && *__first1 == *__first)
+             ++__first1, (void) ++__first;
+            
+        return  __first1 == __last1 && __first == __last;
+    }
+
+    template<typename _Tp, typename _Alloc>
+    inline bool
+    operator!=(deque<_Tp, _Alloc> const &__l, deque<_Tp, _Alloc> const &__r) ustl_cpp_noexcept
+    {
+        return !(__l == __r);
+    }
+
 
 } // namespace ustl
 
