@@ -427,6 +427,23 @@ namespace ustl
         deque()
             : _Base_type() {}
 
+        deque(size_type __n, value_type const &__val)
+            : _Base_type()
+        { _M_default_append(__n); }
+
+        template<typename _InputIterator>
+        deque(_InputIterator __first, _InputIterator __last)
+            : _Base_type()
+        { _M_range_initialize(__first, __last, 0); }
+
+        deque(deque const &__other)
+            : _Base_type()
+        { _M_range_initialize(__other.begin(), __other.end()); }
+
+        deque(deque &&__rother)
+            :_Base_type()
+        { swap(ustl::move(__rother)); }
+
     public:
         iterator
         begin() 
