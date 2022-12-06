@@ -40,6 +40,16 @@ namespace ustl
         }
     }
 
+    template<typename _ForwardIterator, typename _InputIterator, typename _Alloc>
+    void
+    constructor(_ForwardIterator __first, _ForwardIterator __last,
+                _InputIterator __first1, _Alloc &__alloc)
+    {
+        typedef     ustl::allocate_traits<_Alloc>     __traits;
+        for(; __first != __last; ++__first1, (void)++__first)
+            __traits::construct(__alloc, &*__first, *__first1);
+    }
+
     template<typename _Iterator, typename _Alloc>
     void
     destructor(_Iterator __first, _Iterator __last, _Alloc & __alloc)

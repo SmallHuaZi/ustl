@@ -8,7 +8,6 @@
                 "${workspaceFolder}/algorithm",
                 "${workspaceFolder}/adapter",
                 "${workspaceFolder}/exception",
-                "${workspaceFolder}/forward_decl",
                 "${workspaceFolder}/impl",
                 "${workspaceFolder}/tmp",
                 "${workspaceFolder}/type",
