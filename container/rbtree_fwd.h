@@ -1,6 +1,8 @@
 #ifndef __rbt_fwd_h
 #define __rbt_fwd_h
 
+#include "include/config.h"
+
 #define _r_is_red(__ptr) \
     (__ptr != 0 && _Red == _Rbt_node_base::_S_color(__ptr->_M_right))
 
@@ -42,63 +44,36 @@ namespace ustl
         int _M_value;
 #endif
 
-        _Rbt_node_base()
-            : _M_color(_Red)
-        {
-        }
+        _Rbt_node_base();
 
-        _Rbt_node_base(_Node_ptr __p)
-            : _M_parent(__p) {}
+        _Rbt_node_base(_Node_ptr);
 
-        _Rbt_node_base(_Node_ptr __l,
-                       _Node_ptr __r, _Node_ptr __p)
-            : _M_color(_Red), _M_left(__l),
-              _M_right(__r), _M_parent(__p) {}
+        _Rbt_node_base(_Node_ptr, _Node_ptr, _Node_ptr);
+
 
         static _color
-        _S_color(_Rbt_node_base *__p) ustl_cpp_noexcept
-        {
-            return __p ? __p->_M_color : _Black;
-        }
+        _S_color(_Rbt_node_base *__p) ustl_cpp_noexcept;
+
 
         void
-        _M_setcolor(_color __c) ustl_cpp_noexcept
-        {
-            if (this)
-                this->_M_color = __c;
-        }
+        _M_setcolor(_color __c) ustl_cpp_noexcept;
+
 
         static _Node_ptr
-        maxnode(_Node_ptr __r) ustl_cpp_noexcept
-        {
-            while (__r->_M_right)
-                __r = __r->_M_right;
-            return __r;
-        }
+        maxnode(_Node_ptr __r) ustl_cpp_noexcept;
+
 
         static _CNode_ptr
-        maxnode(_CNode_ptr __r) ustl_cpp_noexcept
-        {
-            while (__r->_M_right)
-                __r = __r->_M_right;
-            return __r;
-        }
+        maxnode(_CNode_ptr __r) ustl_cpp_noexcept;
+
 
         static _Node_ptr
-        minnode(_Node_ptr __r) ustl_cpp_noexcept
-        {
-            while (__r->_M_left)
-                __r = __r->_M_left;
-            return __r;
-        }
+        minnode(_Node_ptr __r) ustl_cpp_noexcept;
+
 
         static _CNode_ptr
-        minnode(_CNode_ptr __r) ustl_cpp_noexcept
-        {
-            while (__r->_M_left)
-                __r = __r->_M_left;
-            return __r;
-        }
+        minnode(_CNode_ptr __r) ustl_cpp_noexcept;
+
     };
 
     struct _Rbt_header
@@ -106,32 +81,21 @@ namespace ustl
     {
         size_t _M_count;
 
-        _Rbt_header()
-            : _M_count(0),
-              _Rbt_node_base(this, this, 0) {}
+        _Rbt_header();
 
-        _Rbt_header(_Node_ptr __l,
-                    _Node_ptr __r, _Node_ptr __p, size_t __n)
-            : _M_count(__n), _Rbt_node_base(__l, __r, __p) {}
+        _Rbt_header(_Node_ptr, _Node_ptr, _Node_ptr, size_t);
 
-        void _M_reset() ustl_cpp_noexcept
-        {
-            _M_count = 0;
-            _M_parent = 0;
-            _M_left = _M_right = this;
-        }
+
+        void 
+        _M_reset() ustl_cpp_noexcept;
+
 
         _Node_ptr
-        _S_Min_node() const ustl_cpp_noexcept
-        {
-            return this->_M_left;
-        }
+        _S_Min_node() const ustl_cpp_noexcept;
+
 
         _Node_ptr
-        _S_Max_node() const ustl_cpp_noexcept
-        {
-            return this->_M_right;
-        }
+        _S_Max_node() const ustl_cpp_noexcept;
     };
 
     _Rbt_node_base *

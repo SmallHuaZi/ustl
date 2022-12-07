@@ -1,4 +1,4 @@
-// #include <iostream>
+#include <iostream>
 // #include <string>
 // #include <functional>
 // #include <utility>
@@ -40,6 +40,6 @@ int
 main(int argc, char **argv)
 {
     ustl::hashtable<int, int> __ustl_hash;
-    float __f = 0.75;
+
     return 0;
 }
