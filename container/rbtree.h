@@ -703,57 +703,86 @@ namespace ustl
          */
     public:
         template <typename _Itr>
-        void assign_equal(_Itr, _Itr);
+        void 
+        assign_equal(_Itr, _Itr);
         template <typename _Itr>
-        void assign_unique(_Itr, _Itr);
+        void 
+        assign_unique(_Itr, _Itr);
 
         template <typename... _Args>
-        inline iterator emplace_equal(_Args &&...);
-        inline iterator insert_equal(iterator);
-        inline iterator insert_equal(value_type const &);
+        inline iterator 
+        emplace_equal(_Args &&...);
+        inline iterator 
+        insert_equal(iterator);
+        inline iterator 
+        insert_equal(value_type const &);
 
         template <typename... _Args>
-        inline iterator emplace_unique(_Args &&...);
-        inline pair<iterator, bool> insert_unique(iterator);
-        inline pair<iterator, bool> insert_unique(value_type const &);
+        inline iterator 
+        emplace_unique(_Args &&...);
+        inline pair<iterator, bool> 
+        insert_unique(iterator);
+        inline pair<iterator, bool> 
+        insert_unique(value_type const &);
 
-        iterator erase(iterator);
-        iterator erase(iterator, iterator);
-        size_t erase(key_type const &);
+        iterator 
+        erase(iterator);
+        iterator 
+        erase(iterator, iterator);
+        size_t 
+        erase(key_type const &);
 
-        iterator find(key_type const &) const ustl_cpp_noexcept;
-        iterator lower_bound(key_type const &) const ustl_cpp_noexcept;
-        iterator upper_bound(key_type const &) const ustl_cpp_noexcept;
-        pair<iterator, iterator> equal_range(key_type const &) const ustl_cpp_noexcept;
+        iterator 
+        find(key_type const &) const ustl_cpp_noexcept;
+        iterator 
+        lower_bound(key_type const &) const ustl_cpp_noexcept;
+        iterator 
+        upper_bound(key_type const &) const ustl_cpp_noexcept;
+        pair<iterator, iterator> 
+        equal_range(key_type const &) const ustl_cpp_noexcept;
 
-        void clear();
+        void 
+        clear();
 
-        inline void swap(rb_tree &) ustl_cpp_noexcept;
+        inline void 
+        swap(rb_tree &) ustl_cpp_noexcept;
 
-        inline size_t count() const ustl_cpp_noexcept;
+        inline size_t 
+        count() const ustl_cpp_noexcept;
 
-        inline bool empty() const ustl_cpp_noexcept;
+        inline bool 
+        empty() const ustl_cpp_noexcept;
 
-        inline iterator begin() ustl_cpp_noexcept;
-        inline iterator end() ustl_cpp_noexcept;
-        inline const_iterator begin() const ustl_cpp_noexcept;
-        inline const_iterator end() const ustl_cpp_noexcept;
+        inline iterator 
+        begin() ustl_cpp_noexcept;
+        inline iterator 
+        end() ustl_cpp_noexcept;
+        inline const_iterator 
+        begin() const ustl_cpp_noexcept;
+        inline const_iterator 
+        end() const ustl_cpp_noexcept;
 
-        inline const_iterator cbegin() ustl_cpp_noexcept;
-        inline const_iterator cend() ustl_cpp_noexcept;
-        inline const_iterator cbegin() const ustl_cpp_noexcept;
+        inline const_iterator 
+        cbegin() ustl_cpp_noexcept;
+        inline const_iterator 
+        cend() ustl_cpp_noexcept;
+        inline const_iterator 
+        cbegin() const ustl_cpp_noexcept;
         inline const_iterator cend() const ustl_cpp_noexcept;
 
-        rb_tree &operator=(rb_tree const &);
+        rb_tree &
+        operator=(rb_tree const &);
 
-        static inline _Node_ptr root(rb_tree const &) ustl_cpp_noexcept;
+        static inline _Node_ptr 
+        root(rb_tree const &) ustl_cpp_noexcept;
 
     private:
         /** use implement pointer, isolation implement and interface */
         _rbt_impl<value_type, allocator_type, compare_type> *_M_data_plus;
     };
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         _M_insert(_Node_base_ptr __ist,
                   value_type const &__val,
@@ -770,7 +799,8 @@ namespace ustl
         return iterator(__new);
     }
 
-    __rbt_template_parameters void
+    __rbt_template_parameters 
+    void
     _rbt_type::
         _M_erase(iterator __del)
     {
@@ -782,7 +812,8 @@ namespace ustl
         --_M_data_plus->_M_header._M_count;
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         _M_get_insert_pos_unique(_Key const &__k) ustl_cpp_noexcept
     {
@@ -816,7 +847,8 @@ namespace ustl
         return end();
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         _M_get_insert_pos_equal(_Key const &__k) ustl_cpp_noexcept
     {
@@ -834,7 +866,8 @@ namespace ustl
         return iterator(__e);
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         _M_lower_bound(_Node_base_ptr __s,
                        _Node_base_ptr __e,
@@ -853,7 +886,8 @@ namespace ustl
         return iterator(__e);
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         _M_upper_bound(_Node_base_ptr __s,
                        _Node_base_ptr __e,
@@ -871,7 +905,8 @@ namespace ustl
         return iterator(__e);
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         _M_insert_equal(value_type const &__val,
                         _rbt_recycle_reuse *__rcru)
@@ -881,7 +916,8 @@ namespace ustl
         return iterator(_M_insert(__pos._M_node, __val, __rcru));
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         _M_insert_equal(iterator __itr,
                         _rbt_recycle_reuse *__rcru)
@@ -890,7 +926,8 @@ namespace ustl
         return iterator(_M_insert_equal(__val, __rcru));
     }
 
-    __rbt_template_parameters pair<typename _rbt_type::iterator, bool>
+    __rbt_template_parameters 
+    pair<typename _rbt_type::iterator, bool>
     _rbt_type::
         _M_insert_unique(value_type const &__val,
                          _rbt_recycle_reuse *__rcru)
@@ -908,7 +945,8 @@ namespace ustl
         return ret_type(_M_insert(__pos._M_node, __val, __rcru), true);
     }
 
-    __rbt_template_parameters pair<typename _rbt_type::iterator, bool>
+    __rbt_template_parameters 
+    pair<typename _rbt_type::iterator, bool>
     _rbt_type::
         _M_insert_unique(iterator __itr,
                          _rbt_recycle_reuse *__rcru)
@@ -917,7 +955,8 @@ namespace ustl
         return _M_insert_unique(__val, __rcru);
     }
 
-    __rbt_template_parameters template <typename... _Args>
+    __rbt_template_parameters 
+    template <typename... _Args>
     inline typename _rbt_type::iterator
     _rbt_type::
         emplace_equal(_Args &&...__a)
@@ -931,22 +970,24 @@ namespace ustl
         return iterator(__new);
     }
 
-    __rbt_template_parameters inline typename _rbt_type::iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::iterator
     _rbt_type::
         insert_equal(value_type const &__val)
     {
         return _M_insert_equal(__val, 0);
     }
 
-    __rbt_template_parameters inline pair<
-        typename _rbt_type::iterator, bool>
+    __rbt_template_parameters 
+    inline pair<typename _rbt_type::iterator, bool>
     _rbt_type::
         insert_unique(value_type const &__itr)
     {
         return _M_insert_unique(__itr, 0);
     }
 
-    __rbt_template_parameters inline typename _rbt_type::iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::iterator
     _rbt_type::
         insert_equal(iterator __itr)
     {
@@ -954,14 +995,15 @@ namespace ustl
     }
 
     __rbt_template_parameters inline pair<
-        typename _rbt_type::iterator, bool>
+    typename _rbt_type::iterator, bool>
     _rbt_type::
         insert_unique(iterator __itr)
     {
         return _M_insert_unique(__itr, 0);
     }
 
-    __rbt_template_parameters template <typename _Itr>
+    __rbt_template_parameters 
+    template <typename _Itr>
     void _rbt_type::
         assign_equal(_Itr __b, _Itr __e)
     {
@@ -970,7 +1012,8 @@ namespace ustl
             _M_insert_equal(__b++, &__rcru);
     }
 
-    __rbt_template_parameters template <typename _Itr>
+    __rbt_template_parameters 
+    template <typename _Itr>
     void
     _rbt_type::
         assign_unique(_Itr __b, _Itr __e)
@@ -980,7 +1023,8 @@ namespace ustl
             _M_insert_unique(__b++, &__rcru);
     }
 
-    __rbt_template_parameters typename _rbt_type ::iterator
+    __rbt_template_parameters 
+    typename _rbt_type ::iterator
     _rbt_type::
         erase(iterator __begin, iterator __end)
     {
@@ -1000,7 +1044,8 @@ namespace ustl
     }
 
     /// @return return presurcor of node
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         erase(iterator __itr)
     {
@@ -1012,7 +1057,8 @@ namespace ustl
         return __suc;
     }
 
-    __rbt_template_parameters size_t
+    __rbt_template_parameters 
+    size_t
     _rbt_type::
         erase(key_type const &__key)
     {
@@ -1023,7 +1069,8 @@ namespace ustl
         return __count - count();
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         find(key_type const &__k) const ustl_cpp_noexcept
     {
@@ -1034,14 +1081,16 @@ namespace ustl
         return end();
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type::
         lower_bound(key_type const &__k) const ustl_cpp_noexcept
     {
         return _M_lower_bound(_M_root(), _M_end(), __k);
     }
 
-    __rbt_template_parameters typename _rbt_type::iterator
+    __rbt_template_parameters 
+    typename _rbt_type::iterator
     _rbt_type ::
         upper_bound(key_type const &__k) const ustl_cpp_noexcept
     {
@@ -1078,7 +1127,8 @@ namespace ustl
         return ret_type(iterator(__suc), iterator(__suc));
     }
 
-    __rbt_template_parameters inline void
+    __rbt_template_parameters 
+    inline void
     _rbt_type::
         swap(rb_tree &__other) ustl_cpp_noexcept
     {
@@ -1093,7 +1143,8 @@ namespace ustl
             _M_data_plus->_M_swap(__other._M_data_plus);
     }
 
-    __rbt_template_parameters inline void
+    __rbt_template_parameters 
+    inline void
     _rbt_type::
         clear()
     {
@@ -1115,76 +1166,87 @@ namespace ustl
         _M_data_plus->_M_header._M_count = 0;
     }
 
-    __rbt_template_parameters inline size_t
+    __rbt_template_parameters 
+    inline size_t
     _rbt_type::
         count() const ustl_cpp_noexcept
     {
         return _M_data_plus->_M_header._M_count;
     }
 
-    __rbt_template_parameters inline bool
+    __rbt_template_parameters 
+    inline bool
     _rbt_type::
         empty() const ustl_cpp_noexcept
     {
         return (0 == _M_data_plus->_M_header._M_count);
     }
 
-    __rbt_template_parameters inline typename _rbt_type::iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::iterator
     _rbt_type::
         begin() ustl_cpp_noexcept
     {
         return iterator(_M_left_most());
     }
 
-    __rbt_template_parameters inline typename _rbt_type::iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::iterator
     _rbt_type::
         end() ustl_cpp_noexcept
     {
         return iterator(&_M_data_plus->_M_header);
     }
 
-    __rbt_template_parameters inline typename _rbt_type::const_iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::const_iterator
     _rbt_type::
         begin() const ustl_cpp_noexcept
     {
         return const_iterator(_M_left_most());
     }
 
-    __rbt_template_parameters inline typename _rbt_type::const_iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::const_iterator
     _rbt_type::
         end() const ustl_cpp_noexcept
     {
         return const_iterator(&_M_data_plus->_M_header);
     }
-    __rbt_template_parameters inline typename _rbt_type::const_iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::const_iterator
     _rbt_type::
         cbegin() ustl_cpp_noexcept
     {
         return const_iterator(_M_left_most());
     }
 
-    __rbt_template_parameters inline typename _rbt_type::const_iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::const_iterator
     _rbt_type::
         cend() ustl_cpp_noexcept
     {
         return const_iterator(&_M_data_plus->_M_header);
     }
 
-    __rbt_template_parameters inline typename _rbt_type::const_iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::const_iterator
     _rbt_type::
         cbegin() const ustl_cpp_noexcept
     {
         return const_iterator(_M_left_most());
     }
 
-    __rbt_template_parameters inline typename _rbt_type::const_iterator
+    __rbt_template_parameters 
+    inline typename _rbt_type::const_iterator
     _rbt_type::
         cend() const ustl_cpp_noexcept
     {
         return const_iterator(&_M_data_plus->_M_header);
     }
 
-    __rbt_template_parameters _rbt_type &
+    __rbt_template_parameters 
+    _rbt_type &
     _rbt_type::
     operator=(rb_tree const &__other)
     {
@@ -1193,14 +1255,16 @@ namespace ustl
         return *this;
     }
 
-    __rbt_template_parameters typename _rbt_type::_Node_ptr
+    __rbt_template_parameters 
+    typename _rbt_type::_Node_ptr
     _rbt_type::
         root(rb_tree const &__other) ustl_cpp_noexcept
     {
         return static_cast<_Node_ptr>(__other._M_data_plus->_M_header._M_parent);
     }
 
-    __rbt_template_parameters bool
+    __rbt_template_parameters 
+    bool
     operator==(_rbt_type const &__l,
                _rbt_type const &__r)
     {

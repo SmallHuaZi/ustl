@@ -21,7 +21,8 @@ namespace ustl
     public:
         constexpr pair() = default;
 
-        constexpr pair(first_type __f, second_type __s)
+        constexpr pair(first_type const &__f, 
+                       second_type const &__s)
             : _M_fisrt_val(__f),
               _M_second_val(__s) {}
 

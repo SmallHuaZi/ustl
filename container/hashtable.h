@@ -350,7 +350,7 @@ public:
         }
 
         hashtable_node * 
-        _M_allocate_hash_node(size_t    &__len)
+        _M_allocate_hash_node(size_t    __len)
         {
             return _HashNode_allocate_traits::allocate(_M_data_plus, __len);
         }
@@ -577,6 +577,15 @@ protected:
         if(__hash_value > _M_data_plus._M_table_size)
             _M_rehash(__hash_value);
         hash_node_ptr   __pos = _M_data_plus._M_table + __hash_value;
+        if(0 == __pos)
+        {
+            __pos->_M_list_table = _M_allocate();
+            __pos->push_back({__key, __val});
+        }
+        else
+        {
+
+        }
 
     }
 
