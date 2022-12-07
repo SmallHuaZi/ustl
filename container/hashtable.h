@@ -333,8 +333,7 @@ namespace ustl
         typedef     hashtable_iterator<true>    const_iterator;    
 
 
-public:
-
+    public:
         allcoator_type &
         _M_get_kvp_allocator()
         { return    _M_data_plus; }
@@ -393,12 +392,12 @@ public:
         void
         _M_default_initialize();
 
-public:
+    public:
         size_t
         max_size()
         { return _KVPair_allocate_traits::max_size(_M_get_kvp_allocator()); }
 
-protected:
+    protected:
 
         impl_type   _M_data_plus;
     };
@@ -455,6 +454,8 @@ protected:
         typedef     typename _Base_type::impl_type           impl_type;
         typedef     typename _Base_type::node_type           node_type;
         typedef     typename _Base_type::node_pointer        node_pointer;
+        typedef     typename _Base_type::hash_node           hash_node;
+        typedef     typename _Base_type::hash_node_ptr       hash_node_ptr;
 
     public:
 
@@ -471,8 +472,24 @@ protected:
         typedef     ustl::diff_t        difference_type;
         typedef     typename _Base_type::iterator             iterator;
         typedef     typename _Base_type::const_iterator       const_iterator;
-        
+
+        using   _Base_type::__MAX_TABLE_SIZE;
+        using   _Base_type::__DEFAULT_HASH_FACTOR;
+        using   _Base_type::__DEFAULT_TABLE_LENGTH;
+        using   _Base_type::__DEFAULT_LIST_LIMIT;       
+
     private:
+        using   _Base_type::_M_get_kvp_allocator;
+        using   _Base_type::_M_get_hn_allocator;
+        using   _Base_type::_M_allocate_kvp;
+        using   _Base_type::_M_allocate_hash_node;
+        using   _Base_type::_M_deallocate_kvp;
+        using   _Base_type::_M_deallocate_table;
+        using   _Base_type::_M_construct_kvp;
+        using   _Base_type::_M_destory_kvp;
+        using   _Base_type::_M_node_max_size;
+        using   _Base_type::_M_rehash;
+        using   _Base_type::_M_default_initialize;
 
         size_type
         _M_hash(key_type const &) ustl_cpp_noexcept;
@@ -555,7 +572,7 @@ protected:
         operator=(hashtable &&);
 
 
-protected:
+    protected:
         using   _Base_type::_M_data_plus;
 
     };

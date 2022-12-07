@@ -1,3 +1,4 @@
+#include "include/config.h"
 #include "container/rbtree_fwd.h"
 
 namespace ustl
@@ -18,96 +19,96 @@ namespace ustl
 
     auto
     _Rbt_node_base::
-        _S_color(_Rbt_node_base *__p) ustl_cpp_noexcept -> _color
-        {
-            return __p ? __p->_M_color : _Black;
-        }   
+        _S_color(_Rbt_node_base *__p) ustl_cpp_ustl_cpp_noexcept -> _color
+    {
+        return __p ? __p->_M_color : _Black;
+    }   
 
     void
     _Rbt_node_base::
-        _M_setcolor(_color __c) ustl_cpp_noexcept
-        {
-            if (this)
-                this->_M_color = __c;
-        }
+        _M_setcolor(_color __c) ustl_cpp_ustl_cpp_noexcept
+    {
+        if (this)
+            this->_M_color = __c;
+    }
 
     auto
     _Rbt_node_base::
-        maxnode(_Node_ptr __r) ustl_cpp_noexcept -> _Node_ptr
-        {
-            while (__r->_M_right)
-                __r = __r->_M_right;
-            return __r;
-        }       
+        maxnode(_Node_ptr __r) ustl_cpp_ustl_cpp_noexcept -> _Node_ptr
+    {
+        while (__r->_M_right)
+            __r = __r->_M_right;
+        return __r;
+    }       
 
     
     auto
     _Rbt_node_base::
-        maxnode(_CNode_ptr __r) ustl_cpp_noexcept -> _CNode_ptr
-        {
-            while (__r->_M_right)
-                __r = __r->_M_right;
-            return __r;
-        }    
+        maxnode(_CNode_ptr __r) ustl_cpp_ustl_cpp_noexcept -> _CNode_ptr
+    {
+        while (__r->_M_right)
+            __r = __r->_M_right;
+        return __r;
+    }    
 
     auto
     _Rbt_node_base::
-        minnode(_Node_ptr __r) ustl_cpp_noexcept -> _Node_ptr
-        {
-            while (__r->_M_left)
-                __r = __r->_M_left;
-            return __r;
-        }  
+        minnode(_Node_ptr __r) ustl_cpp_ustl_cpp_noexcept -> _Node_ptr
+    {
+        while (__r->_M_left)
+            __r = __r->_M_left;
+        return __r;
+    }  
 
     auto
     _Rbt_node_base::
-        minnode(_CNode_ptr __r) ustl_cpp_noexcept -> _CNode_ptr
-        {
-            while (__r->_M_left)
-                __r = __r->_M_left;
-            return __r;
-        }
+        minnode(_CNode_ptr __r) ustl_cpp_ustl_cpp_noexcept -> _CNode_ptr
+    {
+        while (__r->_M_left)
+            __r = __r->_M_left;
+        return __r;
+    }
 
     _Rbt_header::
         _Rbt_header()
             : _M_count(0),
               _Rbt_node_base(this, this, 0) 
-        {}   
+    {}   
 
     _Rbt_header::
         _Rbt_header(_Node_ptr __l,
                     _Node_ptr __r, _Node_ptr __p, size_t __n)
             : _M_count(__n), _Rbt_node_base(__l, __r, __p) 
-        {}    
+    {}    
     
     void
     _Rbt_header::
-        _M_reset() ustl_cpp_noexcept
-        {
-            _M_count = 0;
-            _M_parent = 0;
-            _M_left = _M_right = this;
-        }
+        _M_reset() ustl_cpp_ustl_cpp_noexcept
+    {
+        _M_count = 0;
+        _M_parent = 0;
+        _M_left = _M_right = this;
+    }
 
     auto
     _Rbt_header::
-        _S_Min_node() const ustl_cpp_noexcept -> _Node_ptr
-        {
-            return this->_M_left;           
-        }
+        _S_Min_node() const ustl_cpp_ustl_cpp_noexcept -> _Node_ptr
+    {
+        return this->_M_left;           
+    }
 
 
     auto
     _Rbt_header::
-        _S_Max_node() const ustl_cpp_noexcept -> _Node_ptr
-        {
-            return this->_M_right;
-        }
+        _S_Max_node() const ustl_cpp_ustl_cpp_noexcept -> _Node_ptr
+    {
+        return this->_M_right;
+    }
 
     
 
     _Rbt_node_base *
-    _rbt_decrement(_Rbt_node_base *__p) noexcept
+    _rbt_decrement(_Rbt_node_base *__p) ustl_cpp_ustl_cpp_noexcept
     {
         _Rbt_node_base *__tmp;
         if (__p->_M_left)
@@ -129,7 +130,7 @@ namespace ustl
     }
 
     _Rbt_node_base *
-    _rbt_increment(_Rbt_node_base *__p) noexcept
+    _rbt_increment(_Rbt_node_base *__p) ustl_cpp_noexcept
     {
         _Rbt_node_base *__tmp;
         if (__p->_M_right)
@@ -154,7 +155,7 @@ namespace ustl
     _rbt_insert(bool __is_l,
                 _Rbt_node_base *__new,
                 _Rbt_node_base *__ist,
-                _Rbt_node_base *__header) noexcept
+                _Rbt_node_base *__header) ustl_cpp_noexcept
     {
         if (__is_l)
         {
@@ -182,7 +183,7 @@ namespace ustl
 
     _Rbt_node_base *
     _rbt_erase(_Rbt_node_base *__del,
-                _Rbt_node_base *__h) noexcept
+                _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         if (__del->_M_left)
             __del = _rbt_decrement(__del);
@@ -206,7 +207,7 @@ namespace ustl
 
     void
     _rbt_rotate_left(_Rbt_node_base *__n,
-                        _Rbt_node_base *__h) noexcept
+                        _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base *_Node_ptr;
         _Node_ptr __parent = __n->_M_parent,
@@ -234,7 +235,7 @@ namespace ustl
 
     void
     _rbt_rotate_right(_Rbt_node_base *__n,
-                        _Rbt_node_base *__h) noexcept
+                        _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base *_Node_ptr;
         _Node_ptr __parent = __n->_M_parent,
@@ -262,7 +263,7 @@ namespace ustl
 
     void
     _rbt_rebalance_insert(_Rbt_node_base *__n,
-                            _Rbt_node_base *__h) noexcept
+                            _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base *_Node_ptr;
         _Node_ptr __parent = __n->_M_parent;
@@ -285,7 +286,7 @@ namespace ustl
 
     void
     _rbt_rebalance_erase(_Rbt_node_base *__del,
-                            _Rbt_node_base *__header) noexcept
+                            _Rbt_node_base *__header) ustl_cpp_noexcept
     {
         /// @if color(__del) = red
         ///     don`t need rebalance operating
@@ -356,7 +357,7 @@ namespace ustl
 
     void
     _rbt_recolor(_Rbt_node_base *__n,
-                    _Rbt_node_base *__h) noexcept
+                    _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base _Node;
         typedef _Rbt_node_base *_Node_ptr;
