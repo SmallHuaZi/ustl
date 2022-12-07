@@ -166,7 +166,7 @@ namespace ustl
                     }
                 }
                 /** memory alloc failure, throws a exception !  */
-                __throw_bad_alloc();
+                __ustl_throw_bad_alloc();
             }
             _S_heap_size += __alloc_size;
             _S_free_end = _S_free_start + __alloc_size;
@@ -249,7 +249,7 @@ namespace ustl
             }
 
             if (!__ret)
-                __throw_bad_alloc();
+                __ustl_throw_bad_alloc();
         }
         return static_cast<pointer>(__ret);
     }

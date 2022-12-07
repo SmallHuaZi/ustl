@@ -1482,7 +1482,7 @@ namespace ustl
     {
         constexpr  size_type __bucket_capacity = _S_size_of_bucket(sizeof(_Tp));
         if(__idx > size())
-            __throw_array_length("deque::operator=(): array access overflap");
+            __ustl_throw_array_length("deque::operator=(): array access overflap");
 
         _bc_pointer __start = _M_data_plus._M_begin._M_bucket_cur;
         _bc_pointer __finish = _M_data_plus._M_end._M_bucket_cur;

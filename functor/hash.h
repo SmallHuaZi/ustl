@@ -1,0 +1,30 @@
+#ifndef __ustl_hash_h
+#define __ustl_hash_h
+
+#include "include/config.h"
+
+namespace ustl
+{
+   template<typename _Tp>
+   struct hash
+   {
+        size_t
+        operator()(_Tp const &__val, size_t __prime = 0)
+        {
+            char    *__data = &__val;
+            size_t  __hash_value = 0;
+
+            for(size_t __tmp = 0; __tmp < sizeof(_Tp); ++__tmp)
+            {
+                __hash_value += (__data[__tmp] << 4) ^ ((size_t)&__data[__tmp] >> 16);
+            }
+
+            return  __prime ?__hash_value : __hash_value % __prime;
+        }
+
+   }; 
+
+} // namespace ustl
+
+
+#endif

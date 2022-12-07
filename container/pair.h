@@ -44,6 +44,14 @@ namespace ustl
             _M_copy(__tmp);
         }
 
+        second_type * 
+        second_valptr(pair &__node)
+        { return    &__node._M_second_val; }
+
+        first_type * 
+        first_valptr(pair&__node)
+        { return    &__node._M_fisrt_val;  }
+
         first_type _M_fisrt_val;
         second_type _M_second_val;
     };

@@ -413,7 +413,7 @@ namespace ustl
     {
         size_type __old_capacity = capacity();
         if (__len > _Alloc_traits::max_size(_M_data_plus))
-            __throw_array_length("basic_string::_M_check_length : size of requested memory overlaps");
+            __ustl_throw_array_length("basic_string::_M_check_length : size of requested memory overlaps");
         if (__len > __old_capacity && __len < (__old_capacity << 1))
             __len = __old_capacity << 1;
         return __len;
@@ -1189,7 +1189,7 @@ namespace ustl
     {
         if (__idx < size())
             return _M_data_plus->_M_actual_data[__idx];
-        __throw_out_of_range("basic_string::operator[]: index overlaps");
+        __ustl_throw_out_of_range("basic_string::operator[]: index overlaps");
     }
 
     template <typename _CharT, typename _Alloc>
@@ -1199,7 +1199,7 @@ namespace ustl
     {
         if (__idx < size())
             return _M_data_plus->_M_actual_data[__idx];
-        __throw_out_of_range("basic_string::operator[] const: index overlaps");
+        __ustl_throw_out_of_range("basic_string::operator[] const: index overlaps");
     }
 
 } // namespace ustl

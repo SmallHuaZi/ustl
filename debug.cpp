@@ -1,8 +1,8 @@
-#include <iostream>
-#include <string>
-#include <functional>
-#include <utility>
-#include <deque>
+// #include <iostream>
+// #include <string>
+// #include <functional>
+// #include <utility>
+// #include <bits/stl_map.h>
 
 struct get_key
 {
@@ -26,6 +26,7 @@ struct compare
 
 #include "include/ustl_tmp.h"
 #include "include/ustl_exception.h"
+#include "include/ustl_functor.h"
 #include "include/ustl_memory.h"
 #include "include/ustl_type_traits.h"
 #include "include/ustl_algorithm.h"
@@ -38,6 +39,7 @@ struct compare
 int 
 main(int argc, char **argv)
 {
-
+    ustl::hashtable<int, int> __ustl_hash;
+    float __f = 0.75;
     return 0;
 }

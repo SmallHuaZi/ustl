@@ -238,7 +238,7 @@ namespace ustl
         _M_check_length(size_type __n)
         {
             if (_M_max_size() - size() < __n)
-                __throw_array_length();
+                __ustl_throw_array_length();
             size_type __new_len = size() + (size() > __n ? size() : __n);
             return __new_len < _M_max_size() ? __new_len : _M_max_size();
         }
@@ -864,7 +864,7 @@ namespace ustl
     {
         if (_M_check_overflow(__idx))
             return *(_M_data_plus._M_begin + __idx);
-        __throw_out_of_range("vector.operator[]: index out of the overlaps");
+        __ustl_throw_out_of_range("vector.operator[]: index out of the overlaps");
     }
 
     template <typename _Tp, typename _Alloc>
@@ -874,7 +874,7 @@ namespace ustl
     {
         if (_M_check_overflow(__idx))
             return *(_M_data_plus._M_begin + __idx);
-        __throw_out_of_range("vector.operator[]: index out of the overlaps");
+        __ustl_throw_out_of_range("vector.operator[]: index out of the overlaps");
     }
 
     template <typename _Tp, typename _Alloc>

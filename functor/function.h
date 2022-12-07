@@ -16,11 +16,11 @@ namespace ustl
             return _M_function(ustl::forward<_Args &&>(__args)...);
         }
 
-        function(_Result(_Args...) & __callable)
+        function(_Result(&__callable)(_Args...))
             : _M_callable(__callable) {}
 
     protected:
-        _Result(_Args...) & _M_callable;
+        _Result (&_M_callable) (_Args...)  ;
     };
 
 } // namespace ustl
