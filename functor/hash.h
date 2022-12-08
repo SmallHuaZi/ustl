@@ -11,7 +11,7 @@ namespace ustl
         size_t
         operator()(_Tp const &__val, size_t __prime = 0)
         {
-            char    *__data = &__val;
+            char    *__data = (char *)&__val;
             size_t  __hash_value = 0;
 
             for(size_t __tmp = 0; __tmp < sizeof(_Tp); ++__tmp)
@@ -19,7 +19,7 @@ namespace ustl
                 __hash_value += (__data[__tmp] << 4) ^ ((size_t)&__data[__tmp] >> 16);
             }
 
-            return  __prime ?__hash_value : __hash_value % __prime;
+            return  __prime ?__hash_value  % __prime : __hash_value;
         }
 
    }; 

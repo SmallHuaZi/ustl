@@ -1,7 +1,7 @@
-#include "ustl.h"
-
 #ifndef __config_h
 #define __config_h
+
+#include "include/ustl.h"
 
 namespace ustl
 {

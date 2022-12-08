@@ -1,4 +1,3 @@
-#include "include/config.h"
 #include "container/rbtree_fwd.h"
 
 namespace ustl
@@ -19,14 +18,14 @@ namespace ustl
 
     auto
     _Rbt_node_base::
-        _S_color(_Rbt_node_base *__p) ustl_cpp_ustl_cpp_noexcept -> _color
+        _S_color(_Rbt_node_base *__p) ustl_cpp_noexcept -> _color
     {
         return __p ? __p->_M_color : _Black;
     }   
 
     void
     _Rbt_node_base::
-        _M_setcolor(_color __c) ustl_cpp_ustl_cpp_noexcept
+        _M_setcolor(_color __c) ustl_cpp_noexcept
     {
         if (this)
             this->_M_color = __c;
@@ -34,7 +33,7 @@ namespace ustl
 
     auto
     _Rbt_node_base::
-        maxnode(_Node_ptr __r) ustl_cpp_ustl_cpp_noexcept -> _Node_ptr
+        maxnode(_Node_ptr __r) ustl_cpp_noexcept -> _Node_ptr
     {
         while (__r->_M_right)
             __r = __r->_M_right;
@@ -44,7 +43,7 @@ namespace ustl
     
     auto
     _Rbt_node_base::
-        maxnode(_CNode_ptr __r) ustl_cpp_ustl_cpp_noexcept -> _CNode_ptr
+        maxnode(_CNode_ptr __r) ustl_cpp_noexcept -> _CNode_ptr
     {
         while (__r->_M_right)
             __r = __r->_M_right;
@@ -53,7 +52,7 @@ namespace ustl
 
     auto
     _Rbt_node_base::
-        minnode(_Node_ptr __r) ustl_cpp_ustl_cpp_noexcept -> _Node_ptr
+        minnode(_Node_ptr __r) ustl_cpp_noexcept -> _Node_ptr
     {
         while (__r->_M_left)
             __r = __r->_M_left;
@@ -62,7 +61,7 @@ namespace ustl
 
     auto
     _Rbt_node_base::
-        minnode(_CNode_ptr __r) ustl_cpp_ustl_cpp_noexcept -> _CNode_ptr
+        minnode(_CNode_ptr __r) ustl_cpp_noexcept -> _CNode_ptr
     {
         while (__r->_M_left)
             __r = __r->_M_left;
@@ -83,7 +82,7 @@ namespace ustl
     
     void
     _Rbt_header::
-        _M_reset() ustl_cpp_ustl_cpp_noexcept
+        _M_reset() ustl_cpp_noexcept
     {
         _M_count = 0;
         _M_parent = 0;
@@ -92,7 +91,7 @@ namespace ustl
 
     auto
     _Rbt_header::
-        _S_Min_node() const ustl_cpp_ustl_cpp_noexcept -> _Node_ptr
+        _S_Min_node() const ustl_cpp_noexcept -> _Node_ptr
     {
         return this->_M_left;           
     }
@@ -100,7 +99,7 @@ namespace ustl
 
     auto
     _Rbt_header::
-        _S_Max_node() const ustl_cpp_ustl_cpp_noexcept -> _Node_ptr
+        _S_Max_node() const ustl_cpp_noexcept -> _Node_ptr
     {
         return this->_M_right;
     }
@@ -108,7 +107,7 @@ namespace ustl
     
 
     _Rbt_node_base *
-    _rbt_decrement(_Rbt_node_base *__p) ustl_cpp_ustl_cpp_noexcept
+    _rbt_decrement(_Rbt_node_base *__p) ustl_cpp_noexcept
     {
         _Rbt_node_base *__tmp;
         if (__p->_M_left)

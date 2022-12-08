@@ -1,6 +1,9 @@
 #ifndef __List_h
 #define __list_h
 
+#include "include/config.h"
+#include "include/ustl_memory.h"
+
 namespace ustl
 {
     /**
@@ -173,7 +176,7 @@ namespace ustl
         pointer
         _M_valptr() ustl_cpp_noexcept
         {
-            return &_M_value_field;
+            return (pointer)&_M_value_field;
         }
 
         reference
@@ -558,84 +561,138 @@ namespace ustl
         void _M_erase(iterator, iterator);
 
     public:
-        inline size_t insert(iterator, iterator, iterator);
-        inline iterator insert(const_iterator, value_type const &);
-        inline iterator insert(const_iterator, value_type const &, size_t);
+        inline size_t 
+        insert(iterator, iterator, iterator);
+        inline iterator 
+        insert(const_iterator, value_type const &);
+        inline iterator 
+        insert(const_iterator, value_type const &, size_t);
 
-        inline void push_back(value_type const &);
-        inline void push_back(iterator);
-        inline void push_front(value_type const &);
-        inline void push_front(iterator);
+        inline void 
+        push_back(value_type const &);
+        inline void 
+        push_back(value_type &&);
+        inline void 
+        push_back(iterator);
+
+        inline void 
+        push_front(value_type const &);
+        inline void 
+        push_front(value_type &&);
+        inline void 
+        push_front(iterator);
 
         template <typename... _Args>
-        inline reference emplace(const_iterator, _Args &&...);
+        inline reference 
+        emplace(const_iterator, _Args &&...);
         template <typename... _Args>
-        inline reference emplace_back(_Args &&...);
+        inline reference 
+        emplace_back(_Args &&...);
         template <typename... _Args>
-        inline reference emplace_front(_Args &&...);
+        inline reference 
+        emplace_front(_Args &&...);
 
         template <typename _Itr>
-        inline void assign(_Itr, _Itr);
+        inline void 
+        assign(_Itr, _Itr);
         template <typename _Itr>
-        inline void assign(iterator, _Itr, _Itr);
+        inline void 
+        assign(iterator, _Itr, _Itr);
 
-        inline reference front() ustl_cpp_noexcept;
-        inline reference back() ustl_cpp_noexcept;
+        inline reference 
+        front() ustl_cpp_noexcept;
+        inline reference 
+        back() ustl_cpp_noexcept;
 
-        size_t remove(value_type const &);
+        size_t 
+        remove(value_type const &);
         template <typename _CompPredicate>
-        size_t remove_if(_CompPredicate);
+        size_t 
+        remove_if(_CompPredicate);
 
-        inline void pop_back();
-        inline void pop_front();
+        inline void 
+        pop_back();
 
-        inline void erase(iterator);
-        inline size_t erase(iterator, iterator);
+        inline void 
+        pop_front();
 
-        void unique();
+        inline void 
+        erase(iterator);
+        inline size_t 
+        erase(iterator, iterator);
+
+        void 
+        unique();
         template <typename _Predicate>
-        void unique(_Predicate);
+        void 
+        unique(_Predicate);
 
-        void merge(list &&) ustl_cpp_noexcept;
-        void merge(list &) ustl_cpp_noexcept;
+        void 
+        merge(list &&) ustl_cpp_noexcept;
+        void 
+        merge(list &) ustl_cpp_noexcept;
         template <typename _CompPredicate>
-        void merge(list &&, _CompPredicate);
+        void 
+        merge(list &&, _CompPredicate);
         template <typename _CompPredicate>
-        void merge(list &, _CompPredicate);
+        void 
+        merge(list &, _CompPredicate);
 
-        void splice(iterator, list &, iterator);
-        void splice(iterator, list &, iterator, iterator);
+        void 
+        splice(iterator, list &, iterator);
+        void 
+        splice(iterator, list &, iterator, iterator);
 
-        void sort();
+        void 
+        sort();
         template <typename _CompPredicate>
-        void sort(_CompPredicate);
+        void 
+        sort(_CompPredicate);
 
-        void swap(list &__l);
-        void swap(list &&__l);
+        void 
+        swap(list &__l);
+        void 
+        swap(list &&__l);
 
-        void reverse() ustl_cpp_noexcept;
+        void 
+        reverse() ustl_cpp_noexcept;
 
-        void resize(size_t);
-        void resize(size_t, value_type const &);
+        void 
+        resize(size_t);
+        void 
+        resize(size_t, value_type const &);
 
-        void clear();
+        void 
+        clear();
 
-        inline iterator begin() ustl_cpp_noexcept;
-        inline iterator end() ustl_cpp_noexcept;
-        inline const_iterator begin() const ustl_cpp_noexcept;
-        inline const_iterator end() const ustl_cpp_noexcept;
+        inline iterator 
+        begin() ustl_cpp_noexcept;
+        inline iterator 
+        end() ustl_cpp_noexcept;
+        inline const_iterator 
+        begin() const ustl_cpp_noexcept;
+        inline 
+        const_iterator end() const ustl_cpp_noexcept;
 
-        inline const_iterator cbegin() ustl_cpp_noexcept;
-        inline const_iterator cend() ustl_cpp_noexcept;
-        inline const_iterator cbegin() const ustl_cpp_noexcept;
-        inline const_iterator cend() const ustl_cpp_noexcept;
+        inline const_iterator 
+        cbegin() ustl_cpp_noexcept;
+        inline const_iterator 
+        cend() ustl_cpp_noexcept;
+        inline const_iterator 
+        cbegin() const ustl_cpp_noexcept;
+        inline const_iterator 
+        cend() const ustl_cpp_noexcept;
 
-        inline size_t size() const ustl_cpp_noexcept;
+        inline size_t 
+        size() const ustl_cpp_noexcept;
 
-        inline bool empty() const ustl_cpp_noexcept;
+        inline bool 
+        empty() const ustl_cpp_noexcept;
 
-        list &operator=(list const &);
-        list &operator=(list &&);
+        list &
+        operator=(list const &);
+        list &
+        operator=(list &&);
 
     public:
         template <typename _Alloc_Impl = ustl::allocator<impl_type>>
@@ -769,7 +826,15 @@ namespace ustl
     list<_Tp, _Alloc>::
         push_back(value_type const &__val)
     {
-        _M_insert(end(), forward(__val));
+        _M_insert(end(), __val);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    list<_Tp, _Alloc>::
+        push_back(value_type &&__rval)
+    {
+        _M_insert(end(), ustl::move(__rval));
     }
 
     template <typename _Tp, typename _Alloc>
@@ -786,6 +851,14 @@ namespace ustl
         push_front(value_type const &__val)
     {
         _M_insert(begin(), __val);
+    }
+
+    template <typename _Tp, typename _Alloc>
+    void
+    list<_Tp, _Alloc>::
+        push_front(value_type &&__rval)
+    {
+        _M_insert(begin(), ustl::move(__rval));
     }
 
     template <typename _Tp, typename _Alloc>

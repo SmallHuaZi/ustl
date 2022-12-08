@@ -1,6 +1,8 @@
 #ifndef __fwd_iterator_h
 #define __fwd_iterator_h
 
+#include "include/ustl_type_traits.h"
+
 namespace ustl
 {
 

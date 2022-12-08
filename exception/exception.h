@@ -1,13 +1,13 @@
 #ifndef __debug
 #include "include/ustl.h"
-#include "iterator.h"
+#include "include/ustl_iterator.h"
 #endif
 
 #ifndef __exception_h
 #define __exception_h
 
-#include "defaultmes.h"
-#include "macroexcep.h"
+#include "exception/defaultmes.h"
+#include "exception/macroexcep.h"
 
 namespace ustl
 {

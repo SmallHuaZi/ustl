@@ -1,8 +1,7 @@
 #ifndef __object_h
 #define __object_h
 
-#include "move.h"
-#include "type/allocate_traits.h"
+#include "include/ustl_tmp.h"
 
 namespace ustl
 {

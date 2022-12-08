@@ -2,10 +2,12 @@
 #define __hashtable_h
 
 #include "container/pair.h"
-#include "container/rbtree.h"
+#include "container/avltree.h"
 #include "container/slist.h"
-#include "include/ustl_exception.h"
+
+#include "include/ustl_memory.h"
 #include "include/ustl_functor.h"
+#include "include/ustl_exception.h"
 
 #define __hashtable_template_paramter \
     template <typename _Key, typename _Val, typename _Hash, typename _Alloc>
@@ -43,17 +45,17 @@ namespace ustl
 
 
 
-        struct extract_value
+        struct extract_key
         {
 
         };
 
         typedef     ustl::list<ustl::pair<_Key, _Val>>       list_node;
-        typedef     ustl::rb_tree<_Key, ustl::pair<_Key, _Val>, extract_value, ustl::less<size_t>, _Alloc>     tree_node;
+        typedef     ustl::avl_tree<_Key, ustl::pair<_Key, _Val>, ustl::less<size_t>, extract_key, _Alloc>     tree_node;
 
-        struct hashtable_node 
+        struct hashtable_bucket
         {
-            hashtable_node()
+            hashtable_bucket()
                 : _M_list_table(0), _M_size(0) {}
 
             union {
@@ -65,19 +67,19 @@ namespace ustl
 
         typedef     ustl::pair<_Key, _Val>      node_type;
         typedef     ustl::pair<_Key, _Val> *    node_pointer;
-        typedef     hashtable_node              hash_node;
-        typedef     hashtable_node *            hash_node_ptr;
+        typedef     hashtable_bucket            bucket_type;
+        typedef     hashtable_bucket *          bucket_pointer;
 
-        static hash_node_ptr
-        _S_next(hash_node_ptr __start, hash_node_ptr  __finish)
+        static bucket_pointer
+        _S_next(bucket_pointer __start, bucket_pointer  __finish)
         {
             while(__start != __finish && 0 == __start)
                 ++__start;
             return  __start == __finish ? 0 :__start;
         }
 
-        static hash_node_ptr
-        _S_last(hash_node_ptr   __rstart, hash_node_ptr __rfinish)
+        static bucket_pointer
+        _S_last(bucket_pointer   __rstart, bucket_pointer __rfinish)
         {
             while(__rfinish != __rstart && 0 == __rstart)
                 --__rstart;
@@ -86,7 +88,9 @@ namespace ustl
 
         struct hashtable_impl
             : _Alloc,
-             ustl::allocate_traits<_Alloc>::template rebind<hash_node>::other
+             ustl::allocate_traits<_Alloc>::template rebind<bucket_type>::other,
+             ustl::allocate_traits<_Alloc>::template rebind<list_node>::other,
+             ustl::allocate_traits<_Alloc>::template rebind<tree_node>::other
         {
 
             void
@@ -122,9 +126,9 @@ namespace ustl
                 _M_stroge_finish = 0;
             }
 
-            hash_node_ptr        _M_table;
-            hash_node_ptr        _M_stroge_start;
-            hash_node_ptr        _M_stroge_finish;
+            bucket_pointer        _M_table;
+            bucket_pointer        _M_stroge_start;
+            bucket_pointer        _M_stroge_finish;
 
             size_t               _M_table_size;
             size_t               _M_key_count;
@@ -310,7 +314,7 @@ namespace ustl
             hashtable_iterator(impl_type &__table)
                 : _M_data_nodes(0), _M_table(__table) {}
 
-            hashtable_iterator(hash_node_ptr __data, impl_type &__table)
+            hashtable_iterator(bucket_pointer __data, impl_type &__table)
                 : _M_data_nodes(__data), _M_table(__table) 
             { _M_relocate(); }
 
@@ -319,15 +323,23 @@ namespace ustl
                 list_iterator    _M_list_data;
                 tree_iterator    _M_tree_data;
             };
-            hash_node_ptr    _M_data_nodes;
+            bucket_pointer    _M_data_nodes;
             impl_type       &_M_table;
         };          
 
 
-        typedef     allocate_traits<_Alloc>     _KVPair_allocate_traits;
-        typedef     typename allocate_traits<_Alloc>::template rebind<hashtable_node>::other  
+
+        typedef     typename allocate_traits<_Alloc>::template rebind<hashtable_bucket>::other  
                     _HashNode_allocator_type;
+        typedef     typename allocate_traits<_Alloc>::template rebind<list_node>::other
+                    list_node_allocator_type;
+        typedef     typename allocate_traits<_Alloc>::template rebind<tree_node>::other
+                    tree_node_allocator_type; 
+
+        typedef     allocate_traits<_Alloc>     _KVPair_allocate_traits;
         typedef     allocate_traits<_HashNode_allocator_type> _HashNode_allocate_traits;
+        typedef     allocate_traits<list_node_allocator_type>   _List_Node_allocate_traits;
+        typedef     allocate_traits<tree_node_allocator_type>   _Tree_Node_allocate_traits;
 
         typedef     hashtable_iterator<false>   iterator;
         typedef     hashtable_iterator<true>    const_iterator;    
@@ -342,16 +354,36 @@ namespace ustl
         _M_get_hn_allocator()
         { return    _M_data_plus; }
 
+        list_node_allocator_type &
+        _M_get_list_node_allocator_type()
+        { return    _M_data_plus; }
+
+        tree_node_allocator_type &
+        _M_get_tree_node_allocator_type()
+        { return    _M_data_plus; }
+
         node_pointer 
         _M_allocate_kvp()
         {
             return  _KVPair_allocate_traits::allocate(_M_data_plus, 1);
         }
 
-        hashtable_node * 
-        _M_allocate_hash_node(size_t    __len)
+        bucket_pointer 
+        _M_allocate_bucket(size_t    __len)
         {
             return _HashNode_allocate_traits::allocate(_M_data_plus, __len);
+        }
+
+        list_node *
+        _M_allocate_list_node(size_t    __len)
+        {
+            return _List_Node_allocate_traits::allocate(_M_data_plus, __len);
+        }
+
+        tree_node *
+        _M_allocate_tree_node(size_t    __len)
+        {
+            return _Tree_Node_allocate_traits::allocate(_M_data_plus, __len);
         }
 
         void
@@ -361,7 +393,7 @@ namespace ustl
         }
 
         void
-        _M_deallocate_table(hash_node_ptr   __table, size_t __len)
+        _M_deallocate_bucket(bucket_pointer   __table, size_t __len)
         {
             _HashNode_allocate_traits::deallocate(_M_get_hn_allocator(), __table, __len);
         }
@@ -396,6 +428,11 @@ namespace ustl
         size_t
         max_size()
         { return _KVPair_allocate_traits::max_size(_M_get_kvp_allocator()); }
+    
+    protected:
+        hashtable_basic()
+            : _M_data_plus()
+        { _M_default_initialize(); }
 
     protected:
 
@@ -414,11 +451,11 @@ namespace ustl
         if(__new_size > _M_node_max_size())
             __ustl_throw_array_length("hashtable::_M_rehash(): allocate length overflap");
 
-        hash_node_ptr __new_table = _M_allocate_hash_node(__new_size);
+        bucket_pointer __new_table = _M_allocate_bucket(__new_size);
         ustl::relocate_forward(_M_data_plus._M_table, 
                                _M_data_plus._M_table + _M_data_plus._M_table_size,
                                __new_table, _M_get_kvp_allocator());
-        _M_deallocate_table(_M_data_plus._M_table);
+        _M_deallocate_bucket(_M_data_plus._M_table, _M_data_plus._M_table_size);
         size_t  __offset_start  = _M_data_plus._M_table - _M_data_plus._M_stroge_start;
         size_t  __offset_finish = _M_data_plus._M_stroge_finish - _M_data_plus._M_table;
 
@@ -433,7 +470,7 @@ namespace ustl
     hashtable_basic<_Key, _Val, _Hash, _Alloc>::
         _M_default_initialize()
     {
-        hash_node_ptr   __new_table = _M_allocate_hash_node(size_t(__DEFAULT_TABLE_LENGTH));
+        bucket_pointer   __new_table = _M_allocate_bucket(size_t(__DEFAULT_TABLE_LENGTH));
         _M_data_plus._M_table = __new_table;
         _M_data_plus._M_table_size = size_t(__DEFAULT_TABLE_LENGTH);
         _M_data_plus._M_key_count = 0;
@@ -443,7 +480,7 @@ namespace ustl
     }
 
     template <typename _Key, typename _Val, 
-              typename _Hash = ustl::hash<ustl::pair<_Key, _Val>>,
+              typename _Hash = ustl::hash<_Key>,
               typename _Alloc = ustl::allocator<ustl::pair<_Key, _Val>>>
     class hashtable
         : hashtable_basic<_Key, _Val, _Hash, _Alloc>
@@ -454,8 +491,8 @@ namespace ustl
         typedef     typename _Base_type::impl_type           impl_type;
         typedef     typename _Base_type::node_type           node_type;
         typedef     typename _Base_type::node_pointer        node_pointer;
-        typedef     typename _Base_type::hash_node           hash_node;
-        typedef     typename _Base_type::hash_node_ptr       hash_node_ptr;
+        typedef     typename _Base_type::bucket_type           hash_node;
+        typedef     typename _Base_type::bucket_pointer       bucket_pointer;
 
     public:
 
@@ -478,24 +515,38 @@ namespace ustl
         using   _Base_type::__DEFAULT_TABLE_LENGTH;
         using   _Base_type::__DEFAULT_LIST_LIMIT;       
 
+#ifndef __debug_ustl
     private:
+#else
+    public:
+#endif
         using   _Base_type::_M_get_kvp_allocator;
         using   _Base_type::_M_get_hn_allocator;
         using   _Base_type::_M_allocate_kvp;
-        using   _Base_type::_M_allocate_hash_node;
+        using   _Base_type::_M_allocate_bucket;
         using   _Base_type::_M_deallocate_kvp;
-        using   _Base_type::_M_deallocate_table;
+        using   _Base_type::_M_deallocate_bucket;
         using   _Base_type::_M_construct_kvp;
         using   _Base_type::_M_destory_kvp;
         using   _Base_type::_M_node_max_size;
         using   _Base_type::_M_rehash;
         using   _Base_type::_M_default_initialize;
+        using   _Base_type::_M_allocate_list_node;
+        using   _Base_type::_M_allocate_tree_node;
 
         size_type
         _M_hash(key_type const &) ustl_cpp_noexcept;
 
+        bucket_pointer
+        _M_calculate_postion(key_type const &);
+
         iterator
         _M_insert_aux(key_type const &, value_type const &);
+
+        template<typename _InputIterator>
+        iterator
+        _M_range_insert(_InputIterator, _InputIterator);
+
 
     public:
         iterator
@@ -542,7 +593,10 @@ namespace ustl
         using   _Base_type::max_size;
 
         iterator
-        insert(key_type, value_type);
+        insert_equal(key_type, value_type);
+
+        iterator
+        insert_unique(key_type, value_type);
 
         iterator
         erase(key_type);
@@ -550,14 +604,23 @@ namespace ustl
         iterator
         erase(key_type, value_type);
 
-        void
-        reserve(size_type);
-
         void 
         swap(hashtable &);
 
         void
         swap(hashtable &&);
+
+        void
+        resize(size_type);
+
+        iterator
+        find_first(key_type);
+
+        iterator
+        find_last(key_type);
+
+        pair<iterator, iterator>
+        find_all(key_type);
 
         reference
         operator[](key_type) ustl_cpp_noexcept;
@@ -588,22 +651,40 @@ namespace ustl
     __hashtable_template_paramter
     auto
     hashtable<_Key, _Val, _Hash, _Alloc>::
-        _M_insert_aux(key_type const &__key, value_type const &__val) -> iterator
+        _M_calculate_postion(key_type const &__key) -> bucket_pointer
     {
         size_t  __hash_value = _M_hash(__key);
         if(__hash_value > _M_data_plus._M_table_size)
             _M_rehash(__hash_value);
-        hash_node_ptr   __pos = _M_data_plus._M_table + __hash_value;
-        if(0 == __pos)
+        bucket_pointer   __pos = _M_data_plus._M_table + __hash_value;
+        if(0 == __pos->_M_list_table)
         {
-            __pos->_M_list_table = _M_allocate();
-            __pos->push_back({__key, __val});
+            __pos->_M_list_table = _M_allocate_list_node(1);        
+
+        }
+        return  __pos; 
+    }
+
+    __hashtable_template_paramter
+    auto
+    hashtable<_Key, _Val, _Hash, _Alloc>::
+        _M_insert_aux(key_type const &__key, value_type const &__val) -> iterator
+    {
+        bucket_pointer  __pos = _M_calculate_postion(__key);
+        node_type   __ist(__key, __val);
+        if(size_type(__DEFAULT_LIST_LIMIT) < __pos->_M_size)
+        {
+            __pos->_M_list_table->push_back(__ist);
+        }
+        else if(size_type(__DEFAULT_LIST_LIMIT) > __pos->_M_size)
+        {
+            // __pos->_M_rbt_table->insert_equal({__key, __val});
         }
         else
         {
 
         }
-
+        ++__pos->_M_size;
     }
 
     

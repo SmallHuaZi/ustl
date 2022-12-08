@@ -3,6 +3,8 @@
 // #include <functional>
 // #include <utility>
 // #include <bits/stl_map.h>
+// #include <map>
+// #include <hash_map>
 
 struct get_key
 {
@@ -39,7 +41,7 @@ struct compare
 int 
 main(int argc, char **argv)
 {
-    ustl::hashtable<int, int> __ustl_hash;
-
+    // ustl::hashtable<int, int> __ustl_hash;
+    // __ustl_hash._M_insert_aux(1, 1);
     return 0;
 }

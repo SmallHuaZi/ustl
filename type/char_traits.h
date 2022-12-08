@@ -1,6 +1,8 @@
 #ifndef __char_traits_h
 #define __char_traits_h
 
+#include "allocator/memopt.h"
+
 namespace ustl
 {
     template <typename>
