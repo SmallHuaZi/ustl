@@ -13,12 +13,6 @@
 #define _rbt_bro_ptr(__ptr) \
     (__ptr == __ptr->_M_parent->_M_left ? __ptr->parent()->right(): __ptr->parent()->left())
 
-#define _is_rchild(__ptr) \
-    (__ptr == __ptr->_M_parent->_M_right)
-
-#define _is_lchild(__ptr) \
-    (__ptr == __ptr->_M_parent->_M_left)
-
 namespace ustl
 {
     enum _color : unsigned long
@@ -132,7 +126,7 @@ namespace ustl
     _rbt_erase(_Rbt_node_base *__del,
                _Rbt_node_base *__h) ustl_cpp_noexcept;
 
-    void
+    inline void
     _rbt_insert(bool __is_l,
                 _Rbt_node_base *__new,
                 _Rbt_node_base *__ist,
@@ -155,7 +149,8 @@ namespace ustl
                           _Rbt_node_base *__h) ustl_cpp_noexcept;
 
     void
-    _rbt_rebalance_erase(_Rbt_node_base *__n,
+    _rbt_rebalance_erase(bool __right,
+                         _Rbt_node_base *__n,
                          _Rbt_node_base *__h) ustl_cpp_noexcept;
 
 }

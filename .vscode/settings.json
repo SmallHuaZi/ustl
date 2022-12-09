@@ -14,6 +14,14 @@
         "memory_resource": "cpp",
         "bit": "cpp",
         "random": "cpp",
-        "limits": "cpp"
-    }
+        "limits": "cpp",
+        "unordered_map": "cpp"
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/smallhuazi/vscode/c_c++/ustd/debug",
+            "binaryPath": "/home/smallhuazi/vscode/c_c++/ustd/debug/main",
+            "binaryArgs": []
+        }
+    ]
 }

@@ -170,6 +170,7 @@ namespace ustl
                 _Rbt_node_base *__ist,
                 _Rbt_node_base *__header) ustl_cpp_noexcept
     {
+#ifndef __TREE_BASIC_DEFINED
         if (__is_l)
         {
             if (__header->_M_parent)
@@ -191,6 +192,9 @@ namespace ustl
             __ist->_M_right = __new;
         }
         __new->_M_parent = __ist;
+#else
+        _tree_insert(__is_l, __new, __ist, __header);
+#endif
         _rbt_recolor(__new, __header);
     }
 
@@ -198,6 +202,7 @@ namespace ustl
     _rbt_erase(_Rbt_node_base *__del,
                 _Rbt_node_base *__h) ustl_cpp_noexcept
     {
+#ifndef __TREE_BASIC_DEFINED
         if (__del->_M_left)
             __del = _rbt_decrement(__del);
         if (__del->_M_right)
@@ -208,13 +213,18 @@ namespace ustl
         else if (__del == __h->_M_right)
             __h->_M_right = _rbt_decrement(__del);
 
-        _rbt_rebalance_erase(__del, __h);
-        if (_is_rchild(__del))
+        if(_is_rchild(__del)) 
             __del->_M_parent->_M_right = 0;
-        else if (_is_lchild(__del))
+        else if(_is_lchild(__del))
             __del->_M_parent->_M_left = 0;
-        else if (__del == __h->_M_parent)
-            __h->_M_parent = __h->_M_left = __h->_M_right = 0;
+        else if(__del == __h->_M_parent)
+            __h->_M_reset();
+#else
+        _tree_erase(__del, __h);
+#endif      
+        // 如果根节点还存在，则证明树不为空，需要做平衡操作
+        if(__h->_M_parent)
+            _rbt_rebalance_erase(_is_rchild(__del),__del, __h);
         return __del;
     }
 
@@ -222,13 +232,15 @@ namespace ustl
     _rbt_rotate_left(_Rbt_node_base *__n,
                         _Rbt_node_base *__h) ustl_cpp_noexcept
     {
-        typedef _Rbt_node_base *_Node_ptr;
-        _Node_ptr __parent = __n->parent(),
-                    __new = __n->right();
+        _Rbt_node_base *__parent = __n->parent();
+        _Rbt_node_base *__new = __n->right();
 
         __new->right()->_M_setcolor(__new->_M_color);
         __new->_M_setcolor(__n->_M_color);
 
+#ifdef  __TREE_BASIC_DEFINED
+        _tree_rotate_left(__n, __h);
+#else
         __n->_M_parent = __new;
         __new->_M_parent = __parent;
 
@@ -244,19 +256,22 @@ namespace ustl
 
         __n->_M_right = __new->_M_left;
         __new->_M_left = __n;
+#endif
     }
 
     void
     _rbt_rotate_right(_Rbt_node_base *__n,
                         _Rbt_node_base *__h) ustl_cpp_noexcept
     {
-        typedef _Rbt_node_base *_Node_ptr;
-        _Node_ptr __parent = __n->parent(),
-                    __new = __n->left();
+        _Rbt_node_base *__parent = __n->parent();
+        _Rbt_node_base *__new = __n->left();
 
         __new->left()->_M_setcolor(__new->_M_color);
         __new->_M_setcolor(__n->_M_color);
 
+#ifdef  __TREE_BASIC_DEFINED
+        _tree_rotate_right(__n, __h);
+#else
         __n->_M_parent = __new;
         __new->_M_parent = __parent;
 
@@ -272,6 +287,7 @@ namespace ustl
 
         __n->_M_left = __new->_M_right;
         __new->_M_right = __n;
+#endif
     }
 
     void
@@ -298,8 +314,9 @@ namespace ustl
     }
 
     void
-    _rbt_rebalance_erase(_Rbt_node_base *__del,
-                            _Rbt_node_base *__header) ustl_cpp_noexcept
+    _rbt_rebalance_erase(bool __right,
+                         _Rbt_node_base *__del,
+                         _Rbt_node_base *__header) ustl_cpp_noexcept
     {
         /// @if color(__del) = red
         ///     don`t need rebalance operating
@@ -308,7 +325,6 @@ namespace ustl
 
         _Rbt_node_base *__bro = _rbt_bro_ptr(__del);
         _Rbt_node_base *__parent = __del->parent();
-        bool __is_rchild = __parent->_M_right == __del ? true : false;
 
         if (_Black == _Rbt_node_base::_S_color(__bro))
         {
@@ -318,11 +334,11 @@ namespace ustl
                 // let tree take it
                 __bro->_M_setcolor(_Red);
                 if (_Red != __parent->_M_color)
-                    _rbt_rebalance_erase(__parent, __header);
+                    _rbt_rebalance_erase(_is_rchild(__parent),__parent, __header);
                 else
                     __parent->_M_setcolor(_Black);
             }
-            else if (__is_rchild)
+            else if (__right)
             {
                 if (_r_is_red(__bro) && !_l_is_red(__bro)) // lr
                 {
@@ -353,7 +369,7 @@ namespace ustl
         }
         else // color(__bro) = red, so childs of a sibling is all black
         {
-            if (__is_rchild)
+            if (__right)
             {
                 _rbt_rotate_right(__parent, __header);
                 __bro->left()->_M_setcolor(_Black);
@@ -364,13 +380,13 @@ namespace ustl
                 __bro->right()->_M_setcolor(_Black);
             }
             __parent->_M_setcolor(_Red);
-            _rbt_rebalance_erase(__del, __header);
+            _rbt_rebalance_erase(__right, __del, __header);
         }
     }
 
     void
     _rbt_recolor(_Rbt_node_base *__n,
-                    _Rbt_node_base *__h) ustl_cpp_noexcept
+                 _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base _Node;
         typedef _Rbt_node_base *_Node_ptr;
