@@ -9,11 +9,16 @@ namespace ustl
     struct avlt_iterator
     {
         typedef     avlt_iterator   _Self;
-        typedef     _Val    value_type;
-        typedef     _Val *  pointer;
-        typedef     _Val &  reference;
-        typedef     _Val const * const_pointer;
-        typedef     _Val const & const_reference;
+        typedef     _Val            value_type;
+        typedef     _Val *          pointer;
+        typedef     _Val &          reference;
+        typedef     _Val const *    const_pointer;
+        typedef     _Val const &    const_reference;
+        typedef     avlt_iterator<_Val, false> non_cv_iterator;
+
+        non_cv_iterator
+        _M_const_cast()
+        {}
 
         _Self &
         operator++()

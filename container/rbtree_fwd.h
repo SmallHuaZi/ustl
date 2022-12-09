@@ -2,15 +2,16 @@
 #define __rbt_fwd_h
 
 #include "include/config.h"
+#include "container/tree_basic.h"
 
 #define _r_is_red(__ptr) \
-    (__ptr != 0 && _Red == _Rbt_node_base::_S_color(__ptr->_M_right))
+    (__ptr != 0 && _Red == _Rbt_node_base::_S_color(__ptr->right()))
 
 #define _l_is_red(__ptr) \
-    (__ptr != 0 && _Red == _Rbt_node_base::_S_color(__ptr->_M_left))
+    (__ptr != 0 && _Red == _Rbt_node_base::_S_color(__ptr->left()))
 
 #define _rbt_bro_ptr(__ptr) \
-    (__ptr == __ptr->_M_parent->_M_left ? __ptr->_M_parent->_M_right : __ptr->_M_parent->_M_left)
+    (__ptr == __ptr->_M_parent->_M_left ? __ptr->parent()->right(): __ptr->parent()->left())
 
 #define _is_rchild(__ptr) \
     (__ptr == __ptr->_M_parent->_M_right)
@@ -27,6 +28,7 @@ namespace ustl
     };
 
     struct _Rbt_node_base
+        : tree_node_basic
     {
         using _Node_color = _color;
         using _Node_ptr = _Rbt_node_base *;
@@ -36,9 +38,6 @@ namespace ustl
          */
 
         _Node_color _M_color;
-        _Node_ptr _M_parent;
-        _Node_ptr _M_left;
-        _Node_ptr _M_right;
 
 #ifdef __debug_ustl
         int _M_value;
@@ -74,6 +73,24 @@ namespace ustl
         static _CNode_ptr
         minnode(_CNode_ptr __r) ustl_cpp_noexcept;
 
+        _Node_ptr
+        right() ustl_cpp_noexcept;
+
+        _Node_ptr
+        left() ustl_cpp_noexcept;
+
+        _Node_ptr
+        parent() ustl_cpp_noexcept;
+
+        _CNode_ptr
+        right() const ustl_cpp_noexcept;
+
+        _CNode_ptr
+        left() const ustl_cpp_noexcept;
+
+        _CNode_ptr
+        parent() const ustl_cpp_noexcept;
+
     };
 
     struct _Rbt_header
@@ -91,17 +108,24 @@ namespace ustl
 
 
         _Node_ptr
+        _S_Min_node() ustl_cpp_noexcept;
+
+        _Node_ptr
+        _S_Max_node() ustl_cpp_noexcept;
+
+
+        _CNode_ptr
         _S_Min_node() const ustl_cpp_noexcept;
 
 
-        _Node_ptr
+        _CNode_ptr
         _S_Max_node() const ustl_cpp_noexcept;
     };
 
-    _Rbt_node_base *
+    inline _Rbt_node_base *
     _rbt_decrement(_Rbt_node_base *__p) ustl_cpp_noexcept;
 
-    _Rbt_node_base *
+    inline _Rbt_node_base *
     _rbt_increment(_Rbt_node_base *__p) ustl_cpp_noexcept;
 
     _Rbt_node_base *

@@ -4,11 +4,40 @@ namespace ustl
 {
     avl_node_basic::
         avl_node_basic()
-            : _M_left(0), 
-              _M_right(0),
-              _M_parent(0),
+            : tree_node_basic(0, 0, 0),
               _M_balance_factor(_Balance_Foctor::__BALANCE)
     {}
+
+    avl_node_basic *
+    avl_node_basic::
+        left() ustl_cpp_noexcept
+    { return    static_cast<node_basic_pointer>(_M_left); }
+
+    avl_node_basic *
+    avl_node_basic::    
+        right() ustl_cpp_noexcept
+    { return    static_cast<node_basic_pointer>(_M_right); }
+
+    avl_node_basic *
+    avl_node_basic::
+        parent() ustl_cpp_noexcept
+    { return    static_cast<node_basic_pointer>(_M_parent); }
+
+    avl_node_basic const *
+    avl_node_basic::
+        left() const ustl_cpp_noexcept
+    { return    static_cast<const_node_basic_pointer>(_M_left); }
+
+    avl_node_basic const *
+    avl_node_basic::
+        right() const ustl_cpp_noexcept
+    { return    static_cast<const_node_basic_pointer>(_M_right); }
+
+    avl_node_basic const *
+    avl_node_basic::
+        parent() const ustl_cpp_noexcept
+    { return    static_cast<const_node_basic_pointer>(_M_parent); }
+
 
     avl_header::
         avl_header()
@@ -18,24 +47,39 @@ namespace ustl
 
     avl_node_basic *
     avl_header::
-        _M_Min_node()
-    { return    _M_left; }
+        _M_Min_node() ustl_cpp_noexcept
+    { return    left(); }
 
     avl_node_basic *
     avl_header::
-        _M_Max_node()
-    { return    _M_right; }
+        _M_Max_node() ustl_cpp_noexcept
+    { return    right(); }
 
     avl_node_basic *
     avl_header::
-        _M_root()
-    { return    _M_parent; }
+        _M_root() ustl_cpp_noexcept
+    { return    parent(); }
+
+    avl_node_basic const *
+    avl_header::
+        _M_Min_node() const ustl_cpp_noexcept
+    { return    left(); }
+
+    avl_node_basic const *
+    avl_header::
+        _M_Max_node() const ustl_cpp_noexcept
+    { return    right(); }
+
+    avl_node_basic const *
+    avl_header::
+        _M_root() const ustl_cpp_noexcept
+    { return    parent(); }
 
 
     void
     _avlt_insert(avl_node_basic *__new, avl_node_basic *__pos, bool __right)
     {
-        avl_node_basic  *__grand_parent = __pos->_M_parent;
+        avl_node_basic  *__grand_parent = __pos->parent();
         _Rotate_Mode     __balance_mode = _Rotate_Mode::__NON;
     
         if(__right) 
@@ -60,7 +104,7 @@ namespace ustl
         if(_Rotate_Mode::__NON == __mode)
             return;
 
-        avl_node_basic  *__grand_parent = __pos->_M_parent;
+        avl_node_basic  *__grand_parent = __pos->parent();
         switch (__mode)
         {
         case _Rotate_Mode::__LR :
@@ -80,15 +124,39 @@ namespace ustl
     void
     _avlt_left_rotate(avl_node_basic    *__node)
     {
-        avl_node_basic  *__parent = __node->_M_parent;
-        avl_node_basic  *__grand_parent = __parent->_M_parent;
-
-
+        avl_node_basic  *__parent = __node->parent();
+        avl_node_basic  *__grand_parent = __parent->parent();
         
+        if(__parent == __grand_parent->_M_left)
+            __grand_parent->_M_left  = __node;
+        else if(__parent == __grand_parent->_M_right)
+            __grand_parent->_M_right = __node;
+        else
+            __grand_parent->_M_parent = __node;
+        
+        __parent->_M_right = __node->_M_left;
+        __node->_M_left = __parent;
     }
 
     void
     _avlt_right_rotate(avl_node_basic   *__node)
+    {   
+        avl_node_basic  *__parent = __node->parent();
+        avl_node_basic  *__grand_parent = __parent->parent();   
+
+        if(__parent == __grand_parent->_M_left)
+            __grand_parent->_M_left = __node;
+        else if(__parent == __grand_parent->_M_parent)
+            __grand_parent->_M_right = __node;
+        else
+            __grand_parent->_M_parent = __node;
+
+        __parent->_M_left = __node;
+        __node->_M_right = __parent;
+    }
+
+    void
+    _avlt_update_factor(avl_node_basic  *__start)
     {
 
     }

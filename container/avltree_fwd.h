@@ -2,6 +2,7 @@
 #define __avl_tree_fwd_h
 
 #include "include/config.h"
+#include "container/tree_basic.h"
 
 namespace ustl
 {
@@ -10,16 +11,31 @@ namespace ustl
 
     
     struct avl_node_basic
+        : tree_node_basic
     {
         typedef avl_node_basic   node_basic_type;
         typedef avl_node_basic * node_basic_pointer;
+        typedef avl_node_basic const * const_node_basic_pointer;
 
         avl_node_basic();
 
+        node_basic_pointer
+        right() ustl_cpp_noexcept;
 
-        node_basic_pointer  _M_left;
-        node_basic_pointer  _M_right;
-        node_basic_pointer  _M_parent;
+        node_basic_pointer
+        left() ustl_cpp_noexcept;
+
+        node_basic_pointer
+        parent() ustl_cpp_noexcept;
+
+        const_node_basic_pointer
+        right() const ustl_cpp_noexcept;
+
+        const_node_basic_pointer
+        left() const ustl_cpp_noexcept;
+
+        const_node_basic_pointer
+        parent() const ustl_cpp_noexcept;
 
         _Balance_Foctor        _M_balance_factor;
     };
@@ -31,13 +47,22 @@ namespace ustl
         using   avl_node_basic::node_basic_pointer;
 
         node_basic_pointer
-        _M_Min_node();
+        _M_Min_node() ustl_cpp_noexcept;
 
         node_basic_pointer
-        _M_Max_node();
+        _M_Max_node() ustl_cpp_noexcept;
 
         node_basic_pointer
-        _M_root();
+        _M_root() ustl_cpp_noexcept;
+
+        const_node_basic_pointer
+        _M_Min_node() const ustl_cpp_noexcept;
+
+        const_node_basic_pointer
+        _M_Max_node() const ustl_cpp_noexcept;
+
+        const_node_basic_pointer
+        _M_root() const ustl_cpp_noexcept;
 
         avl_header();
 
@@ -100,6 +125,9 @@ namespace ustl
 
     void
     _avlt_erase_balance(avl_node_basic *__del, avl_node_basic *__root);
+
+    void
+    _avlt_update_factor(avl_node_basic *__start);
         
 
 } // namespace ustl

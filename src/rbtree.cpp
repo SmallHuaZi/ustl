@@ -8,13 +8,44 @@ namespace ustl
 
     _Rbt_node_base::
         _Rbt_node_base(_Node_ptr __p)
-            :_M_parent(__p) {}
-    
+            : tree_node_basic(__p), _M_color(_Red) {}
+     
     _Rbt_node_base::
         _Rbt_node_base(_Node_ptr __l,
                        _Node_ptr __r, _Node_ptr __p)
-            : _M_color(_Red), _M_left(__l),
-              _M_right(__r), _M_parent(__p) {}       
+            : _M_color(_Red), 
+              tree_node_basic(__l, __r, __p)
+    {}       
+
+    _Rbt_node_base *
+    _Rbt_node_base::
+        left() ustl_cpp_noexcept
+    { return    static_cast<_Node_ptr>(_M_left); }
+
+    _Rbt_node_base *
+    _Rbt_node_base::
+        right() ustl_cpp_noexcept
+    { return    static_cast<_Node_ptr>(_M_right); }
+
+    _Rbt_node_base *
+    _Rbt_node_base::
+        parent() ustl_cpp_noexcept
+    { return    static_cast<_Node_ptr>(_M_parent); }
+
+    _Rbt_node_base const *
+    _Rbt_node_base::
+        left() const ustl_cpp_noexcept
+    { return    static_cast<_Node_ptr>(_M_left); }
+
+    _Rbt_node_base const *
+    _Rbt_node_base::
+        right() const ustl_cpp_noexcept
+    { return    static_cast<_Node_ptr>(_M_right); }
+
+    _Rbt_node_base const *
+    _Rbt_node_base::
+        parent() const ustl_cpp_noexcept
+    { return    static_cast<_Node_ptr>(_M_parent); }
 
     auto
     _Rbt_node_base::
@@ -36,7 +67,7 @@ namespace ustl
         maxnode(_Node_ptr __r) ustl_cpp_noexcept -> _Node_ptr
     {
         while (__r->_M_right)
-            __r = __r->_M_right;
+            __r = __r->right();
         return __r;
     }       
 
@@ -46,7 +77,7 @@ namespace ustl
         maxnode(_CNode_ptr __r) ustl_cpp_noexcept -> _CNode_ptr
     {
         while (__r->_M_right)
-            __r = __r->_M_right;
+            __r = __r->right();
         return __r;
     }    
 
@@ -55,7 +86,7 @@ namespace ustl
         minnode(_Node_ptr __r) ustl_cpp_noexcept -> _Node_ptr
     {
         while (__r->_M_left)
-            __r = __r->_M_left;
+            __r = __r->left();
         return __r;
     }  
 
@@ -64,7 +95,7 @@ namespace ustl
         minnode(_CNode_ptr __r) ustl_cpp_noexcept -> _CNode_ptr
     {
         while (__r->_M_left)
-            __r = __r->_M_left;
+            __r = __r->right();
         return __r;
     }
 
@@ -91,17 +122,32 @@ namespace ustl
 
     auto
     _Rbt_header::
-        _S_Min_node() const ustl_cpp_noexcept -> _Node_ptr
+        _S_Min_node() ustl_cpp_noexcept -> _Node_ptr
     {
-        return this->_M_left;           
+        return this->right();           
     }
 
 
     auto
     _Rbt_header::
-        _S_Max_node() const ustl_cpp_noexcept -> _Node_ptr
+        _S_Max_node() ustl_cpp_noexcept -> _Node_ptr
     {
-        return this->_M_right;
+        return this->right();
+    }
+
+    auto
+    _Rbt_header::
+        _S_Min_node() const ustl_cpp_noexcept -> _CNode_ptr
+    {
+        return this->right();           
+    }
+
+
+    auto
+    _Rbt_header::
+        _S_Max_node() const ustl_cpp_noexcept -> _CNode_ptr
+    {
+        return this->right();
     }
 
     
@@ -109,45 +155,13 @@ namespace ustl
     _Rbt_node_base *
     _rbt_decrement(_Rbt_node_base *__p) ustl_cpp_noexcept
     {
-        _Rbt_node_base *__tmp;
-        if (__p->_M_left)
-        {
-            __tmp = __p->_M_left;
-            while (__tmp->_M_right)
-                __tmp = __tmp->_M_right;
-        }
-        else
-        {
-            __tmp = __p->_M_parent;
-            while (__p == __tmp->_M_left)
-            {
-                __p = __tmp;
-                __tmp = __tmp->_M_parent;
-            }
-        }
-        return __tmp;
+        return  static_cast<_Rbt_node_base *>(_tree_decrement(__p));
     }
 
     _Rbt_node_base *
     _rbt_increment(_Rbt_node_base *__p) ustl_cpp_noexcept
     {
-        _Rbt_node_base *__tmp;
-        if (__p->_M_right)
-        {
-            __tmp = __p->_M_right;
-            while (__tmp->_M_left)
-                __tmp = __tmp->_M_left;
-        }
-        else
-        {
-            __tmp = __p->_M_parent;
-            while (__p == __tmp->_M_right)
-            {
-                __p = __tmp;
-                __tmp = __tmp->_M_parent;
-            }
-        }
-        return __tmp;
+        return  static_cast<_Rbt_node_base *>(_tree_increment(__p));
     }
 
     void
@@ -187,7 +201,7 @@ namespace ustl
         if (__del->_M_left)
             __del = _rbt_decrement(__del);
         if (__del->_M_right)
-            __del = __del->_M_right;
+            __del = __del->right();
 
         if (__del == __h->_M_left)
             __h->_M_left = _rbt_increment(__del);
@@ -209,10 +223,10 @@ namespace ustl
                         _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base *_Node_ptr;
-        _Node_ptr __parent = __n->_M_parent,
-                    __new = __n->_M_right;
+        _Node_ptr __parent = __n->parent(),
+                    __new = __n->right();
 
-        __new->_M_right->_M_setcolor(__new->_M_color);
+        __new->right()->_M_setcolor(__new->_M_color);
         __new->_M_setcolor(__n->_M_color);
 
         __n->_M_parent = __new;
@@ -237,10 +251,10 @@ namespace ustl
                         _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base *_Node_ptr;
-        _Node_ptr __parent = __n->_M_parent,
-                    __new = __n->_M_left;
+        _Node_ptr __parent = __n->parent(),
+                    __new = __n->left();
 
-        __new->_M_left->_M_setcolor(__new->_M_color);
+        __new->left()->_M_setcolor(__new->_M_color);
         __new->_M_setcolor(__n->_M_color);
 
         __n->_M_parent = __new;
@@ -265,8 +279,8 @@ namespace ustl
                             _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base *_Node_ptr;
-        _Node_ptr __parent = __n->_M_parent;
-        _Node_ptr __gparnet = __parent->_M_parent;
+        _Node_ptr __parent = __n->parent();
+        _Node_ptr __gparnet = __parent->parent();
 
         if (__parent == __gparnet->_M_right)
         {
@@ -293,7 +307,7 @@ namespace ustl
             return;
 
         _Rbt_node_base *__bro = _rbt_bro_ptr(__del);
-        _Rbt_node_base *__parent = __del->_M_parent;
+        _Rbt_node_base *__parent = __del->parent();
         bool __is_rchild = __parent->_M_right == __del ? true : false;
 
         if (_Black == _Rbt_node_base::_S_color(__bro))
@@ -314,9 +328,9 @@ namespace ustl
                 {
                     _rbt_rotate_left(__bro, __header);
                     __bro->_M_setcolor(_Red);
-                    __bro = __bro->_M_parent;
+                    __bro = __bro->parent();
                 }
-                if (__bro && _Red == _Rbt_node_base::_S_color(__bro->_M_left)) // ll
+                if (__bro && _Red == _Rbt_node_base::_S_color(__bro->left())) // ll
                 {
                     _rbt_rotate_right(__parent, __header);
                     __parent->_M_setcolor(_Black);
@@ -328,7 +342,7 @@ namespace ustl
                 {
                     _rbt_rotate_right(__bro, __header);
                     __bro->_M_setcolor(_Red);
-                    __bro = __bro->_M_parent;
+                    __bro = __bro->parent();
                 }
                 if (_r_is_red(__bro)) // rr
                 {
@@ -342,12 +356,12 @@ namespace ustl
             if (__is_rchild)
             {
                 _rbt_rotate_right(__parent, __header);
-                __bro->_M_left->_M_setcolor(_Black);
+                __bro->left()->_M_setcolor(_Black);
             }
             else
             {
                 _rbt_rotate_left(__parent, __header);
-                __bro->_M_right->_M_setcolor(_Black);
+                __bro->right()->_M_setcolor(_Black);
             }
             __parent->_M_setcolor(_Red);
             _rbt_rebalance_erase(__del, __header);
@@ -368,7 +382,7 @@ namespace ustl
         }
 
         __n->_M_setcolor(_Red);
-        _Node_ptr __p = __n->_M_parent;
+        _Node_ptr __p = __n->parent();
         if (_Black == _Node::_S_color(__p))
             return;
 
@@ -377,7 +391,7 @@ namespace ustl
         {
             __uncle->_M_setcolor(_Black);
             __p->_M_setcolor(_Black);
-            _rbt_recolor(__p->_M_parent, __h);
+            _rbt_recolor(__p->parent(), __h);
         }
         else
             _rbt_rebalance_insert(__n, __h);
