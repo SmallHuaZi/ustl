@@ -105,26 +105,26 @@ namespace ustl
         _Val    _M_value_field;
     };
 
-    void
-    _avlt_left_rotate(avl_node_basic *__ist);
+    inline void
+    _avlt_rotate_left(avl_node_basic *__node, avl_node_basic *__header);
 
-    void
-    _avlt_right_rotate(avl_node_basic *__ist);
+    inline void
+    _avlt_rotate_right(avl_node_basic *__ist, avl_node_basic *__header);
 
-    void
-    _avlt_estimate_balance(avl_node_basic *__start, avl_node_basic *__root);
+    inline void
+    _avlt_insert(bool __right, 
+                 avl_node_basic *__new, 
+                 avl_node_basic *__pos, 
+                 avl_node_basic *__header);
 
-    void
-    _avlt_insert(avl_node_basic *__new, avl_node_basic *__pos, bool __right);
-
-    void
-    _avlt_erase(avl_node_basic *__del, avl_node_basic *__root);
+    inline void
+    _avlt_erase(avl_node_basic *__del, avl_node_basic *__header);
 
     void
     _avlt_insert_balance(avl_node_basic *__pos, _Rotate_Mode);
 
     void
-    _avlt_erase_balance(avl_node_basic *__del, avl_node_basic *__root);
+    _avlt_erase_balance(avl_node_basic *__del, avl_node_basic *__header);
 
     void
     _avlt_update_factor(avl_node_basic *__start);

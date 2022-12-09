@@ -76,84 +76,69 @@ namespace ustl
     { return    parent(); }
 
 
+
     void
-    _avlt_insert(avl_node_basic *__new, avl_node_basic *__pos, bool __right)
+    _avlt_rotate_left(avl_node_basic *__node, avl_node_basic *__header)
     {
+        _tree_rotate_left(__node, __header);
+    }
+
+    void
+    _avlt_rotate_right(avl_node_basic *__node, avl_node_basic *__header)
+    {   
+        _tree_rotate_right(__node, __header);
+    }
+
+    void
+    _avlt_insert(bool __right, 
+                 avl_node_basic *__new, 
+                 avl_node_basic *__pos, 
+                 avl_node_basic *__header)
+    {
+        _tree_insert(__right, __new, __pos, __header);
+        _avlt_insert_balance(__pos, __header);
+    }
+
+    void
+    _avlt_erase(avl_node_basic *__del, avl_node_basic *__header)
+    {
+        _tree_erase(__del, __header);
+        _avlt_erase_balance(__del, __header);
+    }
+
+    void
+    _avlt_insert_balance(avl_node_basic *__pos, avl_node_basic *__header)
+    {
+        _Rotate_Mode __mode = _Rotate_Mode::__NON;
         avl_node_basic  *__grand_parent = __pos->parent();
-        _Rotate_Mode     __balance_mode = _Rotate_Mode::__NON;
-    
-        if(__right) 
-            __pos->_M_right = __new;
-        else        
-            __pos->_M_left  = __new;
 
         if(__pos == __grand_parent->_M_left && 
            _Balance_Foctor::__LEFT_BANK == __grand_parent->_M_balance_factor) {
-            __balance_mode = __right ? _Rotate_Mode::__LR : _Rotate_Mode::__LL;
+            __mode = _is_rchild(__pos) ? _Rotate_Mode::__LR : _Rotate_Mode::__LL;
         }
         else if(_Balance_Foctor::__RIGHT_BANK == __grand_parent->_M_balance_factor) {
-            __balance_mode = __right ? _Rotate_Mode::__RR : _Rotate_Mode::__RL;
+            __mode = _is_rchild(__pos) ? _Rotate_Mode::__RR : _Rotate_Mode::__RL;
         }
 
-        _avlt_insert_balance(__pos, __balance_mode);
-    }
-
-    void
-    _avlt_insert_balance(avl_node_basic *__pos, _Rotate_Mode __mode)
-    {
-        if(_Rotate_Mode::__NON == __mode)
-            return;
-
-        avl_node_basic  *__grand_parent = __pos->parent();
         switch (__mode)
         {
         case _Rotate_Mode::__LR :
-            _avlt_left_rotate(__pos);
+            _avlt_rotate_left(__pos, __header);
         case _Rotate_Mode::__LL : 
-            _avlt_right_rotate(__grand_parent);
+            _avlt_rotate_right(__grand_parent, __header);
             break;
         
         case _Rotate_Mode::__RL :
-            _avlt_right_rotate(__pos);
+            _avlt_rotate_right(__pos, __header);
         case _Rotate_Mode::__RR :
-            _avlt_left_rotate(__grand_parent);
+            _avlt_rotate_left(__grand_parent, __header);
             break;
         }
     }
 
     void
-    _avlt_left_rotate(avl_node_basic    *__node)
-    {
-        avl_node_basic  *__parent = __node->parent();
-        avl_node_basic  *__grand_parent = __parent->parent();
-        
-        if(__parent == __grand_parent->_M_left)
-            __grand_parent->_M_left  = __node;
-        else if(__parent == __grand_parent->_M_right)
-            __grand_parent->_M_right = __node;
-        else
-            __grand_parent->_M_parent = __node;
-        
-        __parent->_M_right = __node->_M_left;
-        __node->_M_left = __parent;
-    }
-
-    void
-    _avlt_right_rotate(avl_node_basic   *__node)
-    {   
-        avl_node_basic  *__parent = __node->parent();
-        avl_node_basic  *__grand_parent = __parent->parent();   
-
-        if(__parent == __grand_parent->_M_left)
-            __grand_parent->_M_left = __node;
-        else if(__parent == __grand_parent->_M_parent)
-            __grand_parent->_M_right = __node;
-        else
-            __grand_parent->_M_parent = __node;
-
-        __parent->_M_left = __node;
-        __node->_M_right = __parent;
-    }
+    _avlt_erase_balance(avl_node_basic *__del, avl_node_basic *__header)
+    {}
 
     void
     _avlt_update_factor(avl_node_basic  *__start)

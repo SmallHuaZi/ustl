@@ -13,9 +13,12 @@ __va_depends :=$(addsuffix .d,$(basename debug.cpp)) # $(wildcard *.cpp)
 __va_cpps := $(wildcard ${__impl_dir}/*.cpp)
 __va_objs := $(notdir $(patsubst %.cpp,%.o,${__va_cpps}))
 
+export
+__va_slib := ${__slib_dir}/libimpl.a
+
 main: auto_dir debug.o FORCE
 	make -C ${__impl_dir}/; \
-	g++ ${__obj_dir}/*.o \
+	g++ ${__obj_dir}/debug.o ${__va_slib} \
 	-o ${__va_executable_dir}/$@ 
 
 FORCE:
