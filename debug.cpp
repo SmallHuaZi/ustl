@@ -44,9 +44,14 @@ main(int argc, char **argv)
     // ustl::hashtable<int, int> __ustl_hash;
     // __ustl_hash._M_insert_aux(1, 1);
     ustl::rb_tree<int, int, get_key, compare> __rbt;
+    auto __root = decltype(__rbt)::root(__rbt);
     for(int __i = 0; __i < 20; ++__i)
+    {
         __rbt.insert_equal(__i);
-    for(auto __x : __rbt)
-        std::cout << __x << std::endl;
+        __root = decltype(__rbt)::root(__rbt);
+    }
+    ustl::size_t size = ustl::_tree_node_height(__root);
+    std::cout << size << std::endl;
+
     return 0;
 }

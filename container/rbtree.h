@@ -196,14 +196,14 @@ namespace ustl
         _Self &
         operator--()
         {
-            _M_node = _rbt_increment(_M_node);
+            _M_node = _rbt_decrement(_M_node);
             return *this;
         }
 
         _Self &
         operator++()
         {
-            _M_node = _rbt_decrement(_M_node);
+            _M_node = _rbt_increment(_M_node);
             return *this;
         }
 
@@ -211,7 +211,7 @@ namespace ustl
         operator--(int)
         {
             _Self __tmp = *this;
-            _M_node = _rbt_increment(_M_node);
+            _M_node = _rbt_decrement(_M_node);
             return __tmp;
         }
 
@@ -219,7 +219,7 @@ namespace ustl
         operator++(int)
         {
             _Self __tmp = *this;
-            _M_node = _rbt_decrement(_M_node);
+            _M_node = _rbt_increment(_M_node);
             return __tmp;
         }
 
@@ -472,7 +472,7 @@ namespace ustl
                 _M_left_most = _M_left_most->parent();
                 if (0 != _M_left_most)
                 {
-                    if (_is_lchild(__ret))
+                    if (_tree_is_lchild(__ret))
                         _M_left_most->_M_left = 0;
                     else
                     {
@@ -804,17 +804,17 @@ namespace ustl
     __rbt_template_parameters 
     typename _rbt_type::iterator
     _rbt_type::
-        _M_insert(_Node_base_ptr __ist,
+        _M_insert(_Node_base_ptr __pos,
                   value_type const &__val,
                   _rbt_recycle_reuse *__node_reuse)
     {
         key_type const &__k = _KeyOfVal()(__val);
         // root insertion happen __is_left = false
-        bool __is_left = (__ist == _M_end() || _M_compare_key(__k, _S_key(__ist)));
+        bool __is_left = (__pos == _M_end() || _M_compare_key(__k, _S_key(__pos)));
         _Node_ptr __new = __node_reuse
                               ? (*__node_reuse)(__val)
                               : _M_create_node(__val);
-        _rbt_insert(__is_left, __new, __ist, &_M_data_plus->_M_header);
+        _rbt_insert(__is_left, __new, __pos, &_M_data_plus->_M_header);
         ++_M_data_plus->_M_header._M_count;
         return iterator(__new);
     }
@@ -942,8 +942,10 @@ namespace ustl
         _M_insert_equal(iterator __itr,
                         _rbt_recycle_reuse *__rcru)
     {
-        value_type __val = *static_cast<_Node_ptr>(__itr._M_node)->_M_valptr();
-        return iterator(_M_insert_equal(__val, __rcru));
+        value_type const &__val = static_cast<_Node_ptr>(__itr._M_node)->_M_value();
+        key_type const &__key = _KeyOfVal()(__val);
+        iterator __pos = _M_get_insert_pos_equal(__key);
+        return iterator(_M_insert(__pos._M_node, __val, __rcru));
     }
 
     __rbt_template_parameters 

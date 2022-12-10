@@ -67,7 +67,7 @@ namespace ustl
         else
         {
             __tmp = __node->_M_parent;
-            while(__node == __tmp->_M_left)
+            while(__node == __tmp->_M_right)
             {
                 __node = __tmp;
                 __tmp = __tmp->_M_parent;
@@ -126,12 +126,12 @@ namespace ustl
     }
 
     void
-    _tree_insert(bool __right, 
+    _tree_insert(bool __left, 
                  tree_node_basic *__new, 
                  tree_node_basic *__pos, 
                  tree_node_basic *__header) ustl_cpp_noexcept
     {
-        if(__right)
+        if(__left)
         {
             if(__header->_M_parent)
             {
@@ -141,8 +141,9 @@ namespace ustl
             }
             else
             {
-                __pos->_M_parent = __new;
-                __pos->_M_right = __pos->_M_left = __new;
+                __header->_M_left = __new;
+                __header->_M_right = __new;
+                __header->_M_parent = __new;
             }
         }
         else
@@ -167,9 +168,9 @@ namespace ustl
         else if(__del == __header->_M_right)
             __header->_M_right = _tree_decrement(__del);
 
-        if(_is_rchild(__del)) 
+        if(_tree_is_rchild(__del)) 
             __del->_M_parent->_M_right = 0;
-        else if(_is_lchild(__del))
+        else if(_tree_is_lchild(__del))
             __del->_M_parent->_M_left = 0;
         else if(__del == __header->_M_parent)
             __header->_M_reset();
@@ -179,50 +180,52 @@ namespace ustl
     size_t
     _tree_node_height(tree_node_basic *__root) ustl_cpp_noexcept
     {
-        if(__root)
+        if(0 == __root)
+            return 0;
+
+        size_t  __height = 1;
+        size_t  __tmp_height = 1;
+        bool    __recall = false;
+        bool    __from_lchild = false;
+        tree_node_basic *__first = __root;
+        tree_node_basic const *__last  = __root->_M_Max_node();
+
+        do
         {
-            size_t  __height = 1;
-            bool    __recall = false;
-            bool    __from_lchild = false;
-            size_t  __tmp_height = 0;
-            tree_node_basic *__tmp = __root;
-            do
+            if(__recall)
             {
-                if(__recall)
+                __from_lchild = _tree_is_lchild(__first);
+                __first = __first->_M_parent;
+
+                if(__from_lchild && __first->_M_right)
                 {
-                    __from_lchild = _is_lchild(__tmp);
-                    __tmp = __tmp->_M_parent;
-                    if(__from_lchild && __tmp->_M_right)
-                    {
-                        __tmp = __tmp->_M_right;
-                        __recall = false;
-                    }
-                    else
-                        --__tmp_height;
+                    __first = __first->_M_right;
+                    __recall = false;
+                }
+                else
+                    --__tmp_height;
+            }
+            else
+            {
+                if(__first->_M_left)
+                {
+                    __first = __first->_M_left;
+                    ++__tmp_height;
+                }
+                else if(__first->_M_right)
+                {
+                    __first = __first->_M_right; 
+                    ++__tmp_height;
                 }
                 else
                 {
-                    if(__tmp->_M_left)
-                    {
-                        __tmp = __tmp->_M_left;
-                        ++__tmp_height;
-                    }
-                    else if(__tmp->_M_right)
-                    {
-                       __tmp = __tmp->_M_right; 
-                       ++__tmp_height;
-                    }
-                    else
-                    {
-                        __recall = true;
-                        __height = __height > __tmp_height ? __height : __tmp_height;
-                    }
+                    __recall = true;
+                    __height = __height > __tmp_height ? __height : __tmp_height;
                 }
-            } while(!__from_lchild && __tmp == __root);
+            }
+        } while(__first != __last);
 
-            return __height;
-        }
-        return 0;
+        return __height  > __tmp_height ? __height : __tmp_height;
     }
 
 } // namespace ustl

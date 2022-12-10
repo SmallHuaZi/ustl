@@ -346,9 +346,9 @@ namespace ustl
 
     static inline void
     _rbt_insert(bool __is_l, _Rbt_node_base *__new,
-                _Rbt_node_base *__ist, _Rbt_node_base *__header) ustl_cpp_noexcept
+                _Rbt_node_base *__pos, _Rbt_node_base *__header) ustl_cpp_noexcept
     {
-        _tree_insert(__is_l, __new, __ist, __header);
+        _tree_insert(__is_l, __new, __pos, __header);
         _rbt_recolor(__new, __header);
     }
 

@@ -176,7 +176,7 @@ namespace ustl
                 // let tree take it
                 __bro->_M_setcolor(_Red);
                 if (_Red != __parent->_M_color)
-                    _rbt_rebalance_erase(_is_rchild(__parent),__parent, __header);
+                    _rbt_rebalance_erase(_tree_is_rchild(__parent),__parent, __header);
                 else
                     __parent->_M_setcolor(_Black);
             }
