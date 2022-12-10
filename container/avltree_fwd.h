@@ -73,6 +73,7 @@ namespace ustl
 
 
         diff_t      _M_height;
+        size_t _M_size;
     };
 
     struct avl_header

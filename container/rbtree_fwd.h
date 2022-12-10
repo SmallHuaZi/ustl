@@ -339,8 +339,7 @@ namespace ustl
                _Rbt_node_base *__h) ustl_cpp_noexcept
     { 
         _tree_erase(__del, __h);
-        if(__h->_M_parent)
-            _rbt_rebalance_erase(_tree_is_rchild(__del),__del, __h); 
+        if(__h->_M_parent) _rbt_rebalance_erase(_tree_is_rchild(__del),__del, __h); 
     }
 
 
