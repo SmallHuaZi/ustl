@@ -5,6 +5,72 @@
 
 namespace ustl
 {
+
+    template<typename _Val>
+    struct avl_node
+        : avl_node_basic
+    {
+        avl_node *
+        left() ustl_cpp_noexcept
+        { return    static_cast<avl_node *>(_M_left); }
+
+        avl_node *
+        right() ustl_cpp_noexcept
+        { return    static_cast<avl_node *>(_M_right); }
+
+        avl_node *
+        parent() ustl_cpp_noexcept
+        { return    static_cast<avl_node *>(_M_parent); }
+
+        avl_node *
+        left() const ustl_cpp_noexcept
+        { return    static_cast<avl_node *>(_M_left); }
+
+        avl_node *
+        right() const ustl_cpp_noexcept
+        { return    static_cast<avl_node *>(_M_right); }
+
+        avl_node *
+        parent() const ustl_cpp_noexcept
+        { return    static_cast<avl_node *>(_M_parent); }
+
+        _Val *
+        _M_valptr() ustl_cpp_noexcept
+        { return    &_M_value_field; }
+
+        _Val &
+        _M_value() ustl_cpp_noexcept
+        { return    _M_value_field; }
+
+        _Val const *
+        _M_valptr() const ustl_cpp_noexcept
+        { return    &_M_value_field; }
+
+        _Val const &
+        _M_value() const ustl_cpp_noexcept
+        { return    _M_value_field; }
+
+        bool
+        _M_is_balance() ustl_cpp_noexcept
+        { return    false; }
+
+        bool
+        _M_is_balance() const ustl_cpp_noexcept
+        { return    false; }
+
+        avl_node()
+            : avl_node_basic()
+        {}
+
+        avl_node(_Val const &__val)
+            : avl_node_basic(),
+              _M_value_field(__val)
+        {}
+
+        _Val    _M_value_field;
+    };
+
+
     template<typename _Val, bool _Const>
     struct avlt_iterator
     {

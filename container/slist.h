@@ -751,7 +751,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename _ForwardIterator>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         _M_splice_after(const_iterator __pos,
                         _ForwardIterator __before,
@@ -762,7 +762,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    auto
+    inline auto
     slist<_Tp, _Alloc>::
         insert_after(const_iterator __pos,
                      value_type const &__val) -> iterator
@@ -805,7 +805,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         emplace_after(const_iterator __pos,
                       _Args &&...__init_args)
@@ -815,7 +815,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         emplace_back(_Args &&...__init_args)
     {
@@ -824,7 +824,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         emplace_front(_Args &&...__init_args)
     {
@@ -832,7 +832,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         push_back(value_type const &__val)
     {
@@ -840,7 +840,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         push_front(value_type const &__val)
     {
@@ -867,7 +867,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    auto
+    inline auto
     slist<_Tp, _Alloc>::
         splice_after(const_iterator __pos,
                      slist &&__other) -> slist &
@@ -876,7 +876,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    auto
+    inline auto
     slist<_Tp, _Alloc>::
         splice_after(const_iterator __pos,
                      const_iterator __before,
@@ -888,7 +888,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename _ForwardIterator>
-    auto
+    inline auto
     slist<_Tp, _Alloc>::
         splice_after(const_iterator __pos,
                      _ForwardIterator __before,
@@ -900,7 +900,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         assign(value_type const &__val, size_type __n)
     {
@@ -909,7 +909,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename _ForwardIterator>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         assign(_ForwardIterator __first, _ForwardIterator __last)
     {
@@ -917,7 +917,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         pop_front() ustl_cpp_noexcept
     {
@@ -925,7 +925,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         erase_after(const_iterator __pos) ustl_cpp_noexcept
     {
@@ -933,7 +933,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename slist<_Tp, _Alloc>::difference_type
+    inline typename slist<_Tp, _Alloc>::difference_type
     slist<_Tp, _Alloc>::
         erase_after(const_iterator __before, const_iterator __last) ustl_cpp_noexcept
     {
@@ -984,7 +984,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         swap(slist &__other)
     {
@@ -994,7 +994,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         swap(slist &&__other)
     {
@@ -1092,7 +1092,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename _Predicate>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         merge(slist &&__other, _Predicate __cmp) ustl_cpp_noexcept
     {
@@ -1188,7 +1188,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     slist<_Tp, _Alloc>::
         clear()
     {

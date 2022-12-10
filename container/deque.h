@@ -1345,7 +1345,7 @@ namespace ustl
 
     template<typename _Tp, typename _Alloc>
     template<typename _ForwardIterator>
-    auto
+    inline auto
     deque<_Tp, _Alloc>::
         insert(const_iterator __pos, _ForwardIterator __first,
                _ForwardIterator __last) -> iterator
@@ -1400,7 +1400,7 @@ namespace ustl
     }
 
     template<typename _Tp, typename _Alloc>
-    typename deque<_Tp, _Alloc>::iterator
+    inline typename deque<_Tp, _Alloc>::iterator
     deque<_Tp, _Alloc>::
         erase(const_iterator __pos)
     {
@@ -1408,7 +1408,7 @@ namespace ustl
     }
 
     template<typename _Tp, typename _Alloc>
-    typename deque<_Tp, _Alloc>::iterator
+    inline typename deque<_Tp, _Alloc>::iterator
     deque<_Tp, _Alloc>::
         erase(const_iterator __first, const_iterator __last)
     {
@@ -1416,7 +1416,7 @@ namespace ustl
     }
 
     template<typename _Tp, typename _Alloc>
-    void
+    inline void
     deque<_Tp, _Alloc>::
         resize(size_type __n)
     {
@@ -1426,7 +1426,7 @@ namespace ustl
     }
 
     template<typename _Tp, typename _Alloc>
-    void
+    inline void
     deque<_Tp, _Alloc>::
         resize(size_type __n, value_type const &__val)
     {
@@ -1436,7 +1436,7 @@ namespace ustl
     }
 
     template<typename _Tp, typename _Alloc>
-    void
+    inline void
     deque<_Tp, _Alloc>::
         swap(deque &__lval) ustl_cpp_noexcept
     {
@@ -1445,7 +1445,7 @@ namespace ustl
     }
 
     template<typename _Tp, typename _Alloc>
-    void
+    inline void
     deque<_Tp, _Alloc>::
         swap(deque &&__rval) ustl_cpp_noexcept
     {
@@ -1458,7 +1458,7 @@ namespace ustl
 
 
     template<typename _Tp, typename _Alloc>
-    void
+    inline void
     deque<_Tp, _Alloc>::
         clear()
     {
@@ -1467,7 +1467,7 @@ namespace ustl
     }
 
     template<typename _Tp, typename _Alloc>
-    auto
+    inline auto
     deque<_Tp, _Alloc>::
         operator[](size_type __idx) ustl_cpp_noexcept -> reference
     {
@@ -1501,7 +1501,7 @@ namespace ustl
 
     
     template<typename _Tp, typename _Alloc>
-    auto
+    inline auto
     deque<_Tp, _Alloc>::
         size() -> size_type
     {
@@ -1529,7 +1529,7 @@ namespace ustl
 
     
     template<typename _Tp, typename _Alloc>
-    auto
+    inline auto
     deque<_Tp, _Alloc>::
         operator=(deque const &__val) ustl_cpp_noexcept -> deque & 
     {
@@ -1538,7 +1538,7 @@ namespace ustl
     }
 
     template<typename _Tp, typename _Alloc>
-    auto
+    inline auto
     deque<_Tp, _Alloc>::
         operator=(deque &&__rval) ustl_cpp_noexcept -> deque &
     {

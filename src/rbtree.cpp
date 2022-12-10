@@ -2,168 +2,8 @@
 
 namespace ustl
 {
-    _Rbt_node_base::
-        _Rbt_node_base()
-        : _M_color(_Red) {}   
 
-    _Rbt_node_base::
-        _Rbt_node_base(_Node_ptr __p)
-            : tree_node_basic(__p), _M_color(_Red) {}
-     
-    _Rbt_node_base::
-        _Rbt_node_base(_Node_ptr __l,
-                       _Node_ptr __r, _Node_ptr __p)
-            : _M_color(_Red), 
-              tree_node_basic(__l, __r, __p)
-    {}       
-
-    _Rbt_node_base *
-    _Rbt_node_base::
-        left() ustl_cpp_noexcept
-    { return    static_cast<_Node_ptr>(_M_left); }
-
-    _Rbt_node_base *
-    _Rbt_node_base::
-        right() ustl_cpp_noexcept
-    { return    static_cast<_Node_ptr>(_M_right); }
-
-    _Rbt_node_base *
-    _Rbt_node_base::
-        parent() ustl_cpp_noexcept
-    { return    static_cast<_Node_ptr>(_M_parent); }
-
-    _Rbt_node_base const *
-    _Rbt_node_base::
-        left() const ustl_cpp_noexcept
-    { return    static_cast<_Node_ptr>(_M_left); }
-
-    _Rbt_node_base const *
-    _Rbt_node_base::
-        right() const ustl_cpp_noexcept
-    { return    static_cast<_Node_ptr>(_M_right); }
-
-    _Rbt_node_base const *
-    _Rbt_node_base::
-        parent() const ustl_cpp_noexcept
-    { return    static_cast<_Node_ptr>(_M_parent); }
-
-    auto
-    _Rbt_node_base::
-        _S_color(_Rbt_node_base *__p) ustl_cpp_noexcept -> _color
-    {
-        return __p ? __p->_M_color : _Black;
-    }   
-
-    void
-    _Rbt_node_base::
-        _M_setcolor(_color __c) ustl_cpp_noexcept
-    {
-        if (this)
-            this->_M_color = __c;
-    }
-
-    auto
-    _Rbt_node_base::
-        maxnode(_Node_ptr __r) ustl_cpp_noexcept -> _Node_ptr
-    {
-        while (__r->_M_right)
-            __r = __r->right();
-        return __r;
-    }       
-
-    
-    auto
-    _Rbt_node_base::
-        maxnode(_CNode_ptr __r) ustl_cpp_noexcept -> _CNode_ptr
-    {
-        while (__r->_M_right)
-            __r = __r->right();
-        return __r;
-    }    
-
-    auto
-    _Rbt_node_base::
-        minnode(_Node_ptr __r) ustl_cpp_noexcept -> _Node_ptr
-    {
-        while (__r->_M_left)
-            __r = __r->left();
-        return __r;
-    }  
-
-    auto
-    _Rbt_node_base::
-        minnode(_CNode_ptr __r) ustl_cpp_noexcept -> _CNode_ptr
-    {
-        while (__r->_M_left)
-            __r = __r->right();
-        return __r;
-    }
-
-    _Rbt_header::
-        _Rbt_header()
-            : _M_count(0),
-              _Rbt_node_base(this, this, 0) 
-    {}   
-
-    _Rbt_header::
-        _Rbt_header(_Node_ptr __l,
-                    _Node_ptr __r, _Node_ptr __p, size_t __n)
-            : _M_count(__n), _Rbt_node_base(__l, __r, __p) 
-    {}    
-    
-    void
-    _Rbt_header::
-        _M_reset() ustl_cpp_noexcept
-    {
-        _M_count = 0;
-        _M_parent = 0;
-        _M_left = _M_right = this;
-    }
-
-    auto
-    _Rbt_header::
-        _S_Min_node() ustl_cpp_noexcept -> _Node_ptr
-    {
-        return this->right();           
-    }
-
-
-    auto
-    _Rbt_header::
-        _S_Max_node() ustl_cpp_noexcept -> _Node_ptr
-    {
-        return this->right();
-    }
-
-    auto
-    _Rbt_header::
-        _S_Min_node() const ustl_cpp_noexcept -> _CNode_ptr
-    {
-        return this->right();           
-    }
-
-
-    auto
-    _Rbt_header::
-        _S_Max_node() const ustl_cpp_noexcept -> _CNode_ptr
-    {
-        return this->right();
-    }
-
-    
-
-    _Rbt_node_base *
-    _rbt_decrement(_Rbt_node_base *__p) ustl_cpp_noexcept
-    {
-        return  static_cast<_Rbt_node_base *>(_tree_decrement(__p));
-    }
-
-    _Rbt_node_base *
-    _rbt_increment(_Rbt_node_base *__p) ustl_cpp_noexcept
-    {
-        return  static_cast<_Rbt_node_base *>(_tree_increment(__p));
-    }
-
+#ifndef __TREE_BASIC_DEFINED
     void
     _rbt_insert(bool __is_l,
                 _Rbt_node_base *__new,
@@ -232,7 +72,6 @@ namespace ustl
     _rbt_rotate_left(_Rbt_node_base *__n,
                         _Rbt_node_base *__h) ustl_cpp_noexcept
     {
-        _Rbt_node_base *__parent = __n->parent();
         _Rbt_node_base *__new = __n->right();
 
         __new->right()->_M_setcolor(__new->_M_color);
@@ -241,6 +80,7 @@ namespace ustl
 #ifdef  __TREE_BASIC_DEFINED
         _tree_rotate_left(__n, __h);
 #else
+        _Rbt_node_base *__parent = __n->parent();
         __n->_M_parent = __new;
         __new->_M_parent = __parent;
 
@@ -263,7 +103,6 @@ namespace ustl
     _rbt_rotate_right(_Rbt_node_base *__n,
                         _Rbt_node_base *__h) ustl_cpp_noexcept
     {
-        _Rbt_node_base *__parent = __n->parent();
         _Rbt_node_base *__new = __n->left();
 
         __new->left()->_M_setcolor(__new->_M_color);
@@ -272,6 +111,7 @@ namespace ustl
 #ifdef  __TREE_BASIC_DEFINED
         _tree_rotate_right(__n, __h);
 #else
+        _Rbt_node_base *__parent = __n->parent();
         __n->_M_parent = __new;
         __new->_M_parent = __parent;
 
@@ -289,6 +129,8 @@ namespace ustl
         __new->_M_right = __n;
 #endif
     }
+
+#endif
 
     void
     _rbt_rebalance_insert(_Rbt_node_base *__n,
@@ -323,12 +165,12 @@ namespace ustl
         if (__del == __header->_M_parent || _Red == _Rbt_node_base::_S_color(__del))
             return;
 
-        _Rbt_node_base *__bro = _rbt_bro_ptr(__del);
+        _Rbt_node_base *__bro = _rbt_node_bro(__del);
         _Rbt_node_base *__parent = __del->parent();
 
         if (_Black == _Rbt_node_base::_S_color(__bro))
         {
-            if (!_r_is_red(__bro) && !_l_is_red(__bro))
+            if (!_rbt_rchild_is_red(__bro) && !_rbt_lchild_is_red(__bro))
             {
                 // using recursion, from low to height, tell tree (height - 1)
                 // let tree take it
@@ -340,7 +182,7 @@ namespace ustl
             }
             else if (__right)
             {
-                if (_r_is_red(__bro) && !_l_is_red(__bro)) // lr
+                if (_rbt_rchild_is_red(__bro) && !_rbt_lchild_is_red(__bro)) // lr
                 {
                     _rbt_rotate_left(__bro, __header);
                     __bro->_M_setcolor(_Red);
@@ -354,13 +196,13 @@ namespace ustl
             }
             else
             {
-                if (_l_is_red(__bro) && !_r_is_red(__bro)) // rl
+                if (_rbt_lchild_is_red(__bro) && !_rbt_rchild_is_red(__bro)) // rl
                 {
                     _rbt_rotate_right(__bro, __header);
                     __bro->_M_setcolor(_Red);
                     __bro = __bro->parent();
                 }
-                if (_r_is_red(__bro)) // rr
+                if (_rbt_rchild_is_red(__bro)) // rr
                 {
                     _rbt_rotate_left(__parent, __header);
                     __parent->_M_setcolor(_Black);
@@ -402,7 +244,7 @@ namespace ustl
         if (_Black == _Node::_S_color(__p))
             return;
 
-        _Node_ptr __uncle = _rbt_bro_ptr(__p);
+        _Node_ptr __uncle = _rbt_node_bro(__p);
         if (_Red == _Node::_S_color(__uncle))
         {
             __uncle->_M_setcolor(_Black);

@@ -535,7 +535,7 @@ namespace ustl
 {
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         append(basic_string const &__other) -> basic_string &
     {
@@ -544,7 +544,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         append(const_pointer __str) -> basic_string &
     {
@@ -555,7 +555,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         append(value_type const __val, size_type __n) -> basic_string &
     {
@@ -564,7 +564,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         replace(size_type __pos, size_type __n,
                 const_pointer __str, size_type __len1) -> basic_string &
@@ -574,7 +574,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         replace(size_type __pos, size_type __n,
                 value_type const __val, size_type __len) -> basic_string &
@@ -584,7 +584,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         replace(size_type __pos, size_type __n,
                 basic_string const &__str) -> basic_string &
@@ -594,7 +594,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         replace(const_iterator __first, const_iterator __last,
                 value_type const __val) -> basic_string &
@@ -607,7 +607,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         replace(const_iterator __first, const_iterator __last,
                 const_pointer __str) -> basic_string &
@@ -619,7 +619,7 @@ namespace ustl
 
     template <typename _CharT, typename _Alloc>
     template <typename _InputIterator>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         replace(const_iterator __first, const_iterator __last,
                 _InputIterator __first1, _InputIterator __last1) -> basic_string &
@@ -629,7 +629,8 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto basic_string<_CharT, _Alloc>::
+    inline auto 
+    basic_string<_CharT, _Alloc>::
         insert(size_type __pos, value_type const __val,
                size_type __n) -> iterator
     {
@@ -638,7 +639,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         insert(size_type __pos, const_pointer __str) -> iterator
     {
@@ -648,7 +649,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         insert(size_type __pos, basic_string const &__str) -> iterator
     {
@@ -660,7 +661,7 @@ namespace ustl
 
     template <typename _CharT, typename _Alloc>
     template <typename _InputIterator>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         insert(size_type __pos, _InputIterator __first,
                _InputIterator __last) -> iterator
@@ -670,7 +671,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         insert(const_iterator __pos, value_type const __val,
                size_type __n) -> iterator
@@ -680,7 +681,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         insert(const_iterator __pos, const_pointer __str) -> iterator
     {
@@ -689,7 +690,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         insert(const_iterator __pos, basic_string const &__str) -> iterator
     {
@@ -702,7 +703,7 @@ namespace ustl
 
     template <typename _CharT, typename _Alloc>
     template <typename _ForwardIterator>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
         insert(const_iterator __pos, _ForwardIterator __first,
                _ForwardIterator __last) -> iterator
@@ -713,7 +714,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         push_back(value_type const __val, size_type __n)
     {
@@ -721,7 +722,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         push_back(const_pointer __str)
     {
@@ -730,7 +731,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         push_back(basic_string const &__str)
     {
@@ -738,7 +739,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         erase(const_iterator __pos)
     {
@@ -748,7 +749,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         erase(const_iterator __first, const_iterator __last)
     {
@@ -759,7 +760,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         erase(size_type __pos, size_type __count)
     {
@@ -801,7 +802,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    typename basic_string<_CharT, _Alloc>::size_type
+    inline typename basic_string<_CharT, _Alloc>::size_type
     basic_string<_CharT, _Alloc>::
         find(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
@@ -843,7 +844,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    typename basic_string<_CharT, _Alloc>::size_type
+    inline typename basic_string<_CharT, _Alloc>::size_type
     basic_string<_CharT, _Alloc>::
         rfind(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
@@ -852,7 +853,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    typename basic_string<_CharT, _Alloc>::size_type
+    inline typename basic_string<_CharT, _Alloc>::size_type
     basic_string<_CharT, _Alloc>::
         find_last_of(value_type __val, size_type __pos)
             ustl_cpp_noexcept
@@ -861,7 +862,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    typename basic_string<_CharT, _Alloc>::size_type
+    inline typename basic_string<_CharT, _Alloc>::size_type
     basic_string<_CharT, _Alloc>::
         find_last_of(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
@@ -870,7 +871,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    typename basic_string<_CharT, _Alloc>::size_type
+    inline typename basic_string<_CharT, _Alloc>::size_type
     basic_string<_CharT, _Alloc>::
         find_last_of(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
@@ -879,7 +880,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    typename basic_string<_CharT, _Alloc>::size_type
+    inline typename basic_string<_CharT, _Alloc>::size_type
     basic_string<_CharT, _Alloc>::
         find_first_of(value_type const __val, size_type __pos)
             ustl_cpp_noexcept
@@ -888,7 +889,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    typename basic_string<_CharT, _Alloc>::size_type
+    inline typename basic_string<_CharT, _Alloc>::size_type
     basic_string<_CharT, _Alloc>::
         find_first_of(basic_string const &__val, size_type __pos)
             ustl_cpp_noexcept
@@ -897,7 +898,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    typename basic_string<_CharT, _Alloc>::size_type
+    inline typename basic_string<_CharT, _Alloc>::size_type
     basic_string<_CharT, _Alloc>::
         find_first_of(const_pointer __val, size_type __pos)
             ustl_cpp_noexcept
@@ -906,7 +907,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    int
+    inline int
     basic_string<_CharT, _Alloc>::
         compare(const_pointer __str) const ustl_cpp_noexcept
     {
@@ -921,7 +922,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    int
+    inline int
     basic_string<_CharT, _Alloc>::
         compare(basic_string const &__other) const ustl_cpp_noexcept
     {
@@ -939,7 +940,8 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void basic_string<_CharT, _Alloc>::
+    inline void 
+    basic_string<_CharT, _Alloc>::
         copy(pointer __buf, size_type __n,
              size_type __pos) const
     {
@@ -948,7 +950,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         assign(value_type const __val, size_type __n)
     {
@@ -957,7 +959,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         assign(const_pointer __str)
     {
@@ -966,7 +968,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         assign(basic_string const &__str)
     {
@@ -975,7 +977,7 @@ namespace ustl
 
     template <typename _CharT, typename _Alloc>
     template <typename _InputIterator>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         assign(_InputIterator __first, _InputIterator __last)
     {
@@ -1030,7 +1032,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    void
+    inline void
     basic_string<_CharT, _Alloc>::
         swap(basic_string &&__other)
     {
@@ -1160,7 +1162,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
     operator+=(basic_string const &__other) & -> basic_string &
     {
@@ -1168,7 +1170,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
     operator+=(const_pointer __str) & -> basic_string &
     {
@@ -1176,7 +1178,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
     operator+=(value_type const __val) & -> basic_string &
     {
@@ -1184,7 +1186,8 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto basic_string<_CharT, _Alloc>::
+    inline auto 
+    basic_string<_CharT, _Alloc>::
     operator[](size_type __idx) -> reference
     {
         if (__idx < size())
@@ -1193,7 +1196,7 @@ namespace ustl
     }
 
     template <typename _CharT, typename _Alloc>
-    auto
+    inline auto
     basic_string<_CharT, _Alloc>::
     operator[](size_type __idx) const -> const_reference
     {

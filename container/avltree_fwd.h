@@ -6,8 +6,36 @@
 
 namespace ustl
 {
-    enum class _Balance_Foctor { __LEFT_BANK = -1, __RIGHT_BANK = 1, __BALANCE = 0 };
-    enum class _Rotate_Mode   { __LL = 0, __LR = 1, __RR = 2, __RL = 3, __NON = 5};
+
+    struct avl_node_basic;
+
+    void
+    _avlt_insert_balance(avl_node_basic *__pos, 
+                         avl_node_basic *__header) ustl_cpp_noexcept;
+
+    void
+    _avlt_erase_balance(avl_node_basic *__del, 
+                        avl_node_basic *__header) ustl_cpp_noexcept;
+
+    void
+    _avlt_update_factor(avl_node_basic *__node) ustl_cpp_noexcept;
+
+
+
+    enum class _Balance_Foctor { 
+        __LEFT_TAKING = -2,
+        __LEFT_BANK = -1, 
+        __BALANCE   =  0,
+        __RIGHT_BANK = 1, 
+        __RIGHT_TAKING = 2
+    };
+    enum class _Rotate_Mode { 
+        __LL = 0, 
+        __LR = 1, 
+        __RR = 2, 
+        __RL = 3, 
+        __NON = 5
+    };
 
     
     struct avl_node_basic
@@ -37,7 +65,14 @@ namespace ustl
         const_node_basic_pointer
         parent() const ustl_cpp_noexcept;
 
-        _Balance_Foctor        _M_balance_factor;
+        size_t
+        update_height() ustl_cpp_noexcept;
+
+        size_t
+        update_height() const ustl_cpp_noexcept;
+
+
+        diff_t      _M_height;
     };
 
     struct avl_header
@@ -66,69 +101,46 @@ namespace ustl
 
         avl_header();
 
-        ustl::size_t    _M_size;
+        size_t                 _M_size;
+        _Balance_Foctor        _M_balance_factor;
     };
 
-    template<typename _Val>
-    struct avl_node
-        : avl_node_basic
-    {
-        static node_basic_pointer
-        _S_left(avl_node *__node)
-        { return    __node->_M_left; }
 
-        static node_basic_pointer
-        _S_right(avl_node *__node)
-        { return    __node->_M_right; }
 
-        _Val *
-        _M_valptr()
-        { return    &_M_value_field; }
+    static inline void
+    _avlt_rotate_left(avl_node_basic *__node, 
+                      avl_node_basic *__header) ustl_cpp_noexcept
+    { _tree_rotate_left(__node, __header); }
 
-        _Val &
-        _M_value()
-        { return    _M_value_field; }
 
-        bool
-        _M_is_balance()
-        { return    _Balance_Foctor::__BALANCE == _M_balance_factor; }
 
-        avl_node()
-            : avl_node_basic()
-        {}
+    static inline void
+    _avlt_rotate_right(avl_node_basic *__node, 
+                       avl_node_basic *__header) ustl_cpp_noexcept
+    { _tree_rotate_right(__node, __header); }
 
-        avl_node(_Val const &__val)
-            : avl_node_basic(),
-              _M_value_field(__val)
-        {}
 
-        _Val    _M_value_field;
-    };
 
-    inline void
-    _avlt_rotate_left(avl_node_basic *__node, avl_node_basic *__header);
-
-    inline void
-    _avlt_rotate_right(avl_node_basic *__ist, avl_node_basic *__header);
-
-    inline void
+    static inline void
     _avlt_insert(bool __right, 
                  avl_node_basic *__new, 
                  avl_node_basic *__pos, 
-                 avl_node_basic *__header);
+                 avl_node_basic *__header) ustl_cpp_noexcept
+    {
+        _tree_insert(__right, __new, __pos, __header);
+        _avlt_insert_balance(__pos, __header);
+    }
 
-    inline void
-    _avlt_erase(avl_node_basic *__del, avl_node_basic *__header);
 
-    void
-    _avlt_insert_balance(avl_node_basic *__pos, _Rotate_Mode);
 
-    void
-    _avlt_erase_balance(avl_node_basic *__del, avl_node_basic *__header);
+    static inline void
+    _avlt_erase(avl_node_basic *__del, 
+                avl_node_basic *__header) ustl_cpp_noexcept
+    {
+         _tree_erase(__del,__header);       
+         _avlt_erase_balance(__del, __header);
+    }
 
-    void
-    _avlt_update_factor(avl_node_basic *__start);
-        
 
 } // namespace ustl
 

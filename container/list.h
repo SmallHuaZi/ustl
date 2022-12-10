@@ -778,7 +778,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         _M_erase(iterator __first,
                  iterator __last)
@@ -788,7 +788,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::iterator
+    inline typename list<_Tp, _Alloc>::iterator
     list<_Tp, _Alloc>::
         insert(const_iterator __itr,
                value_type const &__val)
@@ -797,7 +797,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::iterator
+    inline typename list<_Tp, _Alloc>::iterator
     list<_Tp, _Alloc>::
         insert(const_iterator __itr,
                value_type const &__val,
@@ -810,7 +810,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    size_t
+    inline size_t
     list<_Tp, _Alloc>::
         insert(iterator __pos,
                iterator __first,
@@ -822,7 +822,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         push_back(value_type const &__val)
     {
@@ -830,7 +830,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         push_back(value_type &&__rval)
     {
@@ -838,7 +838,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         push_back(iterator __itr)
     {
@@ -846,7 +846,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         push_front(value_type const &__val)
     {
@@ -854,7 +854,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         push_front(value_type &&__rval)
     {
@@ -862,7 +862,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         push_front(iterator __itr)
     {
@@ -871,7 +871,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    typename list<_Tp, _Alloc>::reference
+    inline typename list<_Tp, _Alloc>::reference
     list<_Tp, _Alloc>::
         emplace(const_iterator __pos,
                 _Args &&...__args)
@@ -881,7 +881,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    typename list<_Tp, _Alloc>::reference
+    inline typename list<_Tp, _Alloc>::reference
     list<_Tp, _Alloc>::
         emplace_front(_Args &&...__args)
     {
@@ -890,7 +890,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    typename list<_Tp, _Alloc>::reference
+    inline typename list<_Tp, _Alloc>::reference
     list<_Tp, _Alloc>::
         emplace_back(_Args &&...__args)
     {
@@ -899,7 +899,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename _Itr>
-    void
+    inline void
     list<_Tp, _Alloc>::
         assign(_Itr __first, _Itr __last)
     {
@@ -908,7 +908,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename _Itr>
-    void
+    inline void
     list<_Tp, _Alloc>::
         assign(iterator __pos,
                _Itr __first, _Itr __last)
@@ -917,7 +917,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         pop_front()
     {
@@ -925,7 +925,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         pop_back()
     {
@@ -1094,7 +1094,7 @@ namespace ustl
     }
     template <typename _Tp, typename _Alloc>
     template <typename _CompPredicate>
-    void
+    inline void
     list<_Tp, _Alloc>::
         merge(list &&__l, _CompPredicate __comp)
     {
@@ -1190,7 +1190,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         swap(list &__l)
     {
@@ -1198,7 +1198,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         swap(list &&__l)
     {
@@ -1206,7 +1206,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         resize(size_t __s)
     {
@@ -1215,7 +1215,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     list<_Tp, _Alloc>::
         resize(size_t __s, value_type const &__def_val)
     {
@@ -1259,7 +1259,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::iterator
+    inline typename list<_Tp, _Alloc>::iterator
     list<_Tp, _Alloc>::
         begin() ustl_cpp_noexcept
     {
@@ -1267,7 +1267,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::iterator
+    inline typename list<_Tp, _Alloc>::iterator
     list<_Tp, _Alloc>::
         end() ustl_cpp_noexcept
     {
@@ -1275,7 +1275,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::const_iterator
+    inline typename list<_Tp, _Alloc>::const_iterator
     list<_Tp, _Alloc>::
         begin() const ustl_cpp_noexcept
     {
@@ -1283,7 +1283,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::const_iterator
+    inline typename list<_Tp, _Alloc>::const_iterator
     list<_Tp, _Alloc>::
         end() const ustl_cpp_noexcept
     {
@@ -1291,7 +1291,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::const_iterator
+    inline typename list<_Tp, _Alloc>::const_iterator
     list<_Tp, _Alloc>::
         cbegin() ustl_cpp_noexcept
     {
@@ -1299,7 +1299,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::const_iterator
+    inline typename list<_Tp, _Alloc>::const_iterator
     list<_Tp, _Alloc>::
         cend() ustl_cpp_noexcept
     {
@@ -1307,7 +1307,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::const_iterator
+    inline typename list<_Tp, _Alloc>::const_iterator
     list<_Tp, _Alloc>::
         cbegin() const ustl_cpp_noexcept
     {
@@ -1315,7 +1315,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::const_iterator
+    inline typename list<_Tp, _Alloc>::const_iterator
     list<_Tp, _Alloc>::
         cend() const ustl_cpp_noexcept
     {
@@ -1323,7 +1323,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::reference
+    inline typename list<_Tp, _Alloc>::reference
     list<_Tp, _Alloc>::
         front() ustl_cpp_noexcept
     {
@@ -1331,7 +1331,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename list<_Tp, _Alloc>::reference
+    inline typename list<_Tp, _Alloc>::reference
     list<_Tp, _Alloc>::
         back() ustl_cpp_noexcept
     {
@@ -1339,7 +1339,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    size_t
+    inline size_t
     list<_Tp, _Alloc>::
         size() const ustl_cpp_noexcept
     {
@@ -1347,14 +1347,15 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    bool list<_Tp, _Alloc>::
+    inline bool 
+    list<_Tp, _Alloc>::
         empty() const ustl_cpp_noexcept
     {
         return (0 == size());
     }
 
     template <typename _Tp, typename _Alloc>
-    list<_Tp, _Alloc> &
+    inline list<_Tp, _Alloc> &
     list<_Tp, _Alloc>::
     operator=(list &&__other)
     {
@@ -1367,7 +1368,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    list<_Tp, _Alloc> &
+    inline list<_Tp, _Alloc> &
     list<_Tp, _Alloc>::
     operator=(list const &__other)
     {
@@ -1377,7 +1378,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    inline bool
+    bool
     operator==(list<_Tp, _Alloc> const &__l,
                list<_Tp, _Alloc> const &__r)
     {

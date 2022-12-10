@@ -290,7 +290,7 @@ namespace ustl
                 if (_M_node_count)
                 {
                     __tmp = _M_list_header;
-                    _M_list_header = _M_list_header->_M_right;
+                    _M_list_header = _M_list_header->right();
                     destory(static_cast<pointer>(__tmp));
                     --_M_node_count;
                 }
@@ -332,7 +332,7 @@ namespace ustl
         void
         destory_node(base_ptr __n)
         {
-            base_ptr __p = __n->_M_parent;
+            base_ptr __p = __n->parent();
             if (__n == __p->_M_parent)
                 __p->_M_parent = __p->_M_left = __p->_M_right = 0;
             else if (__n == __p->_M_right)
@@ -349,7 +349,7 @@ namespace ustl
             for (; __i < __other._M_node_count; ++__i)
             {
                 __tmp = __other._M_list_header;
-                __other._M_list_header = __tmp->_M_right;
+                __other._M_list_header = __tmp->right();
                 recycle_node(__tmp);
             }
         }
@@ -360,7 +360,7 @@ namespace ustl
             while (_M_list_header)
             {
                 __tmp = _M_list_header;
-                _M_list_header = _M_list_header->_M_right;
+                _M_list_header = _M_list_header->right();
                 deallocate(__tmp, 1);
             }
         }
@@ -382,6 +382,9 @@ namespace ustl
             _M_header._M_right = __other._M_header._M_right;
             _M_header._M_parent = __other._M_header._M_parent;
             _M_header._M_count = __other._M_header._M_count;
+            __other._M_header.parent = 0;
+            __other._M_header.left = 0;
+            __other._M_header.right = 0;
         }
 
         void
@@ -466,7 +469,7 @@ namespace ustl
                     return 0;
 
                 _Node_base_ptr __ret = _M_left_most;
-                _M_left_most = _M_left_most->_M_parent;
+                _M_left_most = _M_left_most->parent();
                 if (0 != _M_left_most)
                 {
                     if (_is_lchild(__ret))
@@ -501,13 +504,13 @@ namespace ustl
         _Node_base_ptr
         _M_left_most() const ustl_cpp_noexcept
         {
-            return _M_data_plus->_M_header._M_left;
+            return _M_data_plus->_M_header.left();
         }
 
         _Node_base_ptr
         _M_right_most() const ustl_cpp_noexcept
         {
-            return _M_data_plus->_M_header._M_right;
+            return _M_data_plus->_M_header.right();
         }
 
         _Node_ptr
@@ -673,12 +676,16 @@ namespace ustl
     private:
         iterator
         _M_insert(_Node_base_ptr, value_type const &, _rbt_recycle_reuse *);
+
         inline iterator
         _M_insert_equal(iterator, _rbt_recycle_reuse *);
+
         iterator
         _M_insert_equal(value_type const &, _rbt_recycle_reuse *);
+
         inline pair<iterator, bool>
         _M_insert_unique(iterator, _rbt_recycle_reuse *);
+
         pair<iterator, bool>
         _M_insert_unique(value_type const &, _rbt_recycle_reuse *);
 
@@ -686,6 +693,7 @@ namespace ustl
 
         iterator
         _M_get_insert_pos_unique(key_type const &) ustl_cpp_noexcept;
+
         iterator
         _M_get_insert_pos_equal(key_type const &) ustl_cpp_noexcept;
 
@@ -705,75 +713,87 @@ namespace ustl
         template <typename _Itr>
         void 
         assign_equal(_Itr, _Itr);
+
         template <typename _Itr>
         void 
         assign_unique(_Itr, _Itr);
 
         template <typename... _Args>
-        inline iterator 
+        iterator 
         emplace_equal(_Args &&...);
-        inline iterator 
+
+        iterator 
         insert_equal(iterator);
-        inline iterator 
+
+        iterator 
         insert_equal(value_type const &);
 
         template <typename... _Args>
-        inline iterator 
+        iterator 
         emplace_unique(_Args &&...);
-        inline pair<iterator, bool> 
+
+        pair<iterator, bool> 
         insert_unique(iterator);
-        inline pair<iterator, bool> 
+
+        pair<iterator, bool> 
         insert_unique(value_type const &);
 
         iterator 
         erase(iterator);
+
         iterator 
         erase(iterator, iterator);
+
         size_t 
         erase(key_type const &);
 
         iterator 
         find(key_type const &) const ustl_cpp_noexcept;
+
         iterator 
         lower_bound(key_type const &) const ustl_cpp_noexcept;
+
         iterator 
         upper_bound(key_type const &) const ustl_cpp_noexcept;
+        
         pair<iterator, iterator> 
         equal_range(key_type const &) const ustl_cpp_noexcept;
 
         void 
         clear();
 
-        inline void 
+        void 
         swap(rb_tree &) ustl_cpp_noexcept;
 
-        inline size_t 
+        size_t 
         count() const ustl_cpp_noexcept;
 
-        inline bool 
+        bool 
         empty() const ustl_cpp_noexcept;
 
-        inline iterator 
+        iterator 
         begin() ustl_cpp_noexcept;
-        inline iterator 
+        iterator 
         end() ustl_cpp_noexcept;
-        inline const_iterator 
+        const_iterator 
         begin() const ustl_cpp_noexcept;
-        inline const_iterator 
+        const_iterator 
         end() const ustl_cpp_noexcept;
 
-        inline const_iterator 
+        const_iterator 
         cbegin() ustl_cpp_noexcept;
-        inline const_iterator 
+        const_iterator 
         cend() ustl_cpp_noexcept;
-        inline const_iterator 
+        const_iterator 
         cbegin() const ustl_cpp_noexcept;
-        inline const_iterator cend() const ustl_cpp_noexcept;
+        const_iterator cend() const ustl_cpp_noexcept;
 
         rb_tree &
         operator=(rb_tree const &);
+        rb_tree &
+        operator=(rb_tree &&);
 
-        static inline _Node_ptr 
+        static _Node_ptr 
         root(rb_tree const &) ustl_cpp_noexcept;
 
     private:
@@ -1004,7 +1024,7 @@ namespace ustl
 
     __rbt_template_parameters 
     template <typename _Itr>
-    void _rbt_type::
+    inline void _rbt_type::
         assign_equal(_Itr __b, _Itr __e)
     {
         _rbt_recycle_reuse __rcru(*this);
@@ -1014,7 +1034,7 @@ namespace ustl
 
     __rbt_template_parameters 
     template <typename _Itr>
-    void
+    inline void
     _rbt_type::
         assign_unique(_Itr __b, _Itr __e)
     {
@@ -1070,7 +1090,7 @@ namespace ustl
     }
 
     __rbt_template_parameters 
-    typename _rbt_type::iterator
+    inline typename _rbt_type::iterator
     _rbt_type::
         find(key_type const &__k) const ustl_cpp_noexcept
     {
@@ -1082,7 +1102,7 @@ namespace ustl
     }
 
     __rbt_template_parameters 
-    typename _rbt_type::iterator
+    inline typename _rbt_type::iterator
     _rbt_type::
         lower_bound(key_type const &__k) const ustl_cpp_noexcept
     {
@@ -1090,7 +1110,7 @@ namespace ustl
     }
 
     __rbt_template_parameters 
-    typename _rbt_type::iterator
+    inline typename _rbt_type::iterator
     _rbt_type ::
         upper_bound(key_type const &__k) const ustl_cpp_noexcept
     {
@@ -1158,7 +1178,7 @@ namespace ustl
                 __root = _S_right(__root);
             if (__root->_M_left)
                 __root = _S_left(__root);
-            __parent = __root->_M_parent;
+            __parent = __root->parent();
             _M_destory_node(__root);
             _M_deallocate_node(__root);
             __root = __parent;
@@ -1246,7 +1266,7 @@ namespace ustl
     }
 
     __rbt_template_parameters 
-    _rbt_type &
+    inline _rbt_type &
     _rbt_type::
     operator=(rb_tree const &__other)
     {
@@ -1256,7 +1276,7 @@ namespace ustl
     }
 
     __rbt_template_parameters 
-    typename _rbt_type::_Node_ptr
+    inline typename _rbt_type::_Node_ptr
     _rbt_type::
         root(rb_tree const &__other) ustl_cpp_noexcept
     {
@@ -1339,6 +1359,18 @@ namespace ustl
         }
         return false;
 #endif
+    }
+
+    __rbt_template_parameters
+    inline _rbt_type &
+    _rbt_type::
+        operator=(rb_tree &&__rval)
+    {
+        if(&__rval != this)
+        {
+            clear();
+            _M_data_plus->_M_move(__rval._M_data_plus);
+        }
     }
 }
 #endif

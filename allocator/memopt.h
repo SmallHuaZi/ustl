@@ -8,11 +8,11 @@
 
 namespace ustl
 {
-    constexpr  size_t
+    constexpr inline size_t
     align_extend(size_t __s, size_t __a) ustl_cpp_noexcept
     { return    (__s + --__a) & ~(__a); }
 
-    constexpr  size_t
+    constexpr inline size_t
     align_compress(size_t __s, size_t __a) ustl_cpp_noexcept
     { return    __s & ~(--__a); }
 

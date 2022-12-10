@@ -306,22 +306,22 @@ namespace ustl
 
     public:
         template <typename... _Args>
-        inline iterator insert(const_iterator, _Args &&...);
+        iterator insert(const_iterator, _Args &&...);
         template <typename _ForwardIterator>
-        inline iterator insert(const_iterator, _ForwardIterator, _ForwardIterator);
-        inline iterator insert(const_iterator, value_type const &);
+        iterator insert(const_iterator, _ForwardIterator, _ForwardIterator);
+        iterator insert(const_iterator, value_type const &);
 
-        inline void push_back(value_type const &);
-        inline void push_front(value_type const &);
-        inline void push_back(iterator);
-        inline void push_front(iterator);
+        void push_back(value_type const &);
+        void push_front(value_type const &);
+        void push_back(iterator);
+        void push_front(iterator);
 
         template <typename... _Args>
-        inline void emplace(const_iterator, _Args &&...);
+        void emplace(const_iterator, _Args &&...);
         template <typename... _Args>
-        inline void emplace_back(_Args &&...);
+        void emplace_back(_Args &&...);
         template <typename... _Args>
-        inline void emplace_front(_Args &&...);
+        void emplace_front(_Args &&...);
 
         iterator erase(iterator);
         size_type erase(value_type const &);
@@ -331,12 +331,12 @@ namespace ustl
         size_type remove_if(_Predicate);
 
         template <typename _Itr>
-        inline void assign(_Itr, _Itr);
+        void assign(_Itr, _Itr);
 
-        inline void swap(vector &);
-        inline void swap(vector &&);
+        void swap(vector &);
+        void swap(vector &&);
 
-        inline void clear();
+        void clear();
 
         void resize(size_type);
         void resize(size_type, value_type const &);
@@ -344,35 +344,35 @@ namespace ustl
 
         void reverse();
 
-        inline bool empty() ustl_cpp_noexcept;
-        inline bool empty() const ustl_cpp_noexcept;
+        bool empty() ustl_cpp_noexcept;
+        bool empty() const ustl_cpp_noexcept;
 
-        inline size_t size() ustl_cpp_noexcept;
-        inline size_t size() const ustl_cpp_noexcept;
+        size_t size() ustl_cpp_noexcept;
+        size_t size() const ustl_cpp_noexcept;
 
-        inline size_t capacity() ustl_cpp_noexcept;
-        inline size_t capacity() const ustl_cpp_noexcept;
+        size_t capacity() ustl_cpp_noexcept;
+        size_t capacity() const ustl_cpp_noexcept;
 
-        inline iterator begin() ustl_cpp_noexcept;
-        inline iterator end() ustl_cpp_noexcept;
-        inline const_iterator cbegin() ustl_cpp_noexcept;
-        inline const_iterator cend() ustl_cpp_noexcept;
-        inline reverse_iterator rbegin() ustl_cpp_noexcept;
-        inline reverse_iterator rend() ustl_cpp_noexcept;
-        inline const_reverse_iterator crbegin() ustl_cpp_noexcept;
-        inline const_reverse_iterator crend() ustl_cpp_noexcept;
+        iterator begin() ustl_cpp_noexcept;
+        iterator end() ustl_cpp_noexcept;
+        const_iterator cbegin() ustl_cpp_noexcept;
+        const_iterator cend() ustl_cpp_noexcept;
+        reverse_iterator rbegin() ustl_cpp_noexcept;
+        reverse_iterator rend() ustl_cpp_noexcept;
+        const_reverse_iterator crbegin() ustl_cpp_noexcept;
+        const_reverse_iterator crend() ustl_cpp_noexcept;
 
-        inline const_iterator begin() const ustl_cpp_noexcept;
-        inline const_iterator end() const ustl_cpp_noexcept;
-        inline const_iterator cbegin() const ustl_cpp_noexcept;
-        inline const_iterator cend() const ustl_cpp_noexcept;
-        inline const_reverse_iterator rbegin() const ustl_cpp_noexcept;
-        inline const_reverse_iterator rend() const ustl_cpp_noexcept;
-        inline const_reverse_iterator crbegin() const ustl_cpp_noexcept;
-        inline const_reverse_iterator crend() const ustl_cpp_noexcept;
+        const_iterator begin() const ustl_cpp_noexcept;
+        const_iterator end() const ustl_cpp_noexcept;
+        const_iterator cbegin() const ustl_cpp_noexcept;
+        const_iterator cend() const ustl_cpp_noexcept;
+        const_reverse_iterator rbegin() const ustl_cpp_noexcept;
+        const_reverse_iterator rend() const ustl_cpp_noexcept;
+        const_reverse_iterator crbegin() const ustl_cpp_noexcept;
+        const_reverse_iterator crend() const ustl_cpp_noexcept;
 
-        inline reference operator[](size_t);
-        inline const_reference operator[](size_t) const;
+        reference operator[](size_t);
+        const_reference operator[](size_t) const;
         vector &operator=(vector const &);
         vector &operator=(vector &&);
 
@@ -418,7 +418,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename _ForwardIterator>
-    typename vector<_Tp, _Alloc>::iterator
+    inline typename vector<_Tp, _Alloc>::iterator
     vector<_Tp, _Alloc>::
         insert(const_iterator __pos, _ForwardIterator __first,
                _ForwardIterator __last)
@@ -428,7 +428,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         push_back(value_type const &__val)
     {
@@ -439,7 +439,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         push_front(value_type const &__val)
     {
@@ -450,7 +450,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         push_back(iterator __itr)
     {
@@ -461,7 +461,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         push_front(iterator __itr)
     {
@@ -473,7 +473,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         emplace(const_iterator __pos, _Args &&...__a)
     {
@@ -489,7 +489,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         emplace_back(_Args &&...__a)
     {
@@ -502,7 +502,7 @@ namespace ustl
 
     template <typename _Tp, typename _Alloc>
     template <typename... _Args>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         emplace_front(_Args &&...__a)
     {
@@ -513,7 +513,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    auto
+    inline auto
     vector<_Tp, _Alloc>::
         erase(iterator __pos) -> iterator
     {
@@ -539,7 +539,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    size_t
+    inline size_t
     vector<_Tp, _Alloc>::
         erase(iterator __first, iterator __last)
     {
@@ -565,7 +565,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    bool
+    inline bool
     vector<_Tp, _Alloc>::
         empty() ustl_cpp_noexcept
     {
@@ -573,7 +573,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    bool
+    inline bool
     vector<_Tp, _Alloc>::
         empty() const ustl_cpp_noexcept
     {
@@ -581,7 +581,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    size_t
+    inline size_t
     vector<_Tp, _Alloc>::
         size() ustl_cpp_noexcept
     {
@@ -589,7 +589,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    size_t
+    inline size_t
     vector<_Tp, _Alloc>::
         size() const ustl_cpp_noexcept
     {
@@ -597,7 +597,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    size_t
+    inline size_t
     vector<_Tp, _Alloc>::
         capacity() ustl_cpp_noexcept
     {
@@ -605,7 +605,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    size_t
+    inline size_t
     vector<_Tp, _Alloc>::
         capacity() const ustl_cpp_noexcept
     {
@@ -613,7 +613,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         swap(vector &__other)
     {
@@ -621,7 +621,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         swap(vector &&__other)
     {
@@ -676,7 +676,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         resize(size_type __n)
     {
@@ -685,7 +685,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    void
+    inline void
     vector<_Tp, _Alloc>::
         resize(size_type __n, value_type const &__val)
     {
@@ -730,7 +730,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::iterator
+    inline typename vector<_Tp, _Alloc>::iterator
     vector<_Tp, _Alloc>::
         begin() ustl_cpp_noexcept
     {
@@ -738,7 +738,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_iterator
+    inline typename vector<_Tp, _Alloc>::const_iterator
     vector<_Tp, _Alloc>::
         begin() const ustl_cpp_noexcept
     {
@@ -746,7 +746,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::iterator
+    inline typename vector<_Tp, _Alloc>::iterator
     vector<_Tp, _Alloc>::
         end() ustl_cpp_noexcept
     {
@@ -754,7 +754,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_iterator
+    inline typename vector<_Tp, _Alloc>::const_iterator
     vector<_Tp, _Alloc>::
         end() const ustl_cpp_noexcept
     {
@@ -762,7 +762,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_iterator
+    inline typename vector<_Tp, _Alloc>::const_iterator
     vector<_Tp, _Alloc>::
         cbegin() ustl_cpp_noexcept
     {
@@ -770,7 +770,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_iterator
+    inline typename vector<_Tp, _Alloc>::const_iterator
     vector<_Tp, _Alloc>::
         cbegin() const ustl_cpp_noexcept
     {
@@ -778,7 +778,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_iterator
+    inline typename vector<_Tp, _Alloc>::const_iterator
     vector<_Tp, _Alloc>::
         cend() ustl_cpp_noexcept
     {
@@ -786,7 +786,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_iterator
+    inline typename vector<_Tp, _Alloc>::const_iterator
     vector<_Tp, _Alloc>::
         cend() const ustl_cpp_noexcept
     {
@@ -794,7 +794,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::reverse_iterator
+    inline typename vector<_Tp, _Alloc>::reverse_iterator
     vector<_Tp, _Alloc>::
         rbegin() ustl_cpp_noexcept
     {
@@ -802,7 +802,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::reverse_iterator
+    inline typename vector<_Tp, _Alloc>::reverse_iterator
     vector<_Tp, _Alloc>::
         rend() ustl_cpp_noexcept
     {
@@ -810,7 +810,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_reverse_iterator
+    inline typename vector<_Tp, _Alloc>::const_reverse_iterator
     vector<_Tp, _Alloc>::
         rbegin() const ustl_cpp_noexcept
     {
@@ -818,7 +818,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_reverse_iterator
+    inline typename vector<_Tp, _Alloc>::const_reverse_iterator
     vector<_Tp, _Alloc>::
         rend() const ustl_cpp_noexcept
     {
@@ -826,7 +826,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_reverse_iterator
+    inline typename vector<_Tp, _Alloc>::const_reverse_iterator
     vector<_Tp, _Alloc>::
         crbegin() ustl_cpp_noexcept
     {
@@ -834,7 +834,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_reverse_iterator
+    inline typename vector<_Tp, _Alloc>::const_reverse_iterator
     vector<_Tp, _Alloc>::
         crend() ustl_cpp_noexcept
     {
@@ -842,7 +842,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_reverse_iterator
+    inline typename vector<_Tp, _Alloc>::const_reverse_iterator
     vector<_Tp, _Alloc>::
         crbegin() const ustl_cpp_noexcept
     {
@@ -850,7 +850,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    typename vector<_Tp, _Alloc>::const_reverse_iterator
+    inline typename vector<_Tp, _Alloc>::const_reverse_iterator
     vector<_Tp, _Alloc>::
         crend() const ustl_cpp_noexcept
     {
@@ -858,7 +858,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    _Tp &
+    inline _Tp &
     vector<_Tp, _Alloc>::
     operator[](size_t __idx)
     {
@@ -868,7 +868,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    _Tp const &
+    inline _Tp const &
     vector<_Tp, _Alloc>::
     operator[](size_t __idx) const
     {
@@ -878,7 +878,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    auto
+    inline auto
     vector<_Tp, _Alloc>::
     operator=(vector const &__other) -> vector &
     {
@@ -888,7 +888,7 @@ namespace ustl
     }
 
     template <typename _Tp, typename _Alloc>
-    auto
+    inline auto
     vector<_Tp, _Alloc>::
     operator=(vector &&__other) -> vector &
     {

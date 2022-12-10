@@ -176,4 +176,53 @@ namespace ustl
 
     }
 
+    size_t
+    _tree_node_height(tree_node_basic *__root) ustl_cpp_noexcept
+    {
+        if(__root)
+        {
+            size_t  __height = 1;
+            bool    __recall = false;
+            bool    __from_lchild = false;
+            size_t  __tmp_height = 0;
+            tree_node_basic *__tmp = __root;
+            do
+            {
+                if(__recall)
+                {
+                    __from_lchild = _is_lchild(__tmp);
+                    __tmp = __tmp->_M_parent;
+                    if(__from_lchild && __tmp->_M_right)
+                    {
+                        __tmp = __tmp->_M_right;
+                        __recall = false;
+                    }
+                    else
+                        --__tmp_height;
+                }
+                else
+                {
+                    if(__tmp->_M_left)
+                    {
+                        __tmp = __tmp->_M_left;
+                        ++__tmp_height;
+                    }
+                    else if(__tmp->_M_right)
+                    {
+                       __tmp = __tmp->_M_right; 
+                       ++__tmp_height;
+                    }
+                    else
+                    {
+                        __recall = true;
+                        __height = __height > __tmp_height ? __height : __tmp_height;
+                    }
+                }
+            } while(!__from_lchild && __tmp == __root);
+
+            return __height;
+        }
+        return 0;
+    }
+
 } // namespace ustl

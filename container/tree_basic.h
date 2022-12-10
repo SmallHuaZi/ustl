@@ -5,12 +5,6 @@
 
 #define __TREE_BASIC_DEFINED
 
-#define _is_rchild(__ptr) \
-    (__ptr == __ptr->_M_parent->_M_right)
-
-#define _is_lchild(__ptr) \
-    (__ptr == __ptr->_M_parent->_M_left)
-
 namespace ustl
 {
 
@@ -33,6 +27,27 @@ namespace ustl
         _Node_basic_pointer     _M_left;
         _Node_basic_pointer     _M_right;
     };
+
+    static inline tree_node_basic *
+    _tree_node_bro(tree_node_basic *__node)
+    {
+        return  __node == __node->_M_parent->_M_left 
+                ? __node->_M_parent->_M_right : __node->_M_parent->_M_left;
+    }
+
+
+
+    static inline bool
+    _tree_is_lchild(tree_node_basic *__node)
+    { return    __node == __node->_M_left; }
+
+
+
+    static inline bool
+    _tree_is_rchild(tree_node_basic *__node)
+    { return    __node == __node->_M_right; }
+
+
 
     tree_node_basic *
     _tree_decrement(tree_node_basic *__node) ustl_cpp_noexcept;
@@ -57,6 +72,9 @@ namespace ustl
     void
     _tree_erase(tree_node_basic *__del, 
                 tree_node_basic *__header) ustl_cpp_noexcept;
+
+    size_t
+    _tree_node_height(tree_node_basic *__root) ustl_cpp_noexcept;
 
 } // namespace ustl
 

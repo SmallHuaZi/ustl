@@ -43,11 +43,13 @@ namespace ustl
         static inline byte         *_S_free_end;
         static inline size_t        _S_heap_size;
         static inline std::mutex    _S_mutex;
-        static inline obj_ptr       _S_free_list[__TABLE_SIZE]{0};
+        static inline obj_ptr       _S_free_list[__TABLE_SIZE];
 
     public:
-        static inline obj_ptr *
-        _M_get_free_list(size_t __bs);
+        static obj_ptr *
+        _M_get_free_list(size_t __bs)
+        { return _S_free_list + (__bs / (size_t(__ALIGNMENT - 1))); }        
+
 
         static byte *
         _M_refill(size_t);
@@ -80,37 +82,32 @@ namespace ustl
         { using other = allocator<_OTp>; };
 
     public:
+
         pointer 
         allocate(size_t __n)
-        {
-            return  static_cast<pointer>(_M_allocate(__n, sizeof(_Tp)));
-        }
+        { return  static_cast<pointer>(_M_allocate(__n, sizeof(_Tp))); }
+
 
         void 
         deallocate(void_ptr __p, size_t __n) ustl_cpp_noexcept
-        {
-            _M_deallocate(__p, __n, sizeof(_Tp));
-        }
+        { _M_deallocate(__p, __n, sizeof(_Tp)); }
+
 
         template <typename _OTp, typename... _Args>
         _OTp *
         construct(_OTp *__p, _Args &&...__a)
-        {
-            return new (__p) _OTp(ustl::forward<_Args &&>(__a)...);
-        }
+        { return new (__p) _OTp(ustl::forward<_Args &&>(__a)...); }
+
 
         template <typename _OTp>
         void
         destory(_OTp *__p)
-        {
-            __p->~_OTp();
-        }
+        { __p->~_OTp(); }
+
 
         constexpr size_t
         max_size()
-        {
-            return MEM_MAP_MAXSIZE / sizeof(_Tp);
-        }
+        { return MEM_MAP_MAXSIZE / sizeof(_Tp); }
 
     };
 

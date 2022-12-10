@@ -3,14 +3,6 @@
 
 namespace ustl
 {
-    allocator_basic::obj_ptr *
-    allocator_basic::
-        _M_get_free_list(size_t __bs)
-    {
-        size_t __offset = __bs / (size_t(__ALIGNMENT - 1));
-        return _S_free_list + __offset; 
-    }
-
     byte *
     allocator_basic::
     _M_refill(size_t __s)
@@ -125,7 +117,7 @@ namespace ustl
                 __ret = __obj;
             }
 
-            if(0 == __obj)
+            if(0 == __ret)
                 __ustl_throw_bad_alloc("allocator_basic::_M_allocate: allocate memory excepton\n");
         }
         return  __ret;

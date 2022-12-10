@@ -7,8 +7,8 @@ namespace ustl
 {
 
 #if __ustl_lib == 20221018UL
-    typedef unsigned long size_t;
-    typedef long diff_t;
+    typedef unsigned long long size_t;
+    typedef long long diff_t;
     typedef char byte;
     typedef void *void_ptr;
 #endif
