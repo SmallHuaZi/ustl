@@ -38,6 +38,8 @@ struct compare
 
 #define __IS_STD 0
 
+
+#if defined(__debug_ustl) && __debug_ustl == 0
 int 
 main(int argc, char **argv)
 {
@@ -50,10 +52,19 @@ main(int argc, char **argv)
         __rbt.insert_equal(__i);
         __root = decltype(__rbt)::root(__rbt);
     }
-    for(auto &__x : __rbt)
-        std::cout << __x << std::endl;
-    ustl::size_t size = ustl::_tree_node_height(__root);
-    std::cout << size << std::endl;
+    for(int __i = 0; __i < 20; ++__i)
+    {
+        if(__i == 19)
+            int b = 10;
+        __rbt.erase(__i);
+        for(auto __x : __rbt)
+            std::cout << __x << ' ' << std::flush;
+        std::cout << std::endl;
+    }
+
+    // ustl::size_t size = ustl::_tree_node_height(__root);
+    // std::cout << size << std::endl;
 
     return 0;
 }
+#endif

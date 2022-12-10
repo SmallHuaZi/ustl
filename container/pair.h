@@ -26,7 +26,7 @@ namespace ustl
             : _M_fisrt_val(__f),
               _M_second_val(__s) {}
 
-        constexpr pair(const pair &__p)
+        constexpr pair(pair const &__p)
             : _M_fisrt_val(__p._M_fisrt_val),
               _M_second_val(__p._M_second_val) {}
 

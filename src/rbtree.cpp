@@ -38,35 +38,7 @@ namespace ustl
         _rbt_recolor(__new, __header);
     }
 
-    _Rbt_node_base *
-    _rbt_erase(_Rbt_node_base *__del,
-                _Rbt_node_base *__h) ustl_cpp_noexcept
-    {
-#ifndef __TREE_BASIC_DEFINED
-        if (__del->_M_left)
-            __del = _rbt_decrement(__del);
-        if (__del->_M_right)
-            __del = __del->right();
 
-        if (__del == __h->_M_left)
-            __h->_M_left = _rbt_increment(__del);
-        else if (__del == __h->_M_right)
-            __h->_M_right = _rbt_decrement(__del);
-
-        if(_is_rchild(__del)) 
-            __del->_M_parent->_M_right = 0;
-        else if(_is_lchild(__del))
-            __del->_M_parent->_M_left = 0;
-        else if(__del == __h->_M_parent)
-            __h->_M_reset();
-#else
-        _tree_erase(__del, __h);
-#endif      
-        // 如果根节点还存在，则证明树不为空，需要做平衡操作
-        if(__h->_M_parent)
-            _rbt_rebalance_erase(_is_rchild(__del),__del, __h);
-        return __del;
-    }
 
     void
     _rbt_rotate_left(_Rbt_node_base *__n,
@@ -132,9 +104,35 @@ namespace ustl
 
 #endif
 
+    _Rbt_node_base *
+    _rbt_erase(_Rbt_node_base *__del,
+                _Rbt_node_base *__h) ustl_cpp_noexcept
+    {
+        if (__del->_M_left)
+            __del = _rbt_decrement(__del);
+        if (__del->_M_right)
+            __del = __del->right();
+
+        if (__del == __h->_M_left)
+            __h->_M_left = _rbt_increment(__del);
+        else if (__del == __h->_M_right)
+            __h->_M_right = _rbt_decrement(__del);
+
+        _rbt_rebalance_erase(__del, __h);
+
+        if(_tree_is_rchild(__del)) 
+            __del->_M_parent->_M_right = 0;
+        else if(_tree_is_lchild(__del))
+            __del->_M_parent->_M_left = 0;
+        else 
+            __h->_M_reset();
+
+        return __del;
+    }
+
     void
     _rbt_rebalance_insert(_Rbt_node_base *__n,
-                            _Rbt_node_base *__h) ustl_cpp_noexcept
+                          _Rbt_node_base *__h) ustl_cpp_noexcept
     {
         typedef _Rbt_node_base *_Node_ptr;
         _Node_ptr __parent = __n->parent();
@@ -156,8 +154,7 @@ namespace ustl
     }
 
     void
-    _rbt_rebalance_erase(bool __right,
-                         _Rbt_node_base *__del,
+    _rbt_rebalance_erase( _Rbt_node_base *__del,
                          _Rbt_node_base *__header) ustl_cpp_noexcept
     {
         /// @if color(__del) = red
@@ -167,6 +164,7 @@ namespace ustl
 
         _Rbt_node_base *__bro = _rbt_node_bro(__del);
         _Rbt_node_base *__parent = __del->parent();
+        bool    __right = _tree_is_rchild(__del);
 
         if (_Black == _Rbt_node_base::_S_color(__bro))
         {
@@ -176,7 +174,7 @@ namespace ustl
                 // let tree take it
                 __bro->_M_setcolor(_Red);
                 if (_Red != __parent->_M_color)
-                    _rbt_rebalance_erase(_tree_is_rchild(__parent),__parent, __header);
+                    _rbt_rebalance_erase(__parent, __header);
                 else
                     __parent->_M_setcolor(_Black);
             }
@@ -222,7 +220,7 @@ namespace ustl
                 __bro->right()->_M_setcolor(_Black);
             }
             __parent->_M_setcolor(_Red);
-            _rbt_rebalance_erase(__right, __del, __header);
+            _rbt_rebalance_erase(__del, __header);
         }
     }
 

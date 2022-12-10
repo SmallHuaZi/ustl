@@ -110,20 +110,43 @@ namespace ustl
         operator->()
         {}
 
+        avlt_iterator() = default;
+
+        avlt_iterator(avl_node_basic *__base_pointer)
+            : _M_data(*__base_pointer)
+        {}
+
+        avlt_iterator(non_cv_iterator   __non_cv)
+            : _M_data(__non_cv._M_data)
+        {}
+
         avl_node_basic  *_M_data;
     };
-    
-    template<typename _Key, typename _Val, typename _Comp,
-             typename _ExtractKey, typename _Alloc>
-    class avl_tree
+
+    template<typename _Val, typename _Alloc>
+    struct avl_tree_basic
     {
         struct avl_tree_impl
         {
 
             avl_header  _M_header;
         };
+        typedef     avl_node<_Val>      node_type;
+        typedef     avl_node<_Val> *    node_pointer;
+        typedef     avl_tree_impl       impl_type;
 
-        typedef     avl_tree_impl   impl_type;
+        
+
+        impl_type       _M_data_plus;
+    };
+    
+    template<typename _Key, typename _Val, typename _Comp,
+             typename _ExtractKey, typename _Alloc = ustl::allocator<_Val>>
+    class avl_tree
+        : avl_tree_basic<_Val, _Alloc>
+    {
+        typedef     avl_tree_basic<_Val, _Alloc>    _Base_type;
+        typedef     typename _Base_type::impl_type   impl_type;
 
     public:
         typedef     _Key            key_type;
@@ -142,20 +165,60 @@ namespace ustl
 
     private:
         iterator
-        _M_insert_aux();
+        _M_insert_aux(value_type const &__val);
+    
+    public:
+        iterator
+        begin() ustl_cpp_noexcept
+        { return    iterator(_M_data_plus._M_header._M_Min_node()); }
+
+        iterator
+        end() ustl_cpp_noexcept
+        { return    iterator(_M_data_plus._M_header._M_Max_node()); }
+
+        const_iterator
+        begin() const ustl_cpp_noexcept
+        { return    const_iterator(_M_data_plus._M_header._M_Min_node()); }
+
+        const_iterator
+        end() const ustl_cpp_noexcept
+        { return    const_iterator(_M_data_plus._M_header._M_Max_node()); }
+
+        const_iterator
+        cbegin() ustl_cpp_noexcept
+        { return    const_iterator(_M_data_plus._M_header._M_Min_node()); }
+
+        const_iterator
+        cend() ustl_cpp_noexcept
+        { return    const_iterator(_M_data_plus._M_header._M_Max_node()); }
+
+        const_iterator
+        cbegin() const ustl_cpp_noexcept
+        { return    const_iterator(_M_data_plus._M_header._M_Min_node()); }
+
+        const_iterator
+        cend() const ustl_cpp_noexcept
+        { return    const_iterator(_M_data_plus._M_header._M_Max_node()); }
+
 
     public:
 
         void
-        insert(_Key __key, _Val __val);
-        
+        insert_unique(value_type const &__val);
+
+        void
+        insert_equal(value_type const &__val);
+
+    
+    protected:
+        using   _Base_type::_M_data_plus; 
     };
 
     template<typename _Key, typename _Val, typename _Comp,
              typename _ExtractKey, typename _Alloc>
     auto
     avl_tree<_Key, _Val, _Comp, _ExtractKey, _Alloc>::
-        _M_insert_aux() -> iterator
+        _M_insert_aux(value_type const &__val) -> iterator
     {
 
     }

@@ -45,10 +45,13 @@ namespace ustl
         else
         {
             __tmp = __node->_M_parent;
+            if(__node == __tmp->_M_parent)
+                return  __tmp;
+
             while(__node == __tmp->_M_left)
             {
                 __node = __tmp;
-                __tmp  = __tmp->_M_right;
+                __tmp  = __tmp->_M_parent;
             }
         }
         return  __tmp;
@@ -67,6 +70,9 @@ namespace ustl
         else
         {
             __tmp = __node->_M_parent;
+            if(__node == __tmp->_M_parent)
+                return  __tmp;
+
             while(__node == __tmp->_M_right)
             {
                 __node = __tmp;
@@ -136,7 +142,7 @@ namespace ustl
             if(__header->_M_parent)
             {
                 if(__pos == __header->_M_left)
-                    __header->_M_left = __pos;
+                    __header->_M_left = __new;
                 __pos->_M_left = __new;
             }
             else
@@ -155,8 +161,9 @@ namespace ustl
         __new->_M_parent = __pos;
     }
 
-    void 
-    _tree_erase(tree_node_basic *__del, tree_node_basic *__header) ustl_cpp_noexcept
+    // return __del is a right child
+    bool 
+    _tree_erase(tree_node_basic * &__del, tree_node_basic *__header) ustl_cpp_noexcept
     {
         if(__del->_M_left)
             __del = _tree_decrement(__del);
@@ -168,13 +175,24 @@ namespace ustl
         else if(__del == __header->_M_right)
             __header->_M_right = _tree_decrement(__del);
 
-        if(_tree_is_rchild(__del)) 
-            __del->_M_parent->_M_right = 0;
+        bool __result = _tree_is_rchild(__del);
+
+        if(__result) 
+        {
+            __del->_M_parent->_M_right = __del->_M_left;
+            if(__del->_M_left)
+                __del->_M_left->_M_parent = __del->_M_parent;
+        }
         else if(_tree_is_lchild(__del))
-            __del->_M_parent->_M_left = 0;
+        {
+            __del->_M_parent->_M_left = __del->_M_left;
+            if(__del->_M_left)
+                __del->_M_left->_M_parent = __del->_M_parent;
+        }
         else if(__del == __header->_M_parent)
             __header->_M_reset();
 
+        return  __result;
     }
 
     size_t

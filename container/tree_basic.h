@@ -103,12 +103,12 @@ namespace ustl
                  tree_node_basic *__pos, 
                  tree_node_basic *__header) ustl_cpp_noexcept;
     
-    void
-    _tree_erase(tree_node_basic *__del, 
+    bool 
+    _tree_erase(tree_node_basic * &__del, 
                 tree_node_basic *__header) ustl_cpp_noexcept;
 
     size_t
-    _tree_node_height(tree_node_basic * const __root) ustl_cpp_noexcept;
+    _tree_node_height(tree_node_basic *const__root) ustl_cpp_noexcept;
 
 } // namespace ustl
 

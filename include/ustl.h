@@ -3,7 +3,7 @@
 
 namespace ustl
 {
-#define __debug_ustl
+#define __debug_ustl 0 
 /**
  *
  *

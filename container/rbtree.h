@@ -1,6 +1,9 @@
 #ifndef __rbtree_h
 #define __rbtree_h
 
+#include "iterator/iterator.h"
+#include "container/pair.h"
+#include "allocator/memory.h"
 #include "container/rbtree_fwd.h"
 
 #define __rbt_template_parameters                               \
@@ -121,7 +124,7 @@ namespace ustl
             : _M_node(__p)
         {}
 
-        _rbtree_iterator(_non_cv_iterator &__non_cv)
+        _rbtree_iterator(_non_cv_iterator const &__non_cv)
             : _M_node(__non_cv._M_node)
         {}
 
@@ -1305,7 +1308,7 @@ namespace ustl
             _M_deallocate_node(__root);
             __root = __parent;
         }
-        _M_data_plus->_M_header._M_count = 0;
+        _M_data_plus->_M_header._M_reset();
     }
 
     __rbt_template_parameters 

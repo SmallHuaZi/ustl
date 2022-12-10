@@ -9,6 +9,10 @@ namespace ustl
 
     struct _Rbt_node_base;
 
+    _Rbt_node_base * 
+    _rbt_erase(_Rbt_node_base *__del,
+               _Rbt_node_base *__h) ustl_cpp_noexcept;
+
     void
     _rbt_recolor(_Rbt_node_base *__n,
                  _Rbt_node_base *__h) ustl_cpp_noexcept;
@@ -18,8 +22,7 @@ namespace ustl
                           _Rbt_node_base *__h) ustl_cpp_noexcept;
 
     void
-    _rbt_rebalance_erase(bool __right,
-                         _Rbt_node_base *__n,
+    _rbt_rebalance_erase(_Rbt_node_base *__n,
                          _Rbt_node_base *__h) ustl_cpp_noexcept;
 
 
@@ -334,15 +337,6 @@ namespace ustl
 
 
 
-    static inline _Rbt_node_base *
-    _rbt_erase(_Rbt_node_base *__del,
-               _Rbt_node_base *__h) ustl_cpp_noexcept
-    { 
-        _tree_erase(__del, __h);
-        if(__h->_M_parent) _rbt_rebalance_erase(_tree_is_rchild(__del),__del, __h); 
-    }
-
-
 
     static inline void
     _rbt_insert(bool __is_l, _Rbt_node_base *__new,
@@ -361,6 +355,7 @@ namespace ustl
         _Rbt_node_base *__new = __n->right();
         __new->right()->_M_setcolor(__new->_M_color);
         __new->_M_setcolor(__n->_M_color);
+
         _tree_rotate_left(__n, __h);
     }
 
@@ -373,6 +368,7 @@ namespace ustl
         _Rbt_node_base *__new = __n->left();
         __new->left()->_M_setcolor(__new->_M_color);
         __new->_M_setcolor(__n->_M_color);
+
         _tree_rotate_right(__n, __h);
     }
 
