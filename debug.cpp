@@ -50,6 +50,8 @@ main(int argc, char **argv)
         __rbt.insert_equal(__i);
         __root = decltype(__rbt)::root(__rbt);
     }
+    for(auto &__x : __rbt)
+        std::cout << __x << std::endl;
     ustl::size_t size = ustl::_tree_node_height(__root);
     std::cout << size << std::endl;
 

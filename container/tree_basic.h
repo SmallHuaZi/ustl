@@ -108,7 +108,7 @@ namespace ustl
                 tree_node_basic *__header) ustl_cpp_noexcept;
 
     size_t
-    _tree_node_height(tree_node_basic *__root) ustl_cpp_noexcept;
+    _tree_node_height(tree_node_basic * const __root) ustl_cpp_noexcept;
 
 } // namespace ustl
 

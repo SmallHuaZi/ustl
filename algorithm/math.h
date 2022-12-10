@@ -44,6 +44,12 @@ namespace ustl
         return  __cmp(__x, __y);
     }
 
+    static inline double
+    abs(double __val)
+    {
+        return  __val < 0 ? -__val : __val;
+    }
+
 } // namespace ustl
 
 #endif

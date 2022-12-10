@@ -22,13 +22,14 @@ namespace ustl
 
 
 
-    enum class _Balance_Foctor { 
+    enum class _Balance_Factor { 
         __LEFT_TAKING = -2,
         __LEFT_BANK = -1, 
         __BALANCE   =  0,
         __RIGHT_BANK = 1, 
         __RIGHT_TAKING = 2
     };
+
     enum class _Rotate_Mode { 
         __LL = 0, 
         __LR = 1, 
@@ -37,7 +38,13 @@ namespace ustl
         __NON = 5
     };
 
+
+    constexpr inline _Balance_Factor
+    operator-(_Balance_Factor __l, _Balance_Factor __r)
+    { return  _Balance_Factor(diff_t(__l) - diff_t(__r)); }
+
     
+
     struct avl_node_basic
         : tree_node_basic
     {
@@ -65,14 +72,17 @@ namespace ustl
         const_node_basic_pointer
         parent() const ustl_cpp_noexcept;
 
-        size_t
+        void 
         update_height() ustl_cpp_noexcept;
 
-        size_t
-        update_height() const ustl_cpp_noexcept;
+        _Balance_Factor 
+        balance_factor() ustl_cpp_noexcept;
+
+        _Balance_Factor 
+        balance_factor() const ustl_cpp_noexcept;
 
 
-        diff_t      _M_height;
+        _Balance_Factor   _M_height;
     };
 
 
@@ -80,7 +90,7 @@ namespace ustl
     inline avl_node_basic::
         avl_node_basic()
             : tree_node_basic(0, 0, 0),
-              _M_height(1) 
+              _M_height(_Balance_Factor::__BALANCE) 
     {}
 
 
@@ -127,13 +137,25 @@ namespace ustl
 
 
 
-    inline size_t
+    inline void 
     avl_node_basic::
         update_height() ustl_cpp_noexcept
-    {
-        avl_node_basic const *__cv = this;
-        __cv->update_height();
-    }
+    { _M_height = _Balance_Factor(left()->_M_height - right()->_M_height); }
+
+
+
+    inline _Balance_Factor 
+    avl_node_basic::
+        balance_factor() ustl_cpp_noexcept
+    { return    0 == this ? _Balance_Factor::__BALANCE : _M_height; }
+
+    
+
+    inline _Balance_Factor
+    avl_node_basic::
+        balance_factor() const ustl_cpp_noexcept
+    { return    0 == this ? _Balance_Factor::__BALANCE : _M_height; }
+
 
 
 
@@ -165,7 +187,6 @@ namespace ustl
         avl_header();
 
         size_t                 _M_size;
-        _Balance_Foctor        _M_balance_factor;
     };
 
 

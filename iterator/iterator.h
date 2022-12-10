@@ -3,6 +3,8 @@
 
 #include "include/ustl.h"
 
+#define _CONTROL_PARAMETER_ITERATOR 1
+
 namespace ustl
 {
     /**

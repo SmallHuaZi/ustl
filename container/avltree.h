@@ -126,15 +126,40 @@ namespace ustl
         typedef     avl_tree_impl   impl_type;
 
     public:
-        typedef     avlt_iterator<_Val, false>      iterator;
-        typedef     avlt_iterator<_Val, true>       const_iterator;
+        typedef     _Key            key_type;
+        typedef     _Val            value_type;
+        typedef     _Val *          pointer;
+        typedef     _Val &          reference;
+        typedef     _Val const *    const_pointer;
+        typedef     _Val const &    const_reference;
+        typedef     _Comp           compare_type;
+        typedef     _Alloc          allocator_type;
+
+        typedef     avlt_iterator<_Val, false>                  iterator;
+        typedef     avlt_iterator<_Val, true>                   const_iterator;
+        typedef     ustl::reverse_iterator<iterator>            reverse_iterator;
+        typedef     ustl::reverse_iterator<const_iterator>      const_reverse_iterator;
+
+    private:
+        iterator
+        _M_insert_aux();
 
     public:
 
         void
-        insert();
+        insert(_Key __key, _Val __val);
         
     };
+
+    template<typename _Key, typename _Val, typename _Comp,
+             typename _ExtractKey, typename _Alloc>
+    auto
+    avl_tree<_Key, _Val, _Comp, _ExtractKey, _Alloc>::
+        _M_insert_aux() -> iterator
+    {
+
+    }
+
     
 } // namespace ustl
 

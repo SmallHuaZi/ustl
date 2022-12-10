@@ -92,6 +92,124 @@ namespace ustl
         }
     };
 
+
+
+
+#if defined(_CONTROL_PARAMETER_ITERATOR) && _CONTROL_PARAMETER_ITERATOR == 1
+
+    template<typename _Tp, bool _Const>
+    struct _rbtree_iterator
+    {
+        typedef     _Tp                 value_type;
+        typedef     _Tp *               pointer;
+        typedef     _Tp &               reference;
+        typedef     _Tp const *         const_pointer;
+        typedef     _Tp const &         const_reference;
+
+        typedef     ustl::diff_t                    difference_type;
+        typedef     ustl::_bothway_iterator         iterator_tag;
+        typedef     _rbtree_iterator                _Self;
+        typedef     _Rbt_node_base                  _Rbt_node_base_type;
+        typedef     _Rbt_node_base *                _Rbt_node_base_pointer;
+        typedef     _Rbtree_Node<_Tp>               _Rbt_node_type;
+        typedef     _Rbtree_Node<_Tp> *             _Rbt_node_pointer;
+        typedef     _rbtree_iterator<_Tp, false>    _non_cv_iterator;
+
+        _rbtree_iterator() = default;
+
+        _rbtree_iterator(_Rbt_node_base_pointer __p)
+            : _M_node(__p)
+        {}
+
+        _rbtree_iterator(_non_cv_iterator &__non_cv)
+            : _M_node(__non_cv._M_node)
+        {}
+
+        _non_cv_iterator
+        _M_const_cast()
+        { return    _non_cv_iterator(_M_node); }
+
+        _Self &
+        operator--()
+        {
+            _M_node = _rbt_decrement(_M_node);
+            return *this;
+        }
+
+        _Self &
+        operator++()
+        {
+            _M_node = _rbt_increment(_M_node);
+            return *this;
+        }
+
+        _Self
+        operator--(int)
+        {
+            _Self __tmp = *this;
+            _M_node = _rbt_decrement(_M_node);
+            return __tmp;
+        }
+
+        _Self
+        operator++(int)
+        {
+            _Self __tmp = *this;
+            _M_node = _rbt_increment(_M_node);
+            return __tmp;
+        }
+
+        _Self
+        operator+(difference_type __step)
+        {
+            _Self   __tmp(*this);
+            if(__step > 0)
+                for(; __step; --__step, (void)++__tmp);
+            else
+                __tmp - (-__step);
+            return  __tmp;
+        }
+
+        _Self
+        operator-(difference_type __step)
+        {
+            _Self   __tmp(*this);
+            if(__step > 0)
+                for(; __step; --__step, (void)--__tmp);
+            else
+                __tmp + (-__step);
+            return  __tmp;
+        }
+
+        typename ustl::if_else<_Const, const_reference, reference>::type
+        operator*()
+        { return    *static_cast<_Rbt_node_pointer>(_M_node)->_M_valptr(); }
+
+
+
+        typename ustl::if_else<_Const, const_reference, reference>::type
+        operator->()
+        { return    static_cast<_Rbt_node_pointer>(_M_node)->_M_valptr(); }
+
+
+
+        friend bool
+        operator==(_Self const &__l, _Self  const&__r)
+        { return    __l._M_node == __r._M_node; }
+
+
+
+        friend bool
+        operator!=(_Self const &__l,_Self  const &__r)
+        { return    __l._M_node != __r._M_node; }
+
+
+
+        _Rbt_node_base_pointer      _M_node;
+    };
+
+
+#else
     template <typename _Tp>
     struct _rbtree_itertor
     {
@@ -249,6 +367,7 @@ namespace ustl
 
         base_ptr _M_node;
     };
+#endif
 
     /**
      * @if reassginment, take all of tree node
@@ -258,10 +377,7 @@ namespace ustl
     struct _Rbt_node_pool
         : _Alloc::template rebind<_Rbtree_Node<_Tp>>::other
     {
-        enum
-        {
-            __MAX_CAPACITY = 10
-        };
+        enum    { __MAX_CAPACITY = 10 };
 
         using base_ptr = _Rbt_node_base *;
         using value_type = _Rbtree_Node<_Tp>;
@@ -420,9 +536,13 @@ namespace ustl
         using   allocator_type      =   _Alloc;
         using   difference_type     =   diff_t;
 
+#if defined(_CONTROL_PARAMETER_ITERATOR) && _CONTROL_PARAMETER_ITERATOR == 1
+        using   iterator            =   _rbtree_iterator<_Val, false>;
+        using   const_iterator      =   _rbtree_iterator<_Val, true>;
+#else
         using   iterator            =   _rbtree_itertor<_Val>;
         using   const_iterator      =   _const_rbtree_itertor<_Val>;
-
+#endif
     protected:
         using   _Node_type          =   _Rbtree_Node<_Val>;
         using   _Node_ptr           =   _Rbtree_Node<_Val> *;
