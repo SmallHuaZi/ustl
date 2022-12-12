@@ -1,6 +1,7 @@
 #ifndef __tree_basic_h
 #define __tree_basic_h
 
+
 #include "include/config.h"
 
 #define __TREE_BASIC_DEFINED
@@ -21,7 +22,7 @@ namespace ustl
         tree_node_basic(_Node_basic_pointer __l, _Node_basic_pointer __r, _Node_basic_pointer __p);
 
         void
-        _M_reset();
+        _M_reset() ustl_cpp_noexcept;
 
         _Node_basic_pointer
         _M_Max_node() ustl_cpp_noexcept;
@@ -34,6 +35,16 @@ namespace ustl
         _Node_basic_pointer     _M_left;
         _Node_basic_pointer     _M_right;
     };
+
+
+    inline void
+    tree_node_basic::
+        _M_reset() ustl_cpp_noexcept
+    {
+        _M_left   = 0;
+        _M_right  = 0;
+        _M_parent = 0;
+    }
 
 
 
@@ -57,6 +68,39 @@ namespace ustl
             __tmp = __tmp->_M_left;
         return  __tmp;
     }
+
+ 
+    struct tree_node_pool 
+    {
+        enum    { __MAX_NODE_COUNT = 10 };
+
+        struct tree_recycle {};
+        struct tree_extract {};
+
+    public:
+        virtual tree_node_basic *
+        operator()(tree_recycle);
+
+        virtual tree_node_basic *
+        operator()(tree_extract);
+
+        virtual bool 
+        operator()(tree_node_basic *__node);
+
+    public:
+        tree_node_pool(tree_node_basic *__header)
+            : _M_header(__header->_M_left, 
+                        __header->_M_right, 
+                        __header->_M_parent)
+        {} 
+
+
+    protected:
+        tree_node_basic  _M_header;
+        tree_node_basic *_M_list_first;
+        tree_node_basic *_M_list_last;
+        ustl::size_t     _M_list_size;
+    };
 
 
 
@@ -102,10 +146,6 @@ namespace ustl
                  tree_node_basic *__new, 
                  tree_node_basic *__pos, 
                  tree_node_basic *__header) ustl_cpp_noexcept;
-    
-    bool 
-    _tree_erase(tree_node_basic * &__del, 
-                tree_node_basic *__header) ustl_cpp_noexcept;
 
     size_t
     _tree_node_height(tree_node_basic *const__root) ustl_cpp_noexcept;

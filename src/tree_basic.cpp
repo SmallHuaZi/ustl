@@ -23,14 +23,80 @@ namespace ustl
             : _M_left(__l), _M_right(__r), _M_parent(__p)
     {}
 
-    void
-    tree_node_basic::
-        _M_reset()
+
+    tree_node_basic *
+    tree_node_pool::
+        operator()(tree_recycle) 
     {
-        _M_left = 0;
-        _M_right = 0;
-        _M_parent = 0;
+        tree_node_basic *__ret = 0;
+        tree_node_basic *__left_most = _M_header._M_left;
+        if(0 != __left_most)
+        {
+            __ret = __left_most;
+            __left_most = __left_most->_M_parent;
+            if(&_M_header != __left_most)
+            {
+                if(_tree_is_lchild(__ret)) 
+                {
+                    __left_most->_M_left = 0;
+                    while(__left_most->_M_right)
+                        __left_most = __left_most->_M_right;
+                    while(__left_most->_M_left)
+                        __left_most = __left_most->_M_left;
+                    if(__left_most->_M_right)
+                        __left_most = __left_most->_M_right;
+                    _M_header._M_left = __left_most;
+
+                }
+                else
+                    __left_most->_M_right = 0;
+            }
+            else
+                _M_header._M_reset();
+        }
+        return 0 == __ret ? (*this)(tree_extract()) : 0;
     }
+
+
+    tree_node_basic *
+    tree_node_pool::
+        operator()(tree_extract) 
+    {
+        tree_node_basic *__ret = 0;
+        if(_M_list_size > 0)
+        {
+            __ret = _M_list_last;
+            _M_list_last = __ret->_M_left;
+            --_M_list_size;
+        }
+        return  __ret;
+    }
+
+
+    bool 
+    tree_node_pool::
+        operator()(tree_node_basic *__node) 
+    {
+        if(size_t(__MAX_NODE_COUNT) > _M_list_size) 
+        {
+            if(0 == _M_list_first)
+            {
+                _M_list_first = __node;
+                _M_list_last  = __node;
+            }
+            else
+            {
+                _M_list_last->_M_right = __node;
+                __node->_M_left = _M_list_last;
+                _M_list_last = __node;
+            } 
+            __node->_M_right = 0;
+            ++_M_list_size;
+            return true;
+        }
+        return false;
+    }
+
 
     tree_node_basic *
     _tree_decrement(tree_node_basic *__node) ustl_cpp_noexcept 
@@ -161,39 +227,6 @@ namespace ustl
         __new->_M_parent = __pos;
     }
 
-    // return __del is a right child
-    bool 
-    _tree_erase(tree_node_basic * &__del, tree_node_basic *__header) ustl_cpp_noexcept
-    {
-        if(__del->_M_left)
-            __del = _tree_decrement(__del);
-        if(__del->_M_right)
-            __del = __del->_M_right;
-        
-        if(__del == __header->_M_left)
-            __header->_M_left = _tree_increment(__del);
-        else if(__del == __header->_M_right)
-            __header->_M_right = _tree_decrement(__del);
-
-        bool __result = _tree_is_rchild(__del);
-
-        if(__result) 
-        {
-            __del->_M_parent->_M_right = __del->_M_left;
-            if(__del->_M_left)
-                __del->_M_left->_M_parent = __del->_M_parent;
-        }
-        else if(_tree_is_lchild(__del))
-        {
-            __del->_M_parent->_M_left = __del->_M_left;
-            if(__del->_M_left)
-                __del->_M_left->_M_parent = __del->_M_parent;
-        }
-        else if(__del == __header->_M_parent)
-            __header->_M_reset();
-
-        return  __result;
-    }
 
     size_t
     _tree_node_height(tree_node_basic * const __root) ustl_cpp_noexcept

@@ -7,11 +7,24 @@ namespace ustl
 {
 
 #if __ustl_lib == 20221018UL
-    typedef unsigned long long size_t;
-    typedef long long diff_t;
-    typedef char byte;
-    typedef void *void_ptr;
-#endif
+    typedef     char                byte;
+    typedef     long long           diff_t;
+    typedef     unsigned long long  size_t;
+    typedef     double              float_t;
+    typedef     void *              void_ptr;
+
+
+#ifdef  __UNICODE
+
+    typedef     wchar_t     _Wchar_t;
+#define __WCSTR(__str)   L##__str
+
+#else
+
+    typedef     char        _Wchar_t;
+#define __WCSTR(__str)  __str
+    
+#endif // __UNICODE
 
 #define __pure_vritual = 0
 
@@ -22,4 +35,5 @@ namespace ustl
 #define ustl_cpp_noexcept noexcept
 
 }
+#endif
 #endif

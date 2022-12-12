@@ -7,7 +7,7 @@ namespace ustl
     allocator_basic::
     _M_refill(size_t __s)
     {
-        size_t __count = __default_obj_count;
+        size_t __count = size_t(__DEFAULT_OBJECT_NUMBER);
         byte *__chuck = _M_alloc_chuck(__s, &__count);
         obj_ptr *__list = _M_get_free_list(__s);
         obj_ptr __cur = (obj_ptr)((byte *)__chuck + __s), __next;
@@ -29,7 +29,7 @@ namespace ustl
         _M_alloc_chuck(size_t __s, size_t *__count)
     {
         byte *__ret;
-        size_t __alloc_size = __s * __default_obj_count;
+        size_t __alloc_size = __s * size_t(__DEFAULT_OBJECT_NUMBER);
         difference_type __pool_size = _S_free_end - _S_free_start;
         // free size > request size
         if (__pool_size >= __alloc_size)

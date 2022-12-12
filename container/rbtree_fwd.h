@@ -45,7 +45,7 @@ namespace ustl
         _Node_color _M_color;
 
 #ifdef __debug_ustl
-        int _M_value;
+        int _M_value_field;
 #endif
 
         _Rbt_node_base();

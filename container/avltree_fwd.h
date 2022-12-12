@@ -176,22 +176,37 @@ namespace ustl
         node_basic_pointer
         _M_Min_node() ustl_cpp_noexcept;
 
+
         node_basic_pointer
         _M_Max_node() ustl_cpp_noexcept;
+
 
         node_basic_pointer
         _M_root() ustl_cpp_noexcept;
 
+
         const_node_basic_pointer
         _M_Min_node() const ustl_cpp_noexcept;
+
 
         const_node_basic_pointer
         _M_Max_node() const ustl_cpp_noexcept;
 
+
         const_node_basic_pointer
         _M_root() const ustl_cpp_noexcept;
 
+
+        avl_header &
+        operator=(avl_header const &__lval) ustl_cpp_noexcept;
+
+
+        avl_header &
+        operator=(avl_header &&_rval) ustl_cpp_noexcept;
+
+
         avl_header();
+
 
         size_t                 _M_size;
     };
@@ -243,6 +258,34 @@ namespace ustl
     avl_header::
         _M_root() const ustl_cpp_noexcept
     { return    parent(); }
+
+
+
+    inline avl_header &
+    avl_header::
+        operator=(avl_header const &__lval) ustl_cpp_noexcept
+    {
+        if(&__lval != this)
+        {
+            _M_right = __lval._M_right;
+            _M_left  = __lval._M_left;
+            _M_parent = __lval._M_parent;
+        }
+        return  *this;
+    }
+
+
+    inline avl_header &
+    avl_header::
+        operator=(avl_header &&__rval) ustl_cpp_noexcept
+    {
+        if(&__rval != this)
+        {
+            *this = __rval;
+            __rval._M_reset();
+        }
+        return  *this;
+    }
 
 
 

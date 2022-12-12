@@ -1,17 +1,13 @@
 #ifndef __rbtree_h
 #define __rbtree_h
 
+#include "include/config.h"
 #include "iterator/iterator.h"
 #include "container/pair.h"
 #include "allocator/memory.h"
 #include "container/rbtree_fwd.h"
-
-#define __rbt_template_parameters                               \
-    template <typename _Key, typename _Val, typename _KeyOfVal, \
-              typename _Compare, typename _Alloc>
-
-#define _rbt_type \
-    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>
+#include "iterator/tree_iterator.h"
+#include "type/allocate_traits.h"
 
 namespace ustl
 {
@@ -19,86 +15,91 @@ namespace ustl
     struct _Rbtree_Node
         : _Rbt_node_base
     {
-        typedef     _Val    value_type;
-        typedef         _Rbtree_Node<_Val> *    _Node_ptr;
-        typedef const   _Rbtree_Node<_Val> *    _CNode_ptr;
+        typedef         _Val            value_type;
+        typedef         _Rbtree_Node<_Val> *            _Node_ptr;
+        typedef         _Rbtree_Node<_Val> const *      _CNode_ptr;
 
-#ifndef __debug_ustl
-        value_type _M_value;
-#endif
-        value_type *
-        _M_valptr()
-        {
-            return &this->_M_value;
-        }
 
-        const value_type *
-        _M_valptr() const
-        {
-            return &this->_M_value;
-        }
-
+    public:
         _Rbtree_Node() = default;
 
         _Rbtree_Node(value_type __v)
-            :
-#ifndef __debug_ustl
-              _M_value(__v),
-#endif
+            : _M_value_field(__v),
               _Rbt_node_base()
-        {
-#ifdef __debug_ustl
-            this->_M_value = __v;
-#endif
-        }
+        {}
 
         _Rbtree_Node(value_type __v, _Node_ptr __p)
-            :
-#ifndef __debug_ustl
-              _M_value(__v),
-#endif
+            : _M_value_field(__v),
               _Rbt_node_base(__p)
-        {
-#ifdef __debug_ustl
-            this->_M_value = __v;
-#endif
-        }
+        {}
 
-        _Rbtree_Node(value_type __v, _Node_ptr __l,
-                     _Node_ptr __r, _Node_ptr __p)
-            :
-#ifndef __debug_ustl
-              _M_value(__v),
-#endif
+        _Rbtree_Node(value_type __v, _Node_ptr __l, _Node_ptr __r, _Node_ptr __p)
+            : _M_value_field(__v),
               _Rbt_node_base(__l, __r, __p)
-        {
-#ifdef __debug_ustl
-            this->_M_value = __v;
-#endif
-        }
+        {}
+
+
+    public:
+        value_type *
+        _M_valptr() ustl_cpp_noexcept
+        { return    &this->_M_value_field; }
+
+
+        value_type const *
+        _M_valptr() const ustl_cpp_noexcept
+        { return    &this->_M_value_field; }
+
+
+        value_type &
+        _M_value() ustl_cpp_noexcept
+        { return    _M_value_field; }
+
+
+        value_type const &
+        _M_value() const ustl_cpp_noexcept
+        { return    _M_value_field; }
+
+
+    public:
+        static void
+        _S_swap(_Node_ptr __l, _Node_ptr __r) ustl_cpp_noexcept;
+
 
         static void
-        _S_swap(_Node_ptr __l,
-                _Node_ptr __r) ustl_cpp_noexcept
-        {
-            value_type __tmp = __l->_M_value;
-            __l->_M_value = __r->_M_value;
-            __r->_M_value = __tmp;
-        }
+        _S_swap(_Rbt_node_base *__l, _Rbt_node_base *__r) ustl_cpp_noexcept;
+    
 
-        static void
-        _S_swap(_Rbt_node_base *__l,
-                _Rbt_node_base *__r) ustl_cpp_noexcept
-        {
-            _S_swap(static_cast<_Node_ptr>(__l),
-                    static_cast<_Node_ptr>(__r));
-        }
+    public:
+
+        value_type _M_value_field;
     };
 
 
 
+    template<typename _Val>
+    inline void
+    _Rbtree_Node<_Val>::
+        _S_swap(_Node_ptr   __l, _Node_ptr  __r) ustl_cpp_noexcept
+    {
+        value_type  __tmp(__l->_M_value_field);
+        __l->_M_value_field = __r->_M_value_field;
+        __r->_M_value_field = __tmp;
+    }
 
-#if defined(_CONTROL_PARAMETER_ITERATOR) && _CONTROL_PARAMETER_ITERATOR == 1
+
+
+    template<typename _Val>
+    inline void
+    _Rbtree_Node<_Val>::
+        _S_swap(_Rbt_node_base *__l, _Rbt_node_base *__r) ustl_cpp_noexcept
+    {
+        _Node_ptr   __lptr = static_cast<_Node_ptr>(__l);
+        _Node_ptr   __rptr = static_cast<_Node_ptr>(__r);
+        _S_swap(__lptr, __rptr);
+    }
+
+
+
 
     template<typename _Tp, bool _Const>
     struct _rbtree_iterator
@@ -112,412 +113,276 @@ namespace ustl
         typedef     ustl::diff_t                    difference_type;
         typedef     ustl::_bothway_iterator         iterator_tag;
         typedef     _rbtree_iterator                _Self;
+
+    protected:
         typedef     _Rbt_node_base                  _Rbt_node_base_type;
         typedef     _Rbt_node_base *                _Rbt_node_base_pointer;
         typedef     _Rbtree_Node<_Tp>               _Rbt_node_type;
         typedef     _Rbtree_Node<_Tp> *             _Rbt_node_pointer;
-        typedef     _rbtree_iterator<_Tp, false>    _non_cv_iterator;
+        typedef     _rbtree_iterator<_Tp, false>    non_cv_iterator;
 
+
+    public:
         _rbtree_iterator() = default;
 
         _rbtree_iterator(_Rbt_node_base_pointer __p)
-            : _M_node(__p)
+            : _M_current(__p)
         {}
 
-        _rbtree_iterator(_non_cv_iterator const &__non_cv)
-            : _M_node(__non_cv._M_node)
+        _rbtree_iterator(non_cv_iterator const &__non_cv)
+            : _M_current(__non_cv._M_current)
         {}
 
-        _non_cv_iterator
+        _rbtree_iterator(tree_iterator_basic const &__base)
+            : _M_current(__base)
+        {}
+
+
+    public:
+        _Rbt_node_pointer
+        _M_data()
+        { return    static_cast<_Rbt_node_pointer>(_M_current._M_data); }
+
+
+        non_cv_iterator
         _M_const_cast()
-        { return    _non_cv_iterator(_M_node); }
+        { return    non_cv_iterator(_M_current); }
+
 
         _Self &
-        operator--()
-        {
-            _M_node = _rbt_decrement(_M_node);
-            return *this;
-        }
+        operator--() ustl_cpp_noexcept
+        { return    --_M_current; }
+
 
         _Self &
-        operator++()
-        {
-            _M_node = _rbt_increment(_M_node);
-            return *this;
-        }
+        operator++() ustl_cpp_noexcept
+        { return    ++_M_current; }
+
 
         _Self
-        operator--(int)
-        {
-            _Self __tmp = *this;
-            _M_node = _rbt_decrement(_M_node);
-            return __tmp;
-        }
+        operator--(int) ustl_cpp_noexcept
+        { return    _M_current--; }
+
 
         _Self
-        operator++(int)
-        {
-            _Self __tmp = *this;
-            _M_node = _rbt_increment(_M_node);
-            return __tmp;
-        }
+        operator++(int) ustl_cpp_noexcept
+        { return    _M_current++; }
+
 
         _Self
-        operator+(difference_type __step)
-        {
-            _Self   __tmp(*this);
-            if(__step > 0)
-                for(; __step; --__step, (void)++__tmp);
-            else
-                __tmp - (-__step);
-            return  __tmp;
-        }
+        operator+(difference_type __step) ustl_cpp_noexcept
+        { return    _M_current + __step; }
+
 
         _Self
-        operator-(difference_type __step)
-        {
-            _Self   __tmp(*this);
-            if(__step > 0)
-                for(; __step; --__step, (void)--__tmp);
-            else
-                __tmp + (-__step);
-            return  __tmp;
-        }
-
-        typename ustl::if_else<_Const, const_reference, reference>::type
-        operator*()
-        { return    *static_cast<_Rbt_node_pointer>(_M_node)->_M_valptr(); }
-
+        operator-(difference_type __step) ustl_cpp_noexcept
+        { return    _M_current - __step; }
 
 
         typename ustl::if_else<_Const, const_reference, reference>::type
-        operator->()
-        { return    static_cast<_Rbt_node_pointer>(_M_node)->_M_valptr(); }
+        operator*() ustl_cpp_noexcept
+        { return    static_cast<_Rbt_node_pointer>(_M_current._M_data)->_M_value(); }
 
 
+        typename ustl::if_else<_Const, const_reference, reference>::type
+        operator->() ustl_cpp_noexcept
+        { return    static_cast<_Rbt_node_pointer>(_M_current._M_data)->_M_valptr(); }
+
+
+    public:
+        friend bool
+        operator==(_Self const &__l, _Self  const&__r) ustl_cpp_noexcept
+        { return    __l._M_current == __r._M_current; }
 
         friend bool
-        operator==(_Self const &__l, _Self  const&__r)
-        { return    __l._M_node == __r._M_node; }
+        operator!=(_Self const &__l,_Self  const &__r) ustl_cpp_noexcept
+        { return    __l._M_current != __r._M_current; }
+
+        friend difference_type
+        operator-(_Self __last, _Self __first) ustl_cpp_noexcept
+        { return    __last._M_current - __first._M_current; }
 
 
-
-        friend bool
-        operator!=(_Self const &__l,_Self  const &__r)
-        { return    __l._M_node != __r._M_node; }
-
-
-
-        _Rbt_node_base_pointer      _M_node;
+    protected:
+        tree_iterator_basic         _M_current;
     };
 
 
-#else
-    template <typename _Tp>
-    struct _rbtree_itertor
+    
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc>
+    struct rb_tree_basic
     {
-        using   value_type  =   _Tp;
-        using   pointer     =   _Tp *;
-        using   reference   =   _Tp &;
+        typedef         _Key                key_type;
+        typedef         _Val                value_type;
+        typedef         _Val *              pointer;
+        typedef         _Val &              reference;
+        typedef         _Val const *        const_pointer;
+        typedef         _Val const &        const_reference;
+        typedef         _Compare            compare_type;
+        typedef         _Alloc              allocator_type;
+        typedef         ustl::size_t        size_type;
+        typedef         ustl::diff_t        difference_type;
 
-        using   itr_tag     = _bothway_iterator;
-        using   difference_type =   ustl::diff_t;
+        typedef         _rbtree_iterator<_Val, false>       iterator;
+        typedef         _rbtree_iterator<_Val, true>        const_iterator;
 
-        using   _Self       =   _rbtree_itertor<_Tp>;
-        using   base_ptr    =   _Rbt_node_base::_Node_ptr;
-        using   _link_type  =   _Rbtree_Node<_Tp> *;
+    public:
+        typedef         _Rbtree_Node<_Val>                  _Node_type;
+        typedef         _Rbtree_Node<_Val> *                _Node_ptr;
+        typedef         _Rbtree_Node<_Val> const *          _CNode_ptr;
+        typedef         _Rbt_node_base *                    _Node_base_ptr;
+        typedef         _Rbt_node_base const *              _CNode_base_ptr; 
 
-        _rbtree_itertor() = default;
+        typedef         ustl::allocate_traits<_Alloc>       _Tp_allocate_traits;
+        typedef         typename _Tp_allocate_traits::template rebind_t<_Node_type>  _Node_allocator_type;
+        typedef         ustl::allocate_traits<_Node_allocator_type>   _Node_allocate_traits;
 
-        explicit _rbtree_itertor(base_ptr __p)
-            : _M_node(__p) {}
 
-        _rbtree_itertor(const _rbtree_itertor &__itr)
-            : _M_node(__itr._M_node) {}
-
-        _Self &
-        operator--()
+        struct rbtree_node_pool
+            : _Node_allocator_type
         {
-            _M_node = _rbt_decrement(_M_node);
-            return *this;
-        }
+            using       reusing_t  =   tree_node_pool::tree_recycle;
+            using       acquire_t  =   tree_node_pool::tree_extract; 
 
-        _Self &
-        operator++()
+
+        public:
+            _Node_ptr
+            _M_allocate_node(size_type  __n)
+            { return    _Node_allocate_traits::allocate(*this, __n); }
+
+
+            void
+            _M_deallocate_node(_Node_base_ptr __p)
+            { _Node_allocate_traits::deallocate(*this, __p, 1); }
+
+
+            template<typename ..._Args>
+            void
+            _M_construct(_Node_ptr __p, _Args &&...__init_args)
+            { _Node_allocate_traits::construct(*this, __p->_M_valptr(), ustl::forward<_Args &&>(__init_args)...); }
+
+
+            void
+            _M_destory_node(_Node_ptr __p) ustl_cpp_noexcept
+            { _Node_allocate_traits::destory(*this, __p); }
+
+
+            void
+            _M_destory_value(_Node_ptr __p) ustl_cpp_noexcept
+            { _Tp_allocate_traits::destory(*this, __p->_M_valptr()); }
+
+
+            void
+            _M_recycle_node(_Rbt_node_base *__node)
+            { _M_Manager(__node); }
+
+
+        public:
+            template<typename ..._Args>
+            _Rbt_node_base *
+            _M_reusing_tree(_Args &&...__init_args);
+
+
+            template<typename ..._Args>
+            _Rbt_node_base *
+            _M_acquire_node(_Args &&...__init_args);
+
+
+        protected:
+            tree_node_pool      _M_Manager;
+        };
+
+
+
+        struct rbt_impl
         {
-            _M_node = _rbt_increment(_M_node);
-            return *this;
-        }
+            void
+            _M_move(rbt_impl &__other);
 
-        _Self
-        operator--(int)
-        {
-            _Self __tmp = *this;
-            _M_node = _rbt_decrement(_M_node);
-            return __tmp;
-        }
+            void
+            _M_swap(rbt_impl &__other);
 
-        _Self
-        operator++(int)
-        {
-            _Self __tmp = *this;
-            _M_node = _rbt_increment(_M_node);
-            return __tmp;
-        }
 
-        reference
-        operator*() const
-        {
-            return *static_cast<_link_type>(_M_node)->_M_valptr();
-        }
+            _Rbt_header                     _M_header;
+            compare_type                    _M_compare;
+            rbtree_node_pool                _M_node_pool;
+        };
 
-        pointer
-        operator->() const
-        {
-            return static_cast<_link_type>(_M_node)->_M_valptr();
-        }
+        typedef     rbt_impl            impl_type;
 
-        friend bool
-        operator==(const _Self &__l, const _Self &__r)
-        {
-            return __l._M_node == __r._M_node;
-        }
+    protected:
 
-        friend bool
-        operator!=(const _Self &__l, const _Self &__r)
-        {
-            return __l._M_node != __r._M_node;
-        }
-
-        base_ptr _M_node;
+        impl_type               _M_data_plus;
     };
 
-    template <typename _Tp>
-    struct _const_rbtree_itertor
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc>
+    template<typename ..._Args>
+    inline _Rbt_node_base *
+    rb_tree_basic<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+    rbtree_node_pool::
+        _M_acquire_node(_Args &&...__init_args)
     {
-        using value_type = _Tp const;
-        using pointer = _Tp const *;
-        using reference = _Tp const &;
+        _Node_ptr   __ret = _M_Manager(acquire_t());
+        if(0 == __ret)
+            __ret = _M_allocate_node(1);
+        if(0 != __ret) 
+            _M_construct(__ret, ustl::forward<_Args &&>(__init_args)...);
+        return  __ret;
+    }
 
-        using difference_type = ustl::diff_t;
-        using itr_tag = _bothway_iterator;
 
-        using _Self = _const_rbtree_itertor<_Tp>;
-        using base_ptr = _Rbt_node_base::_Node_ptr;
-        using _link_type = _Rbtree_Node<_Tp> *;
-
-        _const_rbtree_itertor() = default;
-
-        explicit _const_rbtree_itertor(base_ptr __p)
-            : _M_node(__p) {}
-
-        _const_rbtree_itertor(_rbtree_itertor<_Tp> &__itr)
-            : _M_node(__itr._M_node) {}
-
-        _Self &
-        operator--()
-        {
-            _M_node = _rbt_decrement(_M_node);
-            return *this;
-        }
-
-        _Self &
-        operator++()
-        {
-            _M_node = _rbt_increment(_M_node);
-            return *this;
-        }
-
-        _Self
-        operator--(int)
-        {
-            _Self __tmp = *this;
-            _M_node = _rbt_decrement(_M_node);
-            return __tmp;
-        }
-
-        _Self
-        operator++(int)
-        {
-            _Self __tmp = *this;
-            _M_node = _rbt_increment(_M_node);
-            return __tmp;
-        }
-
-        reference
-        operator*()
-        {
-            return *static_cast<_link_type>(_M_node)->_M_valptr();
-        }
-
-        pointer
-        operator->()
-        {
-            return static_cast<_link_type>(_M_node)->_M_valptr();
-        }
-
-        friend bool
-        operator==(const _Self &__l, const _Self &__r)
-        {
-            return __l._M_node == __r._M_node;
-        }
-
-        friend bool
-        operator!=(const _Self &__l, const _Self &__r)
-        {
-            return __l._M_node != __r._M_node;
-        }
-
-        base_ptr _M_node;
-    };
-#endif
-
-    /**
-     * @if reassginment, take all of tree node
-     * don`t recyle root node
-     */
-    template <typename _Tp, typename _Alloc>
-    struct _Rbt_node_pool
-        : _Alloc::template rebind<_Rbtree_Node<_Tp>>::other
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc>
+    template<typename ..._Args>
+    inline _Rbt_node_base *
+    rb_tree_basic<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+    rbtree_node_pool::
+        _M_reusing_tree(_Args &&...__init_args)
     {
-        enum    { __MAX_CAPACITY = 10 };
+        _Node_ptr   __ret = _M_Manager(reusing_t());
+        if(0 == __ret)
+            __ret = _M_acquire_node(ustl::forward<_Args &&>(__init_args)...);
+        else
+            _M_construct(__ret, ustl::forward<_Args &&>(__init_args)...);
+        return  __ret;
+    }
 
-        using base_ptr = _Rbt_node_base *;
-        using value_type = _Rbtree_Node<_Tp>;
-        using pointer = _Rbtree_Node<_Tp> *;
-        using reference = _Rbtree_Node<_Tp> &;
 
-        using _Base_type = typename _Alloc::
-            template rebind<_Rbtree_Node<_Tp>>::other;
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc>
+    inline void
+    rb_tree_basic<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+    rbt_impl::
+        _M_move(rbt_impl &__other)
+    {                
+        _M_compare = __other._M_compare;
+        _M_header._M_color = __other._M_header._M_color;
+        _M_header._M_left = __other._M_header._M_left;
+        _M_header._M_right = __other._M_header._M_right;
+        _M_header._M_parent = __other._M_header._M_parent;
+        _M_header._M_count = __other._M_header._M_count;
+        __other._M_header.parent = 0;
+        __other._M_header.left = 0;
+        __other._M_header.right = 0;
+    }
+    
 
-        using _Base_type::allocate;
-        using _Base_type::construct;
-        using _Base_type::deallocate;
-        using _Base_type ::destory;
-
-        template <typename... _Args>
-        pointer
-        operator()(_Args &&...__args)
-        {
-            /** maybe new exception or constructor exception,
-             *  but it was decide by client, we just use try__catch to provied machine
-             */
-            base_ptr __tmp;
-            try
-            {
-
-                if (_M_node_count)
-                {
-                    __tmp = _M_list_header;
-                    _M_list_header = _M_list_header->right();
-                    destory(static_cast<pointer>(__tmp));
-                    --_M_node_count;
-                }
-                else
-                    __tmp = allocate(1);
-                construct_node(static_cast<pointer>(__tmp),
-                               forward<_Args>(__args)...);
-            }
-            catch (...)
-            {
-                deallocate(__tmp, 1);
-                throw;
-            }
-            return static_cast<pointer>(__tmp);
-        }
-
-        void
-        recycle_node(base_ptr __p)
-        {
-            if (++_M_node_count <= __MAX_CAPACITY)
-            {
-                __p->_M_right = _M_list_header;
-                _M_list_header = __p;
-                if (!_M_list_last)
-                    _M_list_last = __p;
-            }
-            else
-                deallocate(__p, 1);
-        }
-
-        template <typename... _Args>
-        void
-        construct_node(base_ptr __p, _Args &&...__a)
-        {
-            construct(static_cast<pointer>(__p)->_M_valptr(),
-                      forward<_Args>(__a)...);
-        }
-
-        void
-        destory_node(base_ptr __n)
-        {
-            base_ptr __p = __n->parent();
-            if (__n == __p->_M_parent)
-                __p->_M_parent = __p->_M_left = __p->_M_right = 0;
-            else if (__n == __p->_M_right)
-                __p->_M_right = 0;
-            else if (__n == __p->_M_left)
-                __p->_M_left = 0;
-        }
-
-        void
-        _M_move(_Rbt_node_pool &__other)
-        {
-            size_t __i = 0;
-            base_ptr __tmp;
-            for (; __i < __other._M_node_count; ++__i)
-            {
-                __tmp = __other._M_list_header;
-                __other._M_list_header = __tmp->right();
-                recycle_node(__tmp);
-            }
-        }
-
-        ~_Rbt_node_pool()
-        {
-            base_ptr __tmp;
-            while (_M_list_header)
-            {
-                __tmp = _M_list_header;
-                _M_list_header = _M_list_header->right();
-                deallocate(__tmp, 1);
-            }
-        }
-
-        size_t _M_node_count;
-        base_ptr _M_list_header;
-        base_ptr _M_list_last;
-    };
-
-    template <typename _Val, typename _Alloc, typename _Comp>
-    struct _rbt_impl
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc>
+    inline void
+    rb_tree_basic<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+    rbt_impl::
+        _M_swap(rbt_impl &__other)
     {
-        void
-        _M_move(_rbt_impl &__other)
-        {
-            _M_compare = __other._M_compare;
-            _M_header._M_color = __other._M_header._M_color;
-            _M_header._M_left = __other._M_header._M_left;
-            _M_header._M_right = __other._M_header._M_right;
-            _M_header._M_parent = __other._M_header._M_parent;
-            _M_header._M_count = __other._M_header._M_count;
-            __other._M_header.parent = 0;
-            __other._M_header.left = 0;
-            __other._M_header.right = 0;
-        }
+        rbt_impl    __tmp = *this;
+        _M_move(__other);
+        __other._M_move(__tmp);
+    }
 
-        void
-        _M_swap(_rbt_impl &__other)
-        {
-            _rbt_impl __tmp = *this;
-            _M_move(__other);
-            __other._M_move(__tmp);
-        }
 
-        _Comp _M_compare;
-        _Rbt_header _M_header;
-        _Rbt_node_pool<_Val, _Alloc> _M_node_pool;
-    };
 
     /**
      *  @tparam _Key : key type
@@ -529,234 +394,139 @@ namespace ustl
     template <typename _Key, typename _Val, typename _KeyOfVal,
               typename _Compare, typename _Alloc = ustl::allocator<_Val>>
     class rb_tree
+        : rb_tree_basic<_Key, _Val, _KeyOfVal, _Compare, _Alloc>
     {
+        typedef         rb_tree_basic<_Key, _Val, _KeyOfVal, _Compare, _Alloc>  _Base_type;
+
     public:
-        using   key_type            =   _Key;
-        using   value_type          =   _Val;
-        using   pointer             =   _Val *;
-        using   reference           =   _Val &;
-        using   compare_type        =  _Compare;
-        using   allocator_type      =   _Alloc;
-        using   difference_type     =   diff_t;
+        typedef         _Key                key_type;
+        typedef         _Val                value_type;
+        typedef         _Val *              pointer;
+        typedef         _Val &              reference;
+        typedef         _Val const *        const_pointer;
+        typedef         _Val const &        const_reference;
 
-#if defined(_CONTROL_PARAMETER_ITERATOR) && _CONTROL_PARAMETER_ITERATOR == 1
-        using   iterator            =   _rbtree_iterator<_Val, false>;
-        using   const_iterator      =   _rbtree_iterator<_Val, true>;
-#else
-        using   iterator            =   _rbtree_itertor<_Val>;
-        using   const_iterator      =   _const_rbtree_itertor<_Val>;
-#endif
+        typedef         typename _Base_type::iterator           iterator;
+        typedef         typename _Base_type::const_iterator     const_iterator;
+        typedef         typename _Base_type::compare_type       compare_type;
+        typedef         typename _Base_type::allocator_type     allocator_type;
+        typedef         typename _Base_type::size_type          size_type;
+        typedef         typename _Base_type::difference_type    difference_type;
+        typedef         typename _Base_type::impl_type          impl_type;
+
     protected:
-        using   _Node_type          =   _Rbtree_Node<_Val>;
-        using   _Node_ptr           =   _Rbtree_Node<_Val> *;
-        using   _Node_base_ptr      =   _Rbt_node_base *;
+        typedef         typename _Base_type::_Node_type         _Node_type;
+        typedef         typename _Base_type::_Node_ptr          _Node_ptr;
+        typedef         typename _Base_type::_CNode_ptr         _CNode_ptr;
+        typedef         typename _Base_type::_Node_base_ptr     _Node_base_ptr;
+        typedef         typename _Base_type::_CNode_base_ptr    _CNode_base_ptr;
 
-    private:
-        /**
-         * @brief preserve a pool of erasing node and it`s max capacity is 20,
-         *      when pool is empty, using alloator alloction a new node to user
-         */
-
-        struct _rbt_recycle_reuse
-        {
-            _rbt_recycle_reuse(rb_tree &__t)
-                : _M_tree(__t),
-                  _M_left_most(__t._M_left_most())
-            {
-                if (_M_tree._M_data_plus->_M_header._M_parent)
-                    _M_tree._M_data_plus->_M_header._M_reset();
-                else
-                    _M_left_most = 0;
-            }
-
-            ~_rbt_recycle_reuse()
-            {
-            }
-
-            template <typename... _Args>
-            _Node_ptr
-            operator()(_Args &&...__a)
-            {
-                _Node_ptr __ret = static_cast<_Node_ptr>(_M_extract());
-                if (0 == __ret)
-                    __ret = _M_tree._M_create_node(forward<_Args>(__a)...);
-                _M_tree._M_construct_node(__ret, forward<_Args>(__a)...);
-                return __ret;
-            }
-
-        private:
-            _Node_base_ptr
-            _M_extract()
-            {
-                if (0 == _M_left_most)
-                    return 0;
-
-                _Node_base_ptr __ret = _M_left_most;
-                _M_left_most = _M_left_most->parent();
-                if (0 != _M_left_most)
-                {
-                    if (_tree_is_lchild(__ret))
-                        _M_left_most->_M_left = 0;
-                    else
-                    {
-                        _M_left_most->_M_right = 0;
-                        while (_M_left_most->_M_right)
-                            _M_left_most = _S_right(_M_left_most);
-                        while (_M_left_most->_M_left)
-                            _M_left_most = _S_left(_M_left_most);
-                        if (_M_left_most->_M_right) // for leafs
-                            _M_left_most = _S_right(_M_left_most);
-                    }
-                }
-                else
-                    _M_left_most = 0; /*ROOT*/
-                return __ret;
-            }
-
-            _Node_base_ptr _M_left_most;
-            rb_tree &_M_tree;
-        };
 
     protected:
         _Node_ptr
         _M_root() const ustl_cpp_noexcept
-        {
-            return static_cast<_Node_ptr>(_M_data_plus->_M_header._M_parent);
-        }
+        { return    static_cast<_Node_ptr>(_M_data_plus->_M_header._M_parent); }
+
 
         _Node_base_ptr
         _M_left_most() const ustl_cpp_noexcept
-        {
-            return _M_data_plus->_M_header.left();
-        }
+        { return    _M_data_plus->_M_header.left(); }
+
 
         _Node_base_ptr
         _M_right_most() const ustl_cpp_noexcept
-        {
-            return _M_data_plus->_M_header.right();
-        }
+        { return    _M_data_plus->_M_header.right(); }
+
 
         _Node_ptr
         _M_begin() const ustl_cpp_noexcept
-        {
-            return _M_root();
-        }
+        { return    _M_data_plus->_M_header._M_parent; }
+
 
         _Node_base_ptr
         _M_end() const ustl_cpp_noexcept
-        {
-            return &_M_data_plus->_M_header;
-        }
+        { return    &_M_data_plus->_M_header; }
+
 
         bool
-        _M_compare_key(key_type const &__l,
-                       key_type const &__r) const ustl_cpp_noexcept
-        {
-            return _M_data_plus->_M_compare(__l, __r);
-        }
+        _M_compare_key(key_type const &__l, key_type const &__r) const ustl_cpp_noexcept
+        { return    _M_data_plus->_M_compare(__l, __r); }
+
 
         _Node_ptr
-        _M_extract(iterator &__itr) ustl_cpp_noexcept
-        {
-            return static_cast<_Node_ptr>(__itr._M_node);
-        }
+        _M_extract_key(iterator &__itr) ustl_cpp_noexcept
+        { return    static_cast<_Node_ptr>(__itr._M_data()); }
 
-        _Node_ptr const
-        _M_extract(const_iterator &__citr) ustl_cpp_noexcept
-        {
-            return static_cast<_Node_ptr const>(__citr._M_node);
-        }
+
+        _CNode_ptr 
+        _M_extract_key(const_iterator &__citr) ustl_cpp_noexcept
+        { return    static_cast<_CNode_ptr>(__citr._M_data()); }
+
 
         static _Node_ptr
         _S_left(_Node_base_ptr __p) ustl_cpp_noexcept
-        {
-            return static_cast<_Node_ptr>(__p->_M_left);
-        }
+        { return    static_cast<_Node_ptr>(__p->_M_left); }
+
 
         static _Node_ptr
         _S_right(_Node_base_ptr __p) ustl_cpp_noexcept
-        {
-            return static_cast<_Node_ptr>(__p->_M_right);
-        }
+        { return    static_cast<_Node_ptr>(__p->_M_right); }
+
+
+        static key_type const &
+        _S_key(value_type const &__val)
+        { return    _KeyOfVal(__val); }
+
 
         static key_type const &
         _S_key(_Node_ptr __p)
-        {
-            return _KeyOfVal()(*(__p->_M_valptr()));
-        }
+        { return    _KeyOfVal()((__p->_M_vlaue())); }
 
-        static key_type const &
-        _S_key(_Node_base_ptr __p)
-        {
-#ifdef __debug_ustl
-            _Node_ptr __tmp = static_cast<_Node_ptr>(__p);
-            return _S_key(__tmp);
-#endif
-            return _S_key(static_cast<_Node_ptr>(__p));
-        }
 
         static key_type const &
         _S_key(iterator &__itr)
-        {
-            return _S_key(__itr._M_node);
-        }
+        { return    _S_key(__itr._M_data()); }
+
 
         static key_type const &
         _S_key(const_iterator &__itr)
-        {
-            return _S_key(__itr._M_node);
-        }
+        { return    _S_key(__itr._M_data()); }
+
+
+        static key_type const &
+        _S_key(_Node_base_ptr __p)
+        { return    _S_key(static_cast<_Node_ptr>(__p)); }
+
 
         template <typename... _Args>
         _Node_ptr
         _M_create_node(_Args &&...__a)
-        {
-            return (_M_data_plus->_M_node_pool)(forward<_Args &&>(__a)...);
-        }
+        { return    _M_data_plus._M_node_pool._M_acquire_node(ustl::forward<_Args &&>(__a)...); }
+
 
         template <typename... _Args>
-        _Node_ptr
-        _M_construct_node(_Node_base_ptr __p,
-                          _Args &&...__a)
-        {
-            (_M_data_plus->_M_node_pool).construct_node(__p, forward<_Args>(__a)...);
-            return static_cast<_Node_ptr>(__p);
-        }
+        void
+        _M_construct_node(_Node_ptr __p, _Args &&...__a)
+        { _M_data_plus._M_node_pool._M_construct(__p, forward<_Args>(__a)...); }
+
 
         void
         _M_destory_node(_Node_base_ptr __p)
-        {
-            (_M_data_plus->_M_node_pool).destory_node(__p);
-        }
+        { _M_data_plus._M_node_pool._M_destory(__p); }
+
 
         void
         _M_deallocate_node(_Node_base_ptr __p)
-        {
-            (_M_data_plus->_M_node_pool).recycle_node(__p);
-        }
+        { _M_data_plus._M_node_pool.recycle_node(__p); }
 
-#ifdef __debug_ustl
-    public:
-        using _node_ptr = _Node_ptr;
-        _Node_ptr
-        debug_root()
-        {
-            return static_cast<_Node_ptr>(_M_data_plus->_M_header._M_parent);
-        }
-#endif
 
     public:
         rb_tree()
-            : _M_data_plus(0)
-        {
-#ifdef __debug_ustl
-            _M_data_plus = new _rbt_impl<value_type, allocator_type, compare_type>;
-#else
+            : _M_data_plus()
+        {}
 
-#endif
-        }
 
-        rb_tree(const rb_tree &__other)
+        rb_tree(rb_tree const &__other)
             : _M_data_plus(0)
         {
             if (&__other == this)
@@ -764,6 +534,7 @@ namespace ustl
             clear();
             assign_equal(__other.begin(), __other.end());
         }
+
 
         rb_tree(rb_tree &&__other)
         {
@@ -773,46 +544,44 @@ namespace ustl
             _M_data_plus->_M_move(__other._M_data_plus);
         }
 
+
         template <typename _Itr>
         rb_tree(_Itr __first, _Itr __last)
         {
-            for (; __first != __last; ++__first)
-                ;
         }
 
-        ~rb_tree()
-        {
-            clear();
-#ifdef __debug_ustl
-            delete _M_data_plus;
-#else
 
-#endif
-        }
 
-        /**
-         * @brief
-         *      for public interface
-         * @interface
-         * @private
-         */
+        ~rb_tree() ustl_cpp_noexcept
+        { clear(); }
+
+
     private:
         iterator
-        _M_insert(_Node_base_ptr, value_type const &, _rbt_recycle_reuse *);
-
-        inline iterator
-        _M_insert_equal(iterator, _rbt_recycle_reuse *);
+        _M_insert_aux(_Node_base_ptr, value_type const &);
 
         iterator
-        _M_insert_equal(value_type const &, _rbt_recycle_reuse *);
+        _M_insert_rval(_Node_base_ptr __pos, value_type &&);
+
+        template<typename _ForwardIterator>
+        void
+        _M_assign_aux(_ForwardIterator __first, _ForwardIterator __last);
+
+
+        inline iterator
+        _M_insert_equal(iterator);
+
+        iterator
+        _M_insert_equal(value_type const &);
 
         inline pair<iterator, bool>
-        _M_insert_unique(iterator, _rbt_recycle_reuse *);
+        _M_insert_unique(iterator);
 
         pair<iterator, bool>
-        _M_insert_unique(value_type const &, _rbt_recycle_reuse *);
+        _M_insert_unique(value_type const &);
 
-        void _M_erase(iterator);
+        void 
+        _M_erase(iterator);
 
         iterator
         _M_get_insert_pos_unique(key_type const &) ustl_cpp_noexcept;
@@ -826,12 +595,77 @@ namespace ustl
         iterator
         _M_upper_bound(_Node_base_ptr, _Node_base_ptr, key_type const &) const ustl_cpp_noexcept;
 
-        /**
-         * @brief
-         *      provide to client
-         * @interface
-         * @public
-         */
+
+    public:
+        iterator 
+        begin() ustl_cpp_noexcept
+        { return    iterator(_M_left_most()); }
+
+
+        iterator 
+        end() ustl_cpp_noexcept
+        { return    iterator(&_M_data_plus->_M_header); }
+
+
+        const_iterator 
+        begin() const ustl_cpp_noexcept
+        { return    const_iterator(_M_left_most()); }
+
+
+        const_iterator 
+        end() const ustl_cpp_noexcept
+        { return    const_iterator(&_M_data_plus->_M_header); }
+
+
+        const_iterator 
+        cbegin() ustl_cpp_noexcept
+        { return    const_iterator(_M_left_most()); }
+
+
+        const_iterator 
+        cend() ustl_cpp_noexcept
+        { return    const_iterator(&_M_data_plus->_M_header); }
+
+
+        const_iterator 
+        cbegin() const ustl_cpp_noexcept
+        { return    const_iterator(_M_left_most()); }
+
+
+        const_iterator 
+        cend() const ustl_cpp_noexcept
+        { return    const_iterator(&_M_data_plus->_M_header); }
+
+
+        size_type
+        count()  ustl_cpp_noexcept
+        { return    _M_data_plus->_M_header._M_count; }
+
+
+        size_type
+        count() const ustl_cpp_noexcept
+        { return    _M_data_plus->_M_header._M_count; }
+
+
+        bool
+        empty() ustl_cpp_noexcept
+        { return    0 == _M_data_plus->_M_header._M_count; }
+
+        bool
+        empty() const ustl_cpp_noexcept
+        { return    0 == _M_data_plus->_M_header._M_count; }
+
+
+        _Node_ptr
+        root() ustl_cpp_noexcept
+        { return    static_cast<_Node_ptr>(_M_data_plus->_M_header.parent()); }
+
+
+        _CNode_ptr
+        root() const ustl_cpp_noexcept
+        { return    static_cast<_Node_ptr>(_M_data_plus->_M_header.parent()); }
+
+
     public:
         template <typename _Itr>
         void 
@@ -888,63 +722,68 @@ namespace ustl
         void 
         swap(rb_tree &) ustl_cpp_noexcept;
 
-        size_t 
-        count() const ustl_cpp_noexcept;
-
-        bool 
-        empty() const ustl_cpp_noexcept;
-
-        iterator 
-        begin() ustl_cpp_noexcept;
-        iterator 
-        end() ustl_cpp_noexcept;
-        const_iterator 
-        begin() const ustl_cpp_noexcept;
-        const_iterator 
-        end() const ustl_cpp_noexcept;
-
-        const_iterator 
-        cbegin() ustl_cpp_noexcept;
-        const_iterator 
-        cend() ustl_cpp_noexcept;
-        const_iterator 
-        cbegin() const ustl_cpp_noexcept;
-        const_iterator cend() const ustl_cpp_noexcept;
-
         rb_tree &
         operator=(rb_tree const &);
+
         rb_tree &
         operator=(rb_tree &&);
 
-        static _Node_ptr 
-        root(rb_tree const &) ustl_cpp_noexcept;
 
-    private:
-        /** use implement pointer, isolation implement and interface */
-        _rbt_impl<value_type, allocator_type, compare_type> *_M_data_plus;
+    protected:
+
+        using       _Base_type::_M_data_plus;
     };
 
-    __rbt_template_parameters 
-    typename _rbt_type::iterator
-    _rbt_type::
-        _M_insert(_Node_base_ptr __pos,
-                  value_type const &__val,
-                  _rbt_recycle_reuse *__node_reuse)
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_insert_aux(_Node_base_ptr __pos, value_type const &__val) -> iterator
     {
-        key_type const &__k = _KeyOfVal()(__val);
-        // root insertion happen __is_left = false
+        key_type const &__k = _S_key(__val);
         bool __is_left = (__pos == _M_end() || _M_compare_key(__k, _S_key(__pos)));
-        _Node_ptr __new = __node_reuse
-                              ? (*__node_reuse)(__val)
-                              : _M_create_node(__val);
+        _Node_ptr __new = _M_create_node(__val);
         _rbt_insert(__is_left, __new, __pos, &_M_data_plus->_M_header);
         ++_M_data_plus->_M_header._M_count;
         return iterator(__new);
     }
 
-    __rbt_template_parameters 
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_insert_rval(_Node_base_ptr __pos, value_type &&__rval) -> iterator
+    {
+        key_type const &__key = _S_key(__rval);
+        bool __is_left = (__pos == _M_end() || _M_compare_key(__k, _S_key(__pos)));
+        _Node_ptr __new = _M_create_node(ustl::move(__rval));
+        _rbt_insert(__is_left, __new, __pos, &_M_data_plus->_M_header);
+        ++_M_data_plus->_M_header._M_count;
+        return iterator(__new);
+    }
+
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    template <typename _ForwardIterator>
     void
-    _rbt_type::
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_assign_aux(_ForwardIterator __first, _ForwardIterator __last)
+    {
+
+    }
+
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    void
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         _M_erase(iterator __del)
     {
         _Node_base_ptr __val = _rbt_erase(__del._M_node, &_M_data_plus->_M_header);
@@ -955,10 +794,13 @@ namespace ustl
         --_M_data_plus->_M_header._M_count;
     }
 
-    __rbt_template_parameters 
-    typename _rbt_type::iterator
-    _rbt_type::
-        _M_get_insert_pos_unique(_Key const &__k) ustl_cpp_noexcept
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_get_insert_pos_unique(_Key const &__k) ustl_cpp_noexcept -> iterator
     {
         _Node_ptr __s{_M_begin()};
         _Node_base_ptr __e{_M_end()};
@@ -990,10 +832,13 @@ namespace ustl
         return end();
     }
 
-    __rbt_template_parameters 
-    typename _rbt_type::iterator
-    _rbt_type::
-        _M_get_insert_pos_equal(_Key const &__k) ustl_cpp_noexcept
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_get_insert_pos_equal(_Key const &__k) ustl_cpp_noexcept -> iterator
     {
         _Node_ptr __s{_M_begin()};
         _Node_base_ptr __e{_M_end()};
@@ -1009,12 +854,15 @@ namespace ustl
         return iterator(__e);
     }
 
-    __rbt_template_parameters 
-    typename _rbt_type::iterator
-    _rbt_type::
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         _M_lower_bound(_Node_base_ptr __s,
                        _Node_base_ptr __e,
-                       key_type const &__k) const ustl_cpp_noexcept
+                       key_type const &__k) const ustl_cpp_noexcept -> iterator
     {
         while (__s)
         {
@@ -1029,12 +877,15 @@ namespace ustl
         return iterator(__e);
     }
 
-    __rbt_template_parameters 
-    typename _rbt_type::iterator
-    _rbt_type::
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         _M_upper_bound(_Node_base_ptr __s,
                        _Node_base_ptr __e,
-                       key_type const &__k) const ustl_cpp_noexcept
+                       key_type const &__k) const ustl_cpp_noexcept -> iterator
     {
         while (__s)
         {
@@ -1048,22 +899,26 @@ namespace ustl
         return iterator(__e);
     }
 
-    __rbt_template_parameters 
-    typename _rbt_type::iterator
-    _rbt_type::
-        _M_insert_equal(value_type const &__val,
-                        _rbt_recycle_reuse *__rcru)
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_insert_equal(value_type const &__val) -> iterator
     {
         key_type const &__key = _KeyOfVal()(__val);
         iterator __pos = _M_get_insert_pos_equal(__key);
         return iterator(_M_insert(__pos._M_node, __val, __rcru));
     }
 
-    __rbt_template_parameters 
-    typename _rbt_type::iterator
-    _rbt_type::
-        _M_insert_equal(iterator __itr,
-                        _rbt_recycle_reuse *__rcru)
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_insert_equal(iterator __itr) -> iterator
     {
         value_type const &__val = static_cast<_Node_ptr>(__itr._M_node)->_M_value();
         key_type const &__key = _KeyOfVal()(__val);
@@ -1071,11 +926,13 @@ namespace ustl
         return iterator(_M_insert(__pos._M_node, __val, __rcru));
     }
 
-    __rbt_template_parameters 
-    pair<typename _rbt_type::iterator, bool>
-    _rbt_type::
-        _M_insert_unique(value_type const &__val,
-                         _rbt_recycle_reuse *__rcru)
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_insert_unique(value_type const &__val) -> pair<iterator, bool>
     {
         /// @if null != root && end() = pos
         ///     then : double key is equals
@@ -1090,21 +947,26 @@ namespace ustl
         return ret_type(_M_insert(__pos._M_node, __val, __rcru), true);
     }
 
-    __rbt_template_parameters 
-    pair<typename _rbt_type::iterator, bool>
-    _rbt_type::
-        _M_insert_unique(iterator __itr,
-                         _rbt_recycle_reuse *__rcru)
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        _M_insert_unique(iterator __itr) -> pair<iterator, bool>
     {
         value_type __val = *static_cast<_Node_ptr>(__itr._M_node)->_M_valptr();
         return _M_insert_unique(__val, __rcru);
     }
 
-    __rbt_template_parameters 
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
     template <typename... _Args>
-    inline typename _rbt_type::iterator
-    _rbt_type::
-        emplace_equal(_Args &&...__a)
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        emplace_equal(_Args &&...__a) -> iterator
     {
         _Node_ptr __new = _M_create_node();
         _M_construct_node(__new, forward(__a)...);
@@ -1115,41 +977,49 @@ namespace ustl
         return iterator(__new);
     }
 
-    __rbt_template_parameters 
-    inline typename _rbt_type::iterator
-    _rbt_type::
-        insert_equal(value_type const &__val)
-    {
-        return _M_insert_equal(__val, 0);
-    }
 
-    __rbt_template_parameters 
-    inline pair<typename _rbt_type::iterator, bool>
-    _rbt_type::
-        insert_unique(value_type const &__itr)
-    {
-        return _M_insert_unique(__itr, 0);
-    }
 
-    __rbt_template_parameters 
-    inline typename _rbt_type::iterator
-    _rbt_type::
-        insert_equal(iterator __itr)
-    {
-        return _M_insert_equal(__itr, 0);
-    }
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        insert_equal(value_type const &__val) -> iterator 
+    { return _M_insert_equal(__val, 0); }
 
-    __rbt_template_parameters inline pair<
-    typename _rbt_type::iterator, bool>
-    _rbt_type::
-        insert_unique(iterator __itr)
-    {
-        return _M_insert_unique(__itr, 0);
-    }
 
-    __rbt_template_parameters 
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        insert_unique(value_type const &__itr) -> pair<iterator, bool>
+    { return _M_insert_unique(__itr, 0); }
+
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        insert_equal(iterator __itr) -> iterator
+    { return _M_insert_equal(__itr, 0); }
+
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        insert_unique(iterator __itr) -> pair<iterator, bool>
+    { return _M_insert_unique(__itr, 0); }
+
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
     template <typename _Itr>
-    inline void _rbt_type::
+    inline void 
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         assign_equal(_Itr __b, _Itr __e)
     {
         _rbt_recycle_reuse __rcru(*this);
@@ -1157,10 +1027,13 @@ namespace ustl
             _M_insert_equal(__b++, &__rcru);
     }
 
-    __rbt_template_parameters 
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
     template <typename _Itr>
     inline void
-    _rbt_type::
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         assign_unique(_Itr __b, _Itr __e)
     {
         _rbt_recycle_reuse __rcru(*this);
@@ -1168,9 +1041,12 @@ namespace ustl
             _M_insert_unique(__b++, &__rcru);
     }
 
-    __rbt_template_parameters 
-    typename _rbt_type ::iterator
-    _rbt_type::
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc> ::iterator
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         erase(iterator __begin, iterator __end)
     {
         if (begin() == __begin && end() == __end)
@@ -1188,10 +1064,12 @@ namespace ustl
         }
     }
 
-    /// @return return presurcor of node
-    __rbt_template_parameters 
-    typename _rbt_type::iterator
-    _rbt_type::
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         erase(iterator __itr)
     {
         if (end() == __itr)
@@ -1202,9 +1080,12 @@ namespace ustl
         return __suc;
     }
 
-    __rbt_template_parameters 
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
     size_t
-    _rbt_type::
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         erase(key_type const &__key)
     {
         size_t __count = count();
@@ -1214,10 +1095,13 @@ namespace ustl
         return __count - count();
     }
 
-    __rbt_template_parameters 
-    inline typename _rbt_type::iterator
-    _rbt_type::
-        find(key_type const &__k) const ustl_cpp_noexcept
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        find(key_type const &__k) const ustl_cpp_noexcept -> iterator
     {
         iterator __ret = lower_bound(__k);
         // check __k = key(__ret) or __k > key(__ret)
@@ -1226,27 +1110,31 @@ namespace ustl
         return end();
     }
 
-    __rbt_template_parameters 
-    inline typename _rbt_type::iterator
-    _rbt_type::
-        lower_bound(key_type const &__k) const ustl_cpp_noexcept
-    {
-        return _M_lower_bound(_M_root(), _M_end(), __k);
-    }
 
-    __rbt_template_parameters 
-    inline typename _rbt_type::iterator
-    _rbt_type ::
-        upper_bound(key_type const &__k) const ustl_cpp_noexcept
-    {
-        return _M_upper_bound(_M_root(), _M_end(), __k);
-    }
 
-    __rbt_template_parameters
-        pair<typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator,
-             typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::iterator>
-        rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-            equal_range(key_type const &__k) const ustl_cpp_noexcept
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        lower_bound(key_type const &__k) const ustl_cpp_noexcept -> iterator
+    { return _M_lower_bound(_M_root(), _M_end(), __k); }
+
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+        upper_bound(key_type const &__k) const ustl_cpp_noexcept -> iterator
+    { return _M_upper_bound(_M_root(), _M_end(), __k); }
+
+
+
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    auto
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+            equal_range(key_type const &__k) const ustl_cpp_noexcept -> pair<iterator, iterator>
     {
         typedef pair<iterator, iterator> ret_type;
         _Node_ptr __aim = _M_root();
@@ -1272,9 +1160,10 @@ namespace ustl
         return ret_type(iterator(__suc), iterator(__suc));
     }
 
-    __rbt_template_parameters 
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
     inline void
-    _rbt_type::
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         swap(rb_tree &__other) ustl_cpp_noexcept
     {
         if (0 == _M_root())
@@ -1288,9 +1177,10 @@ namespace ustl
             _M_data_plus->_M_swap(__other._M_data_plus);
     }
 
-    __rbt_template_parameters 
-    inline void
-    _rbt_type::
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    void
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         clear()
     {
         _Node_base_ptr __parent;
@@ -1311,88 +1201,12 @@ namespace ustl
         _M_data_plus->_M_header._M_reset();
     }
 
-    __rbt_template_parameters 
-    inline size_t
-    _rbt_type::
-        count() const ustl_cpp_noexcept
-    {
-        return _M_data_plus->_M_header._M_count;
-    }
 
-    __rbt_template_parameters 
-    inline bool
-    _rbt_type::
-        empty() const ustl_cpp_noexcept
-    {
-        return (0 == _M_data_plus->_M_header._M_count);
-    }
-
-    __rbt_template_parameters 
-    inline typename _rbt_type::iterator
-    _rbt_type::
-        begin() ustl_cpp_noexcept
-    {
-        return iterator(_M_left_most());
-    }
-
-    __rbt_template_parameters 
-    inline typename _rbt_type::iterator
-    _rbt_type::
-        end() ustl_cpp_noexcept
-    {
-        return iterator(&_M_data_plus->_M_header);
-    }
-
-    __rbt_template_parameters 
-    inline typename _rbt_type::const_iterator
-    _rbt_type::
-        begin() const ustl_cpp_noexcept
-    {
-        return const_iterator(_M_left_most());
-    }
-
-    __rbt_template_parameters 
-    inline typename _rbt_type::const_iterator
-    _rbt_type::
-        end() const ustl_cpp_noexcept
-    {
-        return const_iterator(&_M_data_plus->_M_header);
-    }
-    __rbt_template_parameters 
-    inline typename _rbt_type::const_iterator
-    _rbt_type::
-        cbegin() ustl_cpp_noexcept
-    {
-        return const_iterator(_M_left_most());
-    }
-
-    __rbt_template_parameters 
-    inline typename _rbt_type::const_iterator
-    _rbt_type::
-        cend() ustl_cpp_noexcept
-    {
-        return const_iterator(&_M_data_plus->_M_header);
-    }
-
-    __rbt_template_parameters 
-    inline typename _rbt_type::const_iterator
-    _rbt_type::
-        cbegin() const ustl_cpp_noexcept
-    {
-        return const_iterator(_M_left_most());
-    }
-
-    __rbt_template_parameters 
-    inline typename _rbt_type::const_iterator
-    _rbt_type::
-        cend() const ustl_cpp_noexcept
-    {
-        return const_iterator(&_M_data_plus->_M_header);
-    }
-
-    __rbt_template_parameters 
-    inline _rbt_type &
-    _rbt_type::
+     
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc> &
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
     operator=(rb_tree const &__other)
     {
         if (&__other != this)
@@ -1400,20 +1214,15 @@ namespace ustl
         return *this;
     }
 
-    __rbt_template_parameters 
-    inline typename _rbt_type::_Node_ptr
-    _rbt_type::
-        root(rb_tree const &__other) ustl_cpp_noexcept
-    {
-        return static_cast<_Node_ptr>(__other._M_data_plus->_M_header._M_parent);
-    }
 
-    __rbt_template_parameters 
+     
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
     bool
-    operator==(_rbt_type const &__l,
-               _rbt_type const &__r)
+    operator==(rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc> const &__l,
+               rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc> const &__r)
     {
-        typedef typename _rbt_type::const_iterator iterator;
+        typedef typename rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::const_iterator iterator;
 
         iterator __frist = __l.begin();
         iterator __last = __l.end();
@@ -1428,8 +1237,8 @@ namespace ustl
 #ifdef __tree_struct_equal
         typedef _Rbt_node_base *base_ptr;
         typedef _Rbtree_Node<_Val> *node_ptr;
-        base_ptr __Lroot = _rbt_type::root(__l);
-        base_ptr __Rroot = _rbt_type::root(__r);
+        base_ptr __Lroot = rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::root(__l);
+        base_ptr __Rroot = rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::root(__r);
         bool __is_go_back = false;
         bool __from_lchild = false;
 
@@ -1486,9 +1295,11 @@ namespace ustl
 #endif
     }
 
-    __rbt_template_parameters
-    inline _rbt_type &
-    _rbt_type::
+    
+    template <typename _Key, typename _Val, typename _KeyOfVal,
+              typename _Compare, typename _Alloc> 
+    inline rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc> &
+    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         operator=(rb_tree &&__rval)
     {
         if(&__rval != this)

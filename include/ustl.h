@@ -10,5 +10,6 @@ namespace ustl
  */
 #define __ustl_lib 20221018UL
 #define __ustl_internal_type 1
+#define __UNICODE
 }
 #endif

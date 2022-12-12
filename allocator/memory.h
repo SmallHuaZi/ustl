@@ -9,14 +9,6 @@
 #include "tmp/move.h"
 #include "allocator/memopt.h"
 
-#if defined(platform) && platform == 64UL
-#define MEM_MAP_MAXSIZE 0x7fffffffffffffffUL
-#else
-#define MEM_MAP_MAXSIZE 0x7fffffffUL
-#endif
-
-#define __default_obj_count 20
-
 
 namespace ustl
 {
@@ -28,6 +20,7 @@ namespace ustl
         enum    { __ALIGNMENT = 0x10UL };
         enum    { __MAX_BYTES = 0x100UL };
         enum    { __TABLE_SIZE = __MAX_BYTES / __ALIGNMENT };
+        enum    { __DEFAULT_OBJECT_NUMBER = 0x14 };
 
         // embedded pointer
         union obj {
@@ -35,8 +28,8 @@ namespace ustl
             byte     _M_client_data[0];
         };
 
-        typedef     obj *   obj_ptr;
-        typedef     diff_t  difference_type;
+        typedef     obj *           obj_ptr;
+        typedef     ustl::diff_t    difference_type;
 
     private:
         static inline byte         *_S_free_start;
@@ -69,13 +62,23 @@ namespace ustl
     class allocator
         : public allocator_basic
     {
+#if defined(platform) && platform == 64UL 
+        enum    { __MEMORY_MAPPING_SIZE = 0x7fffffffffffffffUL };
+#else
+        enum    { __MEMORY_MAPPING_SIZE = 0x7fffffffUL };
+#endif
+
+        typedef     allocator_basic     _Base_type;
     public:
-        typedef     _Tp         value_type;
-        typedef     _Tp *       pointer;
-        typedef     _Tp &       reference;
-        typedef     _Tp const * const_pointer;
-        typedef     _Tp const & const_reference;
-        typedef     allocator   allocator_type;
+        typedef     _Tp                 value_type;
+        typedef     _Tp *               pointer;
+        typedef     _Tp &               reference;
+        typedef     _Tp const *         const_pointer;
+        typedef     _Tp const &         const_reference;
+        typedef     ustl::size_t        size_type;
+        typedef     allocator           allocator_type;
+        using       _Base_type::difference_type;
+
 
         template <typename _OTp>
         struct rebind
@@ -84,12 +87,12 @@ namespace ustl
     public:
 
         pointer 
-        allocate(size_t __n)
+        allocate(size_type __n)
         { return  static_cast<pointer>(_M_allocate(__n, sizeof(_Tp))); }
 
 
         void 
-        deallocate(void_ptr __p, size_t __n) ustl_cpp_noexcept
+        deallocate(void_ptr __p, size_type __n) ustl_cpp_noexcept
         { _M_deallocate(__p, __n, sizeof(_Tp)); }
 
 
@@ -105,9 +108,9 @@ namespace ustl
         { __p->~_OTp(); }
 
 
-        constexpr size_t
+        constexpr size_type
         max_size()
-        { return MEM_MAP_MAXSIZE / sizeof(_Tp); }
+        { return size_type(__MEMORY_MAPPING_SIZE) / sizeof(_Tp); }
 
     };
 

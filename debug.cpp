@@ -39,32 +39,10 @@ struct compare
 #define __IS_STD 0
 
 
-#if defined(__debug_ustl) && __debug_ustl == 0
+
 int 
 main(int argc, char **argv)
 {
-    // ustl::hashtable<int, int> __ustl_hash;
-    // __ustl_hash._M_insert_aux(1, 1);
-    ustl::rb_tree<int, int, get_key, compare> __rbt;
-    auto __root = decltype(__rbt)::root(__rbt);
-    for(int __i = 0; __i < 20; ++__i)
-    {
-        __rbt.insert_equal(__i);
-        __root = decltype(__rbt)::root(__rbt);
-    }
-    for(int __i = 0; __i < 20; ++__i)
-    {
-        if(__i == 19)
-            int b = 10;
-        __rbt.erase(__i);
-        for(auto __x : __rbt)
-            std::cout << __x << ' ' << std::flush;
-        std::cout << std::endl;
-    }
-
-    // ustl::size_t size = ustl::_tree_node_height(__root);
-    // std::cout << size << std::endl;
-
+    ustl::rb_tree_basic<int, int, get_key, compare>  __rbt;
     return 0;
 }
-#endif
