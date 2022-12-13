@@ -26,16 +26,29 @@ namespace ustl
             : _M_fisrt_val(__f),
               _M_second_val(__s) {}
 
-        constexpr pair(pair const &__p)
-            : _M_fisrt_val(__p._M_fisrt_val),
-              _M_second_val(__p._M_second_val) {}
+        constexpr pair(pair const &__lval)
+        { *this = __lval; }
+
+        constexpr pair(pair &&__rval)
+        { *this = ustl::move(__rval); }
+
 
         pair &
-        operator=(pair &__other)
-        {
-            _M_copy(__other);
-            return *this;
+        operator=(pair const &__lval)
+        { 
+            _M_copy(__lval);
+            return  *this;
         }
+
+
+        pair &
+        operator=(pair &&__rval)
+        {
+            _M_fisrt_val = ustl::move(__rval._M_fisrt_val);
+            _M_second_val = ustl::move(__rval._M_second_val);
+            return  *this;
+        }
+
 
         void
         swap(pair &__other)
@@ -45,13 +58,17 @@ namespace ustl
             _M_copy(__tmp);
         }
 
+
         second_type * 
         second_valptr(pair &__node)
         { return    &__node._M_second_val; }
 
+
         first_type * 
         first_valptr(pair&__node)
         { return    &__node._M_fisrt_val;  }
+
+
 
         first_type _M_fisrt_val;
         second_type _M_second_val;
