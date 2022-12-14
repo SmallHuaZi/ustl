@@ -1,9 +1,7 @@
 #ifndef __macro_exception_h
 #define __macro_exception_h
 
-#define __ustl_try try
-#define __ustl_catch_all catch (...)
-#define __ustl_catch(except) catch (except & __e)
+
 
 #define __ustl_throw_again throw;
 

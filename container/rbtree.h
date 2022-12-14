@@ -11,6 +11,7 @@
 
 namespace ustl
 {
+    
     template <typename _Val>
     struct _Rbtree_Node
         : _Rbt_node_base
@@ -189,13 +190,23 @@ namespace ustl
 
 
         _Self
-        operator+(difference_type __step) ustl_cpp_noexcept
+        operator+(difference_type   __step) ustl_cpp_noexcept
         { return    _Self(_M_current + __step); }
 
 
         _Self
-        operator-(difference_type __step) ustl_cpp_noexcept
+        operator-(difference_type   __step) ustl_cpp_noexcept
         { return    _Self(_M_current - __step); }
+
+
+        _Self &
+        operator+=(difference_type  __step) ustl_cpp_noexcept
+        { return    _M_current += __step, *this; }
+
+
+        _Self &
+        operator+=(difference_type  __step) ustl_cpp_noexcept
+        { return    _M_current -= __step, *this; }
 
 
         typename ustl::if_else<_Const, const_reference, reference>::type

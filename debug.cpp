@@ -35,7 +35,7 @@ struct compare
 // #include "include/ustl_iterator.h"
 // #include "include/ustl_container.h"
 
-#include <bits/stl_tree.h>
+// #include <bits/stl_tree.h>
 
 
 #define __IS_STD 0
@@ -53,6 +53,11 @@ struct debug
     debug &
     reference()
     { return    *this; }
+
+
+    int 
+    operator()()
+    { return 1; }
 };
 
 struct debug_derived
@@ -60,7 +65,10 @@ struct debug_derived
     int
     reference()
     { return    1, 2; }
-    debug   _M_data;
+
+    int 
+    operator()(int a)
+    { return a; }
 };
 
 template <typename A>
@@ -69,13 +77,14 @@ function(A &&__a)
 { debug a(ustl::forward<A &&>(a)); }
 
 
+#include <list>
+
 int 
 main(int argc, char **argv)
 {
-    function(debug());
-    auto a = debug();
-    function(a);
-    std::cout <<debug_derived().reference()<< std::endl;;
-
+    std::list<int> __list(10, 2);
+    __list.insert(__list.begin(), __list.begin(), __list.end());
+    for(auto __x : __list)
+        std::cout << __x << std::endl;
     return 0;
 }

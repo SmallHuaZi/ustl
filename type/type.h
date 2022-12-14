@@ -1,6 +1,8 @@
 #ifndef __type_h
 #define __type_h
 
+#include "type/type_base.h"
+
 namespace ustl
 {
 /**
@@ -12,30 +14,6 @@ namespace ustl
 #define RDEFTYPE 0
 #define INHERIT 1
 
-    /* type infer */
-
-    template <typename T, T v>
-    struct type_base
-    {
-        typedef T value_type;
-        typedef type_base<T, v> type;
-
-        constexpr T
-        operator()() { return v; }
-
-        static constexpr T value = v;
-    };
-
-    template <bool v>
-    struct boolean
-        : public type_base<bool, v>
-    {};
-
-    typedef boolean<true> true_type;
-    typedef boolean<false> false_type;
-
-    template <bool v>
-    using __bool_constant = ustl::boolean<v>;
 
     /** double type is equals
      *  @if T == U
@@ -255,14 +233,6 @@ namespace ustl
         using type = _Tp *;
     };
 
-    template <typename _Tp>
-    struct make_void
-    {
-        using type = void;
-    };
-
-    template <typename _Tp>
-    using __uvoid_t = typename ustl::make_void<_Tp>::type;
 
 
     /**
@@ -324,11 +294,13 @@ namespace ustl
 
     template<typename _Base, typename _Derived, typename = void>
     struct __is_base
-        : ustl::false_type {};
+        : ustl::false_type 
+    {};
         
     template<typename _Base, typename _Derived>
     struct __is_base<_Base, _Derived, ustl::__uvoid_t<decltype(__check_inherit<_Base>(new (0) _Derived))>>
-        : ustl::true_type {};
+        : ustl::true_type 
+    {};
 
 }
 #endif

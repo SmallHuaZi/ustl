@@ -59,7 +59,8 @@
         "iosfwd": "cpp",
         "numbers": "cpp",
         "semaphore": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "list": "cpp"
     },
     "makefile.launchConfigurations": [
         {

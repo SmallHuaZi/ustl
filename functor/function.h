@@ -13,7 +13,7 @@ namespace ustl
         _Result
         operator()(_Args &&...__args)
         {
-            return _M_function(ustl::forward<_Args &&>(__args)...);
+            return _M_callable(ustl::forward<_Args &&>(__args)...);
         }
 
         function(_Result(&__callable)(_Args...))

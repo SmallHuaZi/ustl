@@ -32,7 +32,17 @@ namespace ustl
 
 #define alignment_criteria 8
 
+#define __ustl_try try
+
+#define __ustl_catch_all catch (...)
+
+#define __ustl_catch(except) catch (except & __e)
+
+#define __ustl_throw_again throw;
+
 #define ustl_cpp_noexcept noexcept
+
+
 
 }
 #endif

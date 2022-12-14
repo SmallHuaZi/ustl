@@ -32,6 +32,12 @@ namespace ustl
         _Self
         operator-(difference_type   __step) ustl_cpp_noexcept;
 
+        _Self &
+        operator+=(difference_type  __step) ustl_cpp_noexcept;
+
+        _Self &
+        operator-=(difference_type  __step) ustl_cpp_noexcept;
+
 
         tree_iterator_basic() = default;
 
@@ -96,11 +102,7 @@ namespace ustl
         operator-(difference_type   __step) ustl_cpp_noexcept
     {
         _Self   __tmp(*this);
-        for(; __step && 0 < __step; --__step)
-            __tmp._M_data = _tree_increment(__tmp._M_data);
-        if(0 > __step)
-            __tmp + (-__step);
-        return  __tmp;
+        return  __tmp -= __step;
     }
 
 
@@ -109,11 +111,31 @@ namespace ustl
         operator+(difference_type   __step) ustl_cpp_noexcept
     {
         _Self   __tmp(*this);
-        for(; __step && 0 < __step; --__step)
-            __tmp._M_data = _tree_decrement(__tmp._M_data);
+        return  __tmp += __step;
+    }
+
+
+    inline tree_iterator_basic &
+    tree_iterator_basic::
+        operator+=(difference_type  __step) ustl_cpp_noexcept
+    {
+        for(; 0 < __step; --__step)
+            _M_data = _tree_increment(_M_data);
         if(0 > __step)
-            __tmp - (-__step);
-        return  __tmp;
+            *this - (-__step);
+        return  *this;
+    }
+
+
+    inline tree_iterator_basic &
+    tree_iterator_basic::
+        operator+=(difference_type  __step) ustl_cpp_noexcept
+    {
+        for(; 0 < __step; --__step)
+            _M_data = _tree_decrement(_M_data);
+        if(0 > __step)
+            *this + (-__step);
+        return  *this;
     }
 
 
