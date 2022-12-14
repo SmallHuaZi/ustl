@@ -180,10 +180,6 @@ namespace ustl
 
 
     void
-    _list_unique(list_header *__header, list_compare_basic const * const __cmp) ustl_cpp_noexcept;
-
-
-    void
     _list_reverse(list_header *__header) ustl_cpp_noexcept;
 
 

@@ -807,6 +807,7 @@ namespace ustl
 
         void 
         unique();
+
         template <typename _Predicate>
         void 
         unique(_Predicate);

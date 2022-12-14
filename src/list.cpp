@@ -89,4 +89,12 @@ namespace ustl
         __header->_M_next = __x;
     }
 
+
+    void
+    _list_reverse(list_header *__header) ustl_cpp_noexcept
+    {
+
+    }
+
+
 } // namespace ustl
