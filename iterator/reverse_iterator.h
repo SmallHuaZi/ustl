@@ -44,7 +44,7 @@ namespace ustl
             return *this;
         }
 
-        _Self
+        _Self &
         operator--()
         {
             ++_M_current;
@@ -82,13 +82,13 @@ namespace ustl
         iterator_type
         base_iterator()
         {
-            return _M_current;
+            return iterator_type(_M_current);
         }
 
         iterator_type const
         base_iterator() const
         {
-            return _M_current;
+            return iterator_type(_M_current);
         }
 
         reverse_iterator() = default;
@@ -102,8 +102,8 @@ namespace ustl
 
     template <typename _Iterator>
     ustl::diff_t
-    operator-(reverse_iterator<_Iterator> &__first,
-              reverse_iterator<_Iterator> &__last)
+    operator-(reverse_iterator<_Iterator> &__last,
+              reverse_iterator<_Iterator> &__first)
     {
         ustl::diff_t __dis_ret = 0;
         while (__first != __last)

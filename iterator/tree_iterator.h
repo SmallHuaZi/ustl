@@ -129,7 +129,7 @@ namespace ustl
 
     inline tree_iterator_basic &
     tree_iterator_basic::
-        operator+=(difference_type  __step) ustl_cpp_noexcept
+        operator-=(difference_type  __step) ustl_cpp_noexcept
     {
         for(; 0 < __step; --__step)
             _M_data = _tree_decrement(_M_data);

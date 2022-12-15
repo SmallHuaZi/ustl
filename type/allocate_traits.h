@@ -1,6 +1,8 @@
 #ifndef __allocate_type_h
 #define __allocate_type_h
 
+#include "include/config.h"
+
 namespace ustl
 {
     template <typename _Alloc>

@@ -205,7 +205,7 @@ namespace ustl
 
 
         _Self &
-        operator+=(difference_type  __step) ustl_cpp_noexcept
+        operator-=(difference_type  __step) ustl_cpp_noexcept
         { return    _M_current -= __step, *this; }
 
 
@@ -573,12 +573,12 @@ namespace ustl
 
     public:
         rb_tree()
-            : _M_data_plus()
+            : _Base_type()
         {}
 
 
         rb_tree(rb_tree const &__other)
-            : _M_data_plus(0)
+            : _Base_type()
         {
             if (&__other == this)
                 return;
@@ -764,6 +764,7 @@ namespace ustl
 
 
         template<typename ..._Args>
+        iterator
         emplace_equal(key_type const &__key, _Args &&...__init_args)
         {}
 
@@ -787,21 +788,21 @@ namespace ustl
         iterator 
         emplace_equal(_Args &&...);
 
-        iterator 
-        insert_equal(iterator);
+        // iterator 
+        // insert_equal(iterator);
 
-        iterator 
-        insert_equal(value_type const &);
+        // iterator 
+        // insert_equal(value_type const &);
 
         template <typename... _Args>
         iterator 
         emplace_unique(_Args &&...);
 
-        pair<iterator, bool> 
-        insert_unique(iterator);
+        // pair<iterator, bool> 
+        // insert_unique(iterator);
 
-        pair<iterator, bool> 
-        insert_unique(value_type const &);
+        // pair<iterator, bool> 
+        // insert_unique(value_type const &);
 
         iterator 
         erase(iterator);
@@ -876,7 +877,7 @@ namespace ustl
         _M_erase_aux(const_iterator  __pos) 
     {
         _Node_base_pointer __del = _rbt_erase(__del, &_M_data_plus->_M_header);
-        _Node_type::_S_swap(__del, __p);
+        _Node_type::_S_swap(__del, __pos._M_data());
         _M_delete_node(__del);
         --_M_data_plus->_M_header._M_count;
     }
@@ -1049,7 +1050,7 @@ namespace ustl
         _M_insert_unique(iterator __itr) -> pair<iterator, bool>
     {
         value_type __val = *static_cast<_Node_pointer>(__itr._M_node)->_M_valptr();
-        return _M_insert_unique(__val, __rcru);
+        return _M_insert_unique(__val);
     }
 
 
@@ -1071,39 +1072,39 @@ namespace ustl
     }
 
 
-    template <typename _Key, typename _Val, typename _KeyOfVal,
-              typename _Compare, typename _Alloc> 
-    inline auto
-    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-        insert_equal(value_type const &__val) -> iterator 
-    { return    _M_insert_equal(__val); }
+    // template <typename _Key, typename _Val, typename _KeyOfVal,
+    //           typename _Compare, typename _Alloc> 
+    // inline auto
+    // rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+    //     insert_equal(value_type const &__val) -> iterator 
+    // { return    _M_insert_equal(__val); }
 
 
 
-    template <typename _Key, typename _Val, typename _KeyOfVal,
-              typename _Compare, typename _Alloc> 
-    inline auto
-    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-        insert_unique(value_type const &__itr) -> pair<iterator, bool>
-    { return    _M_insert_unique(__itr); }
+    // template <typename _Key, typename _Val, typename _KeyOfVal,
+    //           typename _Compare, typename _Alloc> 
+    // inline auto
+    // rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+    //     insert_unique(value_type const &__itr) -> pair<iterator, bool>
+    // { return    _M_insert_unique(__itr); }
 
 
 
-    template <typename _Key, typename _Val, typename _KeyOfVal,
-              typename _Compare, typename _Alloc> 
-    inline auto
-    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-        insert_equal(iterator __itr) -> iterator
-    { return    _M_insert_equal(__itr); }
+    // template <typename _Key, typename _Val, typename _KeyOfVal,
+    //           typename _Compare, typename _Alloc> 
+    // inline auto
+    // rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+    //     insert_equal(iterator __itr) -> iterator
+    // { return    _M_insert_equal(__itr); }
 
 
 
-    template <typename _Key, typename _Val, typename _KeyOfVal,
-              typename _Compare, typename _Alloc> 
-    inline auto
-    rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-        insert_unique(iterator __itr) -> pair<iterator, bool>
-    { return    _M_insert_unique(__itr); }
+    // template <typename _Key, typename _Val, typename _KeyOfVal,
+    //           typename _Compare, typename _Alloc> 
+    // inline auto
+    // rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
+    //     insert_unique(iterator __itr) -> pair<iterator, bool>
+    // { return    _M_insert_unique(__itr); }
 
 
 
@@ -1130,7 +1131,7 @@ namespace ustl
     template <typename _Itr>
     inline void
     rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-        assign_unique(_Itr __b, _Itr __e)
+        assign_unique(_Itr __first, _Itr __last)
     {
         _Node_base_pointer __new = 0;
         for(; __first != __last; ++__first)

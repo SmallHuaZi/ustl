@@ -25,17 +25,20 @@ namespace ustl
         _M_hook_after(_Base_pointer __p) ustl_cpp_noexcept;
 
 
-        list_node_basic() = default;
+        list_node_basic();
 
 
     public:
         _Base_pointer       _M_last;
         _Base_pointer       _M_next;
+
+        int                 _M_debug_data = 0;
     };
 
 
     inline
-    list_node_basic::list_node_basic()
+    list_node_basic::
+        list_node_basic()
         : _M_last(this), _M_next(this)
     {}
 
@@ -143,9 +146,9 @@ namespace ustl
         _M_move(list_header &__other) ustl_cpp_noexcept
     {
         _M_copy(__other);
-        __other._M_last  = 0;
-        __other._M_next  = 0;
-        __other._M_count = 0;
+        __other._M_last->_M_next = this;
+        __other._M_next->_M_last = this;       
+        __other._M_reset();
     }
 
 
@@ -153,9 +156,16 @@ namespace ustl
     list_header::
         _M_swap(list_header &__other) ustl_cpp_noexcept
     {
-        list_header     __tmp(*this);
-        _M_move(__other);
-        __other._M_move(__tmp);
+        if(0 != __other._M_count && 0 != _M_count)
+        {
+            list_header     __tmp(*this);
+            _M_move(__other);
+            __other._M_move(__tmp);
+        }
+        else if(0 == __other._M_count && 0 != _M_count)
+            __other._M_move(*this);
+        else if(0 == _M_count && 0 != __other._M_count)
+            _M_move(__other);
     }
 
 
@@ -172,11 +182,11 @@ namespace ustl
 
 
     void
-    _list_merge(list_header *__x, list_header *__y, list_compare_basic const * const __cmp) ustl_cpp_noexcept;
+    _list_merge(list_header *__x, list_header *__y, list_compare_basic const &__cmp) ustl_cpp_noexcept;
 
 
     void
-    _list_sort(list_header *__header, list_compare_basic const * const __cmp) ustl_cpp_noexcept;
+    _list_sort(list_header *__header, list_compare_basic const &__cmp) ustl_cpp_noexcept;
 
 
     void

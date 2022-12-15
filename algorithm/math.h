@@ -7,7 +7,7 @@ namespace ustl
     struct less
     {
         bool
-        operator()(_Tp __x, _Tp __y)
+        operator()(_Tp __x, _Tp __y) const
         {
             return __x < __y;
         }
@@ -17,7 +17,7 @@ namespace ustl
     struct equal_t
     {
         bool
-        operator()(_Tp __x, _Tp __y)
+        operator()(_Tp __x, _Tp __y) const
         {
             return __x == __y;
         }
