@@ -37,13 +37,16 @@ namespace ustl
         _M_valptr() ustl_cpp_noexcept
         { return    &_M_value_field; }
 
+
         reference
         _M_value() ustl_cpp_noexcept
         { return    _M_value_field; }
 
+
         const_pointer
         _M_valptr() const ustl_cpp_noexcept
         { return    &_M_value_field; }
+
 
         const_reference
         _M_value() const ustl_cpp_noexcept
@@ -106,26 +109,32 @@ namespace ustl
         _Self &
         operator-=(difference_type  __step)ustl_cpp_noexcept;
 
+
         typename ustl::if_else<_Const, const_pointer, pointer>::type
         operator->() ustl_cpp_noexcept
         { return    static_cast<_Node_pointer>(_M_current)->_M_valptr(); }
+
 
         typename ustl::if_else<_Const, const_reference, reference>::type
         operator*() ustl_cpp_noexcept
         { return    static_cast<_Node_pointer>(_M_current)->_M_value(); }
 
+
         non_cv_iterator
         _M_const_cast() ustl_cpp_noexcept
         { return    non_cv_iterator(_M_current); }
+
 
         _Node_pointer
         _M_data() ustl_cpp_noexcept
         { return    static_cast<_Node_pointer>(_M_current); }
 
+
     public:
         friend bool
         operator==(_Self const &__l, _Self const &__r) ustl_cpp_noexcept
         { return    __l._M_current == __r._M_current; }
+
 
         friend bool
         operator!=(_Self const &__l, _Self const &__r) ustl_cpp_noexcept
@@ -313,22 +322,25 @@ namespace ustl
         struct list_impl
             : _Node_allocator_type
         {
-
             void
             _M_reset() ustl_cpp_noexcept
             { _M_header._M_reset(); }
+
 
             void
             _M_move(list_impl &__other) ustl_cpp_noexcept
             { _M_header._M_move(__other._M_header); }
 
+
             void
             _M_swap(list_impl &__other) ustl_cpp_noexcept
             { _M_header._M_swap(__other._M_header); }
 
+
             list_impl &
             operator=(list_impl const &__lval) ustl_cpp_noexcept
             { _M_header._M_copy(__lval._M_header); }
+
 
             list_impl &
             operator=(list_impl &&__rval) ustl_cpp_noexcept
@@ -375,26 +387,32 @@ namespace ustl
         _M_get_allocator() ustl_cpp_noexcept
         { return    *_M_data_plus; }
 
+
         _Node_pointer 
         _M_allocate_node(size_type  __n = 1)
         { return     _Node_allocate_traits::allocate(_M_get_allocator(), __n); }
         
+
         template <typename ..._Args>
         void
         _M_construct(_Node_pointer  __p, _Args &&...__init_args)
         { _Node_allocate_traits::construct(_M_get_allocator(), __p->_M_valptr(), ustl::forward<_Args &&>(__init_args)...); }
 
+
         void
         _M_destory(_Node_pointer    __p) ustl_cpp_noexcept
         { _Node_allocate_traits::destory(_M_get_allocator(), __p->_M_valptr()); }
+
 
         _Node_pointer
         _M_first_node() ustl_cpp_noexcept
         { return    static_cast<_Node_pointer>(_M_data_plus->_M_header._M_next); }
 
+
         _Node_base_pointer
         _M_last_node() ustl_cpp_noexcept
         { return    static_cast<_Node_base_pointer>(&_M_data_plus->_M_header); }
+
 
         _Header_pointer
         _M_header() ustl_cpp_noexcept
@@ -402,10 +420,10 @@ namespace ustl
 
 
     protected:
-        template <typename _AllocImpl = _Impl_allocator_type>
-        list_basic()
-            : _M_data_plus(_AllocImpl().allocate(1))
-        { _AllocImpl().construct(_M_data_plus); }
+        template <typename _ImplAlloc = _Impl_allocator_type>
+        list_basic(_ImplAlloc const &__impl_alloctor = _ImplAlloc())
+            : _M_data_plus(__impl_alloctor.allocate(1))
+        { _Impl_allocate_traits::construct(__impl_alloctor, _M_data_plus); }
 
         list_basic(list_basic const &__lother)
             : list_basic()
@@ -511,13 +529,16 @@ namespace ustl
         _M_inc_size(size_type   __n) ustl_cpp_noexcept
         { _M_data_plus->_M_header._M_inc_size(__n); }
 
+
         void
         _M_dec_size(size_type   __n) ustl_cpp_noexcept
         { _M_data_plus->_M_header._M_dec_size(__n); }
 
+
         difference_type
         _M_distance(iterator __first, iterator __last) ustl_cpp_noexcept
         { return    ustl::distance(__first, __last); }
+
 
         void
         _M_transer(iterator __pos, iterator __first, iterator __last) ustl_cpp_noexcept
@@ -559,183 +580,227 @@ namespace ustl
         assign(value_type const &__lval, size_type __n)
         { _M_insert_aux(cbegin(), __n, __lval); }
 
+
         template <typename _InputIterator>
         void
         assign(_InputIterator __first, _InputIterator __last)
         { _M_range_fill(__first, __last); }
+
 
         template <typename _InputIterator>
         size_t 
         insert(const_iterator __pos, _InputIterator __first, _InputIterator __last) 
         { return    _M_range_insert(__pos, __first, __last); }
 
+
         iterator 
         insert(const_iterator __pos, value_type const &__lval)
         { return    _M_insert_aux(__pos, __lval); }
 
+
         iterator 
         insert(const_iterator __pos, value_type const & __lval, size_t __n) 
         { return    _M_insert_aux(__pos, __lval, __n); }
+
 
         template <typename... _Args>
         reference 
         emplace(const_iterator __pos, _Args &&...__init_args)
         { return    *_M_insert_aux(__pos, ustl::forward<_Args &&>(__init_args)...); }
 
+
         template <typename... _Args>
         reference 
         emplace_back(_Args &&...__init_args)
         { return    *_M_insert_aux(cend(), ustl::forward<_Args &&>(__init_args)...); }
+
 
         template <typename... _Args>
         reference 
         emplace_front(_Args &&...__init_args)
         { return    *_M_insert_aux(cbegin(), ustl::forward<_Args &&>(__init_args)...); }
 
+
         void 
         push_back(value_type const &__lval)
         { _M_insert_aux(cend(), __lval); }
+
 
         void 
         push_back(value_type &&__rval)
         { _M_insert_aux(cend(), ustl::move(__rval)); }
 
+
         void 
         push_back(iterator __itr)
         { _M_insert_aux(end(), *__itr); }
+
 
         void 
         push_front(value_type const &__lval)
         { _M_insert_aux(begin(), __lval); }
 
+
         void 
         push_front(value_type &&__rval)
         { _M_insert_aux(begin(), ustl::move(__rval)); }
+
 
         void 
         push_front(iterator __itr)
         { _M_insert_aux(begin(), *__itr); }
 
+
         void 
         pop_back()
         { _M_erase(iterator(_M_data_plus->_M_header._M_last)); }
+
 
         void 
         pop_front()
         { _M_erase(begin()); }
 
+
         iterator 
         erase(iterator __pos)
         { return    _M_erase(__pos); }
+
 
         size_type
         erase(iterator __first, iterator __last)
         { return    _M_erase(__first, __last); }
 
+
         reference 
         front() ustl_cpp_noexcept
         { return    static_cast<_Node_pointer>(_M_data_plus->_M_header._M_next)->_M_value(); }
+
 
         reference
         back() ustl_cpp_noexcept
         { return    static_cast<_Node_pointer>(_M_data_plus->_M_header._M_last)->_M_value(); }
 
+
         iterator 
         begin() ustl_cpp_noexcept
         { return    iterator(_M_first_node()); }
+
 
         iterator 
         end() ustl_cpp_noexcept
         { return    iterator(_M_last_node()); }
 
+
         const_iterator 
         begin() const ustl_cpp_noexcept
         { return    const_iterator(_M_data_plus->_M_header._M_next); }
         
+
         const_iterator 
         end() const ustl_cpp_noexcept
         { return    const_iterator(_M_last_node()); }
+
 
         const_iterator 
         cbegin() ustl_cpp_noexcept
         { return    const_iterator(_M_first_node()); }
 
+
         const_iterator 
         cend() ustl_cpp_noexcept
         { return    const_iterator(_M_last_node()); }
+
 
         const_iterator 
         cbegin() const ustl_cpp_noexcept
         { return    const_iterator(_M_first_node()); }
 
+
         const_iterator 
         cend() const ustl_cpp_noexcept
         { return    const_iterator(_M_last_node()); }
+
 
         reverse_iterator
         rbegin() ustl_cpp_noexcept
         { return    reverse_iterator(end()); }
 
+
         reverse_iterator
         rend() ustl_cpp_noexcept
         { return    reverse_iterator(begin()); }
+
 
         const_reverse_iterator
         rbegin() const ustl_cpp_noexcept
         { return    const_reverse_iterator(cend()); }
 
+
         const_reverse_iterator
         rend() const ustl_cpp_noexcept
         { return    const_reverse_iterator(cbegin()); }
+
 
         const_reverse_iterator
         crbegin() ustl_cpp_noexcept
         { return    const_reverse_iterator(cend()); }
 
+
         const_reverse_iterator
         crend() ustl_cpp_noexcept
         { return    const_reverse_iterator(cbegin()); }
+
 
         const_reverse_iterator
         crbegin() const ustl_cpp_noexcept
         { return    const_reverse_iterator(cend()); }
 
+
         const_reverse_iterator
         crend() const ustl_cpp_noexcept
         { return    const_reverse_iterator(cbegin()); }
+
 
         size_t 
         size() ustl_cpp_noexcept
         { return    _M_data_plus->_M_header._M_count; }
 
+
         size_t 
         size() const ustl_cpp_noexcept
         { return    _M_data_plus->_M_header._M_count; }
+
 
         bool 
         empty() ustl_cpp_noexcept
         { return    0 == _M_data_plus->_M_header._M_count; }
 
+
         bool 
         empty() const ustl_cpp_noexcept
         { return    0 == _M_data_plus->_M_header._M_count; }
+
 
         void 
         swap(list &__l)
         { _M_data_plus->_M_swap(__l._M_data_plus); }
 
+
         void 
         swap(list &&__rother)
         { _M_data_plus->_M_swap(ustl::move(__rother._M_data_plus)); }
+
 
         void 
         sort() ustl_cpp_noexcept
         { _list_sort(&_M_data_plus->_M_header, _M_data_plus->_M_compare); }
 
+
         template <typename _Predicate>
         void
         sort(_Predicate __cmp)
         { _list_sort(&_M_data_plus->_M_header, compare_t<_Predicate>(__cmp)); }
+
 
         void
         merge(list &__lother) 
@@ -744,6 +809,7 @@ namespace ustl
 #endif
         { _list_merge(_M_header(), __lother._M_header(), _M_data_plus->_M_compare); }
 
+
         void
         merge(list &&__rother) 
 #ifdef  ustl_cpp_noexcept
@@ -751,13 +817,16 @@ namespace ustl
 #endif
         { _list_merge(_M_header(), __rother._M_header(), _M_data_plus->_M_compare); }
 
+
         void 
         reverse() ustl_cpp_noexcept
         { _list_reverse(&_M_data_plus->_M_header); }
 
+
         void 
         splice(iterator __pos , list &__other, iterator __pos1)
         { _list_splice(_M_header(), __pos._M_data(), __other._M_header(), __pos1._M_data()); }
+
 
         void 
         splice(iterator __pos, list &__other, iterator __first, iterator __last)
@@ -817,16 +886,20 @@ namespace ustl
                 _M_range_fill(__other.begin(), __other.end());
         }
 
+
         list(list &&__other)
             : _Base_type(ustl::move(__other)) 
         {}
 
+
         ~list() ustl_cpp_noexcept
         { clear(); }
+
 
     private:
         using       _Base_type::_M_data_plus;
     };
+
 
 
     template <typename _Tp, typename _Alloc>
