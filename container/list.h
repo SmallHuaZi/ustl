@@ -402,7 +402,7 @@ namespace ustl
 
 
     protected:
-        template <typename _AllocImpl = ustl::allocator<impl_type>>
+        template <typename _AllocImpl = _Impl_allocator_type>
         list_basic()
             : _M_data_plus(_AllocImpl().allocate(1))
         { _AllocImpl().construct(_M_data_plus); }
