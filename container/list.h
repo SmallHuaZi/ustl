@@ -786,10 +786,6 @@ namespace ustl
         { _M_data_plus->_M_swap(__l._M_data_plus); }
 
 
-        void 
-        swap(list &&__rother)
-        { _M_data_plus->_M_swap(ustl::move(__rother._M_data_plus)); }
-
 
         void 
         sort() ustl_cpp_noexcept
@@ -859,6 +855,9 @@ namespace ustl
 
         void 
         resize(size_t, value_type const &);
+
+        void 
+        swap(list &&__rother);
 
 
     public:
@@ -1196,6 +1195,18 @@ namespace ustl
         while (__first != __last)
             __first = _M_erase(iterator(__first));
         _M_data_plus->_M_reset();
+    }
+
+
+    template <typename _Tp, typename _Alloc>
+    inline void
+    list<_Tp, _Alloc>::
+        swap(list &&__rother)
+    {
+        if(&__rother == this)
+            return;
+        clear();
+        _M_data_plus->_M_move(__rother._M_data_plus);
     }
 
 
