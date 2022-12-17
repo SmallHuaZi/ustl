@@ -420,9 +420,9 @@ namespace ustl
 
 
     protected:
-        template <typename _ImplAlloc = _Impl_allocator_type>
+        template <typename _ImplAlloc>
         list_basic(_ImplAlloc const &__impl_alloctor = _ImplAlloc())
-            : _M_data_plus(__impl_alloctor.allocate(1))
+            : _M_data_plus(_Impl_allocate_traits::allocate(__impl_alloctor, 1))
         { _Impl_allocate_traits::construct(__impl_alloctor, _M_data_plus); }
 
         list_basic(list_basic const &__lother)
@@ -507,6 +507,7 @@ namespace ustl
         typedef     typename _Base_type::_Node_allocator_type        _Node_allocator_type;
         typedef     typename _Base_type::_Tp_allocate_traits         _Tp_allocate_traits;
         typedef     typename _Base_type::_Node_allocate_traits       _Node_allocate_traits;
+        typedef     typename _Base_type::_Impl_allocator_type        _Impl_allocator_type;
 
 
     private:
@@ -861,20 +862,20 @@ namespace ustl
 
 
     public:
-        template <typename _Alloc_Impl = ustl::allocator<impl_type>>
-        list()
-            : _Base_type()
+        template <typename _ImplAlloc = _Impl_allocator_type>
+        list(_ImplAlloc const &__impl_allocator = _ImplAlloc())
+            : _Base_type(__impl_allocator)
         {}
 
 
         list(size_type  __n, value_type const &__val)
-            : _Base_type()
+            : list() 
         { _M_default_append(__n, __val); }
 
 
         template <typename _InputItr, typename = ustl::RequireInputItr<_InputItr>>
         list(_InputItr __first, _InputItr __last)
-            : _Base_type() 
+            : list() 
         {  _M_range_fill(__first, __last); }
 
 
