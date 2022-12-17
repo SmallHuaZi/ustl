@@ -3,107 +3,6 @@
 namespace ustl
 {
 
-#ifndef __TREE_BASIC_DEFINED
-    void
-    _rbt_insert(bool __is_l,
-                _rbt_node_basic *__new,
-                _rbt_node_basic *__ist,
-                _rbt_node_basic *__header) ustl_cpp_noexcept
-    {
-#ifndef __TREE_BASIC_DEFINED
-        if (__is_l)
-        {
-            if (__header->_M_parent)
-            {
-                if (__ist == __header->_M_left)
-                    __header->_M_left = __new;
-                __ist->_M_left = __new;
-            }
-            else
-            {
-                __ist->_M_parent = __new;
-                __ist->_M_right = __ist->_M_left = __new;
-            }
-        }
-        else
-        {
-            if (__ist == __header->_M_right)
-                __header->_M_right = __new;
-            __ist->_M_right = __new;
-        }
-        __new->_M_parent = __ist;
-#else
-        _tree_insert(__is_l, __new, __ist, __header);
-#endif
-        _rbt_recolor(__new, __header);
-    }
-
-
-
-    void
-    _rbt_rotate_left(_rbt_node_basic *__n,
-                        _rbt_node_basic *__h) ustl_cpp_noexcept
-    {
-        _rbt_node_basic *__new = __n->right();
-
-        __new->right()->_M_setcolor(__new->_M_color);
-        __new->_M_setcolor(__n->_M_color);
-
-#ifdef  __TREE_BASIC_DEFINED
-        _tree_rotate_left(__n, __h);
-#else
-        _rbt_node_basic *__parent = __n->parent();
-        __n->_M_parent = __new;
-        __new->_M_parent = __parent;
-
-        if (__new->_M_left)
-            __new->_M_left->_M_parent = __n;
-
-        if (__parent == __h)
-            __h->_M_parent = __new;
-        else if (__n == __parent->_M_left)
-            __parent->_M_left = __new;
-        else
-            __parent->_M_right = __new;
-
-        __n->_M_right = __new->_M_left;
-        __new->_M_left = __n;
-#endif
-    }
-
-    void
-    _rbt_rotate_right(_rbt_node_basic *__n,
-                        _rbt_node_basic *__h) ustl_cpp_noexcept
-    {
-        _rbt_node_basic *__new = __n->left();
-
-        __new->left()->_M_setcolor(__new->_M_color);
-        __new->_M_setcolor(__n->_M_color);
-
-#ifdef  __TREE_BASIC_DEFINED
-        _tree_rotate_right(__n, __h);
-#else
-        _rbt_node_basic *__parent = __n->parent();
-        __n->_M_parent = __new;
-        __new->_M_parent = __parent;
-
-        if (__new->_M_right)
-            __new->_M_right->_M_parent = __n;
-
-        if (__parent == __h)
-            __h->_M_parent = __new;
-        else if (__n == __parent->_M_left)
-            __parent->_M_left = __new;
-        else
-            __parent->_M_right = __new;
-
-        __n->_M_left = __new->_M_right;
-        __new->_M_right = __n;
-#endif
-    }
-
-#endif
-
     _rbt_node_basic *
     _rbt_erase(_rbt_node_basic *__del,
                _rbt_node_basic *__h) ustl_cpp_noexcept
@@ -227,6 +126,8 @@ namespace ustl
             _rbt_rebalance_erase(__del, __header);
         }
     }
+
+
 
     void
     _rbt_recolor(_rbt_node_basic *__n,
