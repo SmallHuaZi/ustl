@@ -175,8 +175,8 @@ namespace ustl
         using type = _Tp;
     };
 
-    template <bool _Cond, typename _Tp>
-    using enable_if_type = typename enable_if<_Cond, _Tp>::type;
+    template <bool _Cond, typename _Tp = void>
+    using enable_if_t= typename enable_if<_Cond, _Tp>::type;
 
     /** type */
     template <typename _Tp>
@@ -287,6 +287,7 @@ namespace ustl
 
     /**
      * 
+     * 
      */
     template<typename _Base>
     void
@@ -300,6 +301,30 @@ namespace ustl
     template<typename _Base, typename _Derived>
     struct __is_base<_Base, _Derived, ustl::__uvoid_t<decltype(__check_inherit<_Base>(new (0) _Derived))>>
         : ustl::true_type 
+    {};
+
+
+    /**
+     * 
+     * 
+     */
+    template <typename _FromElelmentType, typename _ToElelmentType>
+    struct __is_convertible_helper
+    {
+    private:
+        static ustl::true_type
+        __accpet(char, _ToElelmentType);
+
+        static ustl::false_type
+        __accpet(...);
+
+    public:
+        typedef decltype(__accpet(0, __decl_value<_FromElelmentType>()))    type;
+    };
+
+    template <typename _FromElelmentType, typename _ToElelmentType>
+    struct __is_convertible
+        : __is_convertible_helper<_FromElelmentType, _ToElelmentType>::type
     {};
 
 }

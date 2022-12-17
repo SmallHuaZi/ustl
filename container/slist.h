@@ -1,6 +1,8 @@
 #ifndef __ustl_single_list_h
 #define __ustl_single_list_h
 
+#include "allocator/memory.h"
+
 namespace ustl
 {
     struct slist_node_basic
@@ -342,7 +344,6 @@ namespace ustl
 
         typedef ustl::size_t size_type;
         typedef ustl::diff_t difference_type;
-        typedef ustl::itr_traits<pointer> iterator_traits;
 
         typedef ustl::slist_iterator<_Tp> iterator;
         typedef ustl::slist_const_iterator<_Tp> const_iterator;
@@ -552,13 +553,13 @@ namespace ustl
         void resize(size_type);
         void resize(size_type, value_type const &);
 
-        template <typename _Predicate = ustl::less<_Tp>>
-        void merge(slist &, _Predicate = ustl::less<_Tp>()) ustl_cpp_noexcept;
-        template <typename _Predicate = ustl::less<_Tp>>
-        void merge(slist &&, _Predicate = ustl::less<_Tp>()) ustl_cpp_noexcept;
+        template <typename _Predicate = ustl::less_t<_Tp>>
+        void merge(slist &, _Predicate = ustl::less_t<_Tp>()) ustl_cpp_noexcept;
+        template <typename _Predicate = ustl::less_t<_Tp>>
+        void merge(slist &&, _Predicate = ustl::less_t<_Tp>()) ustl_cpp_noexcept;
 
-        template <typename _Predicate = ustl::less<_Tp>>
-        void sort(_Predicate = ustl::less<_Tp>()) ustl_cpp_noexcept;
+        template <typename _Predicate = ustl::less_t<_Tp>>
+        void sort(_Predicate = ustl::less_t<_Tp>()) ustl_cpp_noexcept;
 
         void clear();
 

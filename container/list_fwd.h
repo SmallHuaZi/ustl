@@ -5,6 +5,29 @@
 
 namespace ustl
 {
+    struct list_node_basic;
+
+    struct list_header;
+
+    struct list_compare_basic;
+
+    void
+    _list_node_splice(list_node_basic *__pos, list_node_basic *__start, list_node_basic *__finish) ustl_cpp_noexcept;
+
+
+    void
+    _list_merge(list_header *__x, list_header *__y, list_compare_basic const &__cmp) ustl_cpp_noexcept;
+
+
+    void
+    _list_sort(list_header *__header, list_compare_basic const &__cmp) ustl_cpp_noexcept;
+
+
+    void
+    _list_reverse(list_header *__header) ustl_cpp_noexcept;
+
+
+
     struct list_node_basic 
     {
         typedef     list_node_basic *          _Base_pointer;
@@ -177,21 +200,41 @@ namespace ustl
     };
 
 
-    void
-    _list_splice(list_node_basic *__pos, list_node_basic *__start, list_node_basic *__finish) ustl_cpp_noexcept;
+    static inline diff_t
+    _list_node_distance(list_node_basic *__start, list_node_basic *__finish) ustl_cpp_noexcept
+    {
+        diff_t  __len = 0;
+        while( __start != __finish)
+        {
+            __start = __start->_M_next;
+            ++__len;
+        }
+        return  __len;
+    }
 
 
-    void
-    _list_merge(list_header *__x, list_header *__y, list_compare_basic const &__cmp) ustl_cpp_noexcept;
+    static inline void
+    _list_splice(list_header *__header, list_node_basic *__pos, list_header *__other, list_node_basic *__pos1) ustl_cpp_noexcept
+    {
+        if(__pos == __other)
+            return;
+        _list_node_splice(__pos, __pos1, __pos1->_M_next);
+        __header->_M_inc_size(1);
+        __other->_M_dec_size(1);
+    }
 
 
-    void
-    _list_sort(list_header *__header, list_compare_basic const &__cmp) ustl_cpp_noexcept;
-
-
-    void
-    _list_reverse(list_header *__header) ustl_cpp_noexcept;
-
+    static inline void
+    _list_splice(list_header *__header, list_node_basic *__pos, list_header *__other, 
+                 list_node_basic *__start, list_node_basic *__finish) ustl_cpp_noexcept
+    {
+        if(__start == __finish || __header == __pos)
+            return;
+        diff_t  __size = _list_node_distance(__start, __finish);
+        _list_node_splice(__pos, __start, __finish);
+        __header->_M_inc_size(__size);
+        __other->_M_dec_size(__size);
+    }
 
 } // namespace ustl
 

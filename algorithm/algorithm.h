@@ -120,6 +120,7 @@ namespace ustl
         }
     }
 
+
     template <typename _ForwardIterator, typename _ForwardIterator2>
     size_t
     distance(_ForwardIterator __first, _ForwardIterator2 __last)
@@ -129,6 +130,13 @@ namespace ustl
             ++__first, ++__counter;
         return __counter;
     }
+
+
+    template <typename _Tp>
+    inline size_t
+    distance(_Tp *__first, _Tp *__last)
+    { return  __last - __first; }
+
 
     template <typename _Tp>
     void

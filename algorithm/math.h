@@ -4,33 +4,37 @@
 namespace ustl
 {
     template <typename _Tp>
-    struct less
+    struct less_t
     {
         bool
-        operator()(_Tp __x, _Tp __y) const
-        {
-            return __x < __y;
-        }
+        operator()(_Tp const &__x, _Tp const &__y) const
+        { return __x < __y; }
     };
 
     template <typename _Tp>
     struct equal_t
     {
         bool
-        operator()(_Tp __x, _Tp __y) const
-        {
-            return __x == __y;
-        }
+        operator()(_Tp const &__x, _Tp const &__y) const
+        { return __x == __y; }
     };
 
-    template <typename _Tp, typename _Comp = ustl::less<_Tp>>
+    template <typename _Tp>
+    struct greater_t
+    {
+        bool
+        operator() (_Tp const &__x, _Tp const &__y) const
+        { return  __x > __y; }
+    };
+
+    template <typename _Tp, typename _Comp = ustl::less_t<_Tp>>
     _Tp
     min(_Tp __x, _Tp __y, _Comp __cmp = _Comp())
     {
         return __cmp(__x, __y) ? __x : __y;
     }
 
-    template <typename _Tp, typename _Comp = ustl::less<_Tp>>
+    template <typename _Tp, typename _Comp = ustl::less_t<_Tp>>
     _Tp
     max(_Tp __x, _Tp __y, _Comp __cmp = _Comp())
     {

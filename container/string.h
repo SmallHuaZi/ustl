@@ -1,101 +1,249 @@
 #ifndef __basic_string_h
 #define __basic_string_h
 
+#include "include/config.h"
+#include "conc/mutex.h"
+#include "allocator/shared_ptr.h"
+#include "iterator/normal_iterator.h"
+#include "iterator/reverse_iterator.h"
+
+
 namespace ustl
 {
     template <typename _CharT, typename _Alloc>
-    struct basic_string_impl
-        : _Alloc
+    struct ustl_string_basic
     {
-        typedef _CharT value_type;
-        typedef _CharT *pointer;
-        typedef _CharT &reference;
-        typedef size_t size_type;
+        enum        { __LOCAL_DATA_LIMIT = 24 };
+        enum        { __LOCAL_DATA_SIZE = size_t(__LOCAL_DATA_LIMIT) / sizeof(_CharT) };
+
+    protected:
+        typedef     _CharT                      value_type;
+        typedef     _CharT *                    pointer;
+        typedef     _CharT &                    reference;
+        typedef     _CharT const *              const_pointer;
+        typedef     _CharT const &              const_reference;
+        typedef     _Alloc                      allocator_type;
+        typedef     ustl::size_t                size_type;
+        typedef     ustl::diff_t                difference_type;
+
+        typedef     ustl::normal_iterator<pointer>                  iterator;
+        typedef     ustl::normal_iterator<const_pointer>            const_iterator;
+        typedef     ustl::reverse_iterator<iterator>                reverse_iterator;
+        typedef     ustl::reverse_iterator<const_iterator>          const_reverse_iterator;
+
+    protected:
+        typedef     ustl::allocate_traits<_Alloc>                   _Tp_allocate_traits;
+        typedef     ustl::char_traits<_CharT>                       _Chart_traits;
+
+
+        struct basic_string_impl
+            : allocator_type
+        {        
+            void
+            _M_reset() ustl_cpp_noexcept;
+
+
+        public:
+            bool
+            _M_is_local() ustl_cpp_noexcept
+            { return    _M_data_pointer == _M_local_data; }
+
+
+        public:
+            basic_string_impl() ustl_cpp_noexcept
+                : _M_data_pointer(_M_local_data),
+                  _M_heap_size(0)
+            {}
+
+
+        public:
+            ustl::shared_ptr<value_type>        _M_data_pointer;
+            size_type                           _M_data_length;
+        union {
+            value_type                          _M_local_data[size_type(__LOCAL_DATA_SIZE)];
+            size_type                           _M_heap_size;
+            };
+        };
+
+        typedef     basic_string_impl           impl_type;
+
+
+    protected:
+        size_type
+        _M_checking_length(size_type __len);
+
+
+    protected:
+        allocator_type &
+        _M_get_allocator() ustl_cpp_noexcept
+        { return    _M_data_plus; }
+
+
+        pointer
+        _M_allocate(siz_type __n = 1)
+        { _Tp_allocate_traits::allocate(_M_get_allocator(), __n); }
+
 
         void
-        _M_move(basic_string_impl &__other)
-        {
-            _M_actual_data = __other._M_actual_data;
-            __other._M_actual_data = 0;
-        }
+        _M_construct(pointer __p)
+        { _Tp_allocate_traits::construct(_M_get_allocator(), __p); }
+
 
         void
-        _M_swap(basic_string_impl &__other)
-        {
-            basic_string_impl __tmp(*this);
-            _M_move(__other);
-            __other._M_move(__tmp);
-        }
+        _M_destory(pointer __p) ustl_cpp_noexcept
+        { _Tp_allocate_traits::destory(_M_get_allocator(), __p); }
+
 
         void
-        _M_copy(basic_string_impl const &__other)
-        {
-            _M_actual_data = __other._M_actual_data;
-            _M_add_sharer();
-        }
+        _M_dealloate(pointer __p, size_type __s) ustl_cpp_noexcept
+        { _Tp_allocate_traits::deallocate(_M_get_allocator(), __p, __s); }
 
-        void
-        _M_add_sharer(size_type __number = 1)
-        {
-#if defined(__ustl_lib) && __ustl_lib == 20221018UL
-            /** bus lock for atomic operation */
-            asm volatile("lock add  %1, %0\n\t"
-                         : "=m"(_M_ref_count)
-                         : "ir"(__number));
 
-#endif
-        }
+        size_type
+        _M_max_size() ustl_cpp_noexcept
+        { return    _Tp_allocate_traits::max_size(_M_get_allocator()); }
 
-        void
-        _M_rmv_sharer(size_type __number = 1)
-        {
-#if defined(__ustl_lib) && __ustl_lib == 20221018UL
-            /** bus lock for atomic operation */
-            asm volatile("lock sub  %1, %0\n\t"
-                         : "=m"(_M_ref_count)
-                         : "ir"(__number));
 
-#endif
-        }
+        size_type
+        _M_capacity() ustl_cpp_noexcept
+        { return    _M_data_plus._M_is_local() ? size_type(__LOCAL_DATA_SIZE) : _M_data_plus._M_heap_size; }
 
-        basic_string_impl()
-            : _M_actual_data(0), _M_ref_count(1) {}
 
-        ~basic_string_impl() { _M_rmv_sharer(); }
+        static size_type
+        _S_strlen(ustl_string_basic const &__x)
+    #ifdef  ustl_cpp_noexcept
+        noexcept(noexcept(_Chart_traits::length(0)))
+    #endif
+        { return    _Chart_traits::length(__x._M_data_plus._M_data_pointer); }
 
-        size_type _M_ref_count;
-        pointer _M_actual_data;
+
+        static void
+        _S_copy(ustl_string_basic const &__x, ustl_string_basic &__y) 
+    #ifdef  ustl_cpp_noexcept
+        noexcept(noexcept(_Chart_traits::copy(0, 0, 0)));
+    #else
+        ;
+    #endif 
+
+
+        static int
+        _S_compare(ustl_string_basic const &__x, ustl_string_basic const &__y)
+    #ifdef  ustl_cpp_noexcept
+        noexcept(noexcept(_Chart_traits::compare(0, 0, 0)));
+    #else
+        ;
+    #endif
+
+
+    protected:
+        impl_type               _M_data_plus;
+
     };
+
+
+    template <typename _CharT, typename _Alloc>
+    inline auto 
+    ustl_string_basic<_CharT, _Alloc>::
+        _M_checking_length(size_type __s) -> size_type
+    {
+        size_type   __old_capacity = _M_capacity();
+        if(__s > _M_max_size())
+            __ustl_throw_array_length("basic_string::_M_check_length : size of requested memory overlaps");
+        if(__s > __old_capacity && __s <(__old_capacity << 1))
+            __s = __old_capacity << 1;
+        return  __s;
+    }
+
+
+    template <typename _CharT, typename _Alloc>
+    inline void
+    ustl_string_basic<_CharT, _Alloc>::
+    basic_string_impl::
+        _M_reset() ustl_cpp_noexcept
+    {
+        _M_data_length = 0;
+        _M_data_pointer = 0;
+        _M_heap_size = 0;
+    }
+
+
+    template <typename _CharT, typename _Alloc>
+    inline void
+    ustl_string_basic<_CharT, _Alloc>::
+        _S_copy(ustl_string_basic const &__x, ustl_string_basic &__y) 
+#ifdef  ustl_cpp_noexcept
+        noexcept(noexcept(_Chart_traits::copy(0, 0, 0)))
+#endif 
+    {
+        size_type   __len = __x._M_data_plus._M_data_length;
+        pointer     __src = __x._M_data_plus._M_data_pointer;
+        pointer     __des = __y._M_data_plus._M_data_pointer;
+        _Chart_traits::copy(__src, __des, __len);
+    }
+
+
+    template <typename _CharT, typename _Alloc>
+    inline int
+    ustl_string_basic<_CharT, _Alloc>::
+        _S_compare(ustl_string_basic const &__x, ustl_string_basic const &__y) 
+#ifdef  ustl_cpp_noexcept
+        noexcept(noexcept(_Chart_traits::compare(0, 0, 0)))
+#endif 
+    {
+        size_type   __len = __x._M_data_plus._M_data_length;
+        size_type   __len1= __y._M_data_plus._M_data_length;
+        pointer     __x_cstr = __x._M_data_plus._M_data_pointer;
+        pointer     __y_cstr = __y._M_data_plus._M_data_pointer;
+
+        int __result = _Chart_traits::compare(__x_cstr, __y_cstr, __len > __len1 ? __len1 : __len);
+
+        if(0 == __result && __len != __len1)
+            return  __len > __len1 ? 1 : -1;
+        return  __result;
+    }
+
+
 
     template <typename _CharT, typename _Alloc>
     class basic_string
+        : ustl_string_basic<_CharT, _Alloc>
     {
-        typedef allocate_traits<_Alloc> _Alloc_traits;
+        typedef     ustl_string_basic<_CharT, _Alloc>       _Base_type;
 
     public:
-        typedef _CharT value_type;
-        typedef _CharT *pointer;
-        typedef _CharT &reference;
-        typedef _CharT const *const_pointer;
-        typedef _CharT const &const_reference;
 
-        typedef size_t size_type;
-        typedef diff_t difference_type;
-        typedef _Alloc allocator_type;
+        typedef     _CharT                      value_type;
+        typedef     _CharT *                    pointer;
+        typedef     _CharT &                    reference;
+        typedef     _CharT const *              const_pointer;
+        typedef     _CharT const &              const_reference;
 
-        typedef ustl::normal_iterator<pointer> iterator;
-        typedef ustl::normal_iterator<const_pointer> const_iterator;
-        typedef ustl::reverse_iterator<pointer> reverse_iterator;
-        typedef ustl::reverse_iterator<const_pointer> const_reverse_iterator;
+        typedef     typename _Base_type::impl_type          impl_type;
+        typedef     typename _Base_type::size_type          size_type;
+        typedef     typename _Base_type::difference_type    difference_type;
+        typedef     typename _Base_type::allocator_type     allocator_type;
 
-        typedef char_traits<_CharT> _CharT_traits;
+        typedef     typename _Base_type::iterator                   iterator;
+        typedef     typename _Base_type::const_iterator             const_iterator;
+        typedef     typename _Base_type::reverse_iterator           reverse_iterator;
+        typedef     typename _Base_type::cosntreverse_iterator      const_reverse_iterator;
+        typedef     typename _Base_type::_Chart_traits              _Chart_traits;
 
-        enum
-        {
-            _S_EOF = -1
-        };
 
-        /** constructor */
+    protected:
+        using       _Base_type::_M_allocate;
+        using       _Base_type::_M_deallocate;
+        using       _Base_type::_M_construct;
+        using       _Base_type::_M_destory;
+        using       _Base_type::_M_max_size;
+        using       _Base_type::_M_capacity;
+        using       _Base_type::_M_get_allocator;
+        using       _Base_type::_M_checking_length;
+        using       _Base_type::_S_strlen;
+        using       _Base_type::_S_copy;
+        using       _Base_type::_S_compare;
+
+
     public:
         basic_string()
             : _M_data_length(0)
@@ -125,41 +273,43 @@ namespace ustl
             clear();
         }
 
+
     private:
-        pointer
-        _M_allocate(size_type &__n) ustl_cpp_noexcept { return _Alloc_traits::allocate(_M_data_plus, __n); }
+        void
+        _M_set_data(pointer __p) ustl_cpp_noexcept 
+        { _M_data_plus._M_actual_data = __p; }
+
 
         void
-        _M_deallocate(pointer __p, size_type __n) ustl_cpp_noexcept { _Alloc_traits::deallocate(_M_data_plus, __p, __n); }
+        _M_set_length(size_type __new_len) ustl_cpp_noexcept 
+        { _M_data_length = __new_len; }
+
 
         void
-        _M_destory(pointer __p, size_type __n) ustl_cpp_noexcept { ustl::destructor(__p, __n); }
+        _M_set_capacity(size_type __capacity) ustl_cpp_noexcept 
+        { _M_allocated_length = __capacity; }
 
-        void
-        _M_set_data(pointer __p) ustl_cpp_noexcept { _M_data_plus._M_actual_data = __p; }
-
-        void
-        _M_set_len(size_type __new_len) ustl_cpp_noexcept { _M_data_length = __new_len; }
-
-        void
-        _M_set_capacity(size_type __capacity) ustl_cpp_noexcept { _M_allocated_length = __capacity; }
 
         pointer
-        _M_data() ustl_cpp_noexcept { return _M_data_plus._M_actual_data; }
+        _M_data_first() ustl_cpp_noexcept 
+        { return    _M_data_plus._M_actual_data; }
+
 
         pointer
-        _M_data_last() ustl_cpp_noexcept { return _M_data_plus._M_actual_data + _M_data_length; }
+        _M_data_last() ustl_cpp_noexcept 
+        { return    _M_data_plus._M_actual_data + _M_data_length; }
+
 
         pointer
-        _M_local_data() ustl_cpp_noexcept { return static_cast<pointer>(_M_stack_buf); }
+        _M_local_data() ustl_cpp_noexcept 
+        { return    static_cast<pointer>(_M_stack_buf); }
+
 
         bool
-        _M_shared_data() { return 1 != _M_data_plus._M_ref_count; }
+        _M_shared_data() 
+        { return    1 != _M_data_plus._M_ref_count; }
 
-        bool
-        _M_data_is_local() ustl_cpp_noexcept { return _M_data() == _M_local_data(); }
 
-        /// @interface 维护接口一致性，减少重构压力
         static bool
         _S_comp(value_type const __l, value_type const __r) ustl_cpp_noexcept { return _CharT_traits::equal(__l, __r); }
 
@@ -175,219 +325,359 @@ namespace ustl
         static void
         _S_copy(const_pointer __s, pointer __d, size_type __len) { _CharT_traits::copy(__s, __d, __len); }
 
+
     public:
         pointer
-        data() ustl_cpp_noexcept { return _M_data_plus._M_actual_data; }
+        data() ustl_cpp_noexcept 
+        { return _M_data_plus._M_actual_data; }
+
 
         const_pointer
-        data() const ustl_cpp_noexcept { return _M_data_plus._M_actual_data; }
+        data() const ustl_cpp_noexcept 
+        { return    _M_data_plus._M_actual_data; }
+
 
         reference
-        front() ustl_cpp_noexcept { return *_M_data_plus._M_actual_data; }
+        front() ustl_cpp_noexcept 
+        { return    *_M_data_plus._M_actual_data; }
+
 
         reference
-        back() ustl_cpp_noexcept { return *(_M_data_plus._M_actual_data + _M_data_length - 1); }
+        back() ustl_cpp_noexcept 
+        { return    *(_M_data_plus._M_actual_data + _M_data_length - 1); }
+
 
         const_reference
-        front() const ustl_cpp_noexcept { return *_M_data_plus._M_actual_data; }
+        front() const ustl_cpp_noexcept 
+        { return    *_M_data_plus._M_actual_data; }
+
 
         const_reference
-        back() const ustl_cpp_noexcept { return *(_M_data_plus._M_actual_data + _M_data_length - 1); }
+        back() const ustl_cpp_noexcept 
+        { return    *(_M_data_plus._M_actual_data + _M_data_length - 1); }
+
 
         iterator
-        begin() ustl_cpp_noexcept { return iterator(_M_data_plus._M_actual_data); }
+        begin() ustl_cpp_noexcept 
+        { return    iterator(_M_data_plus._M_actual_data); }
+
 
         iterator
-        end() ustl_cpp_noexcept { return iterator(_M_data_plus._M_actual_data + _M_data_length); }
+        end() ustl_cpp_noexcept 
+        { return    iterator(_M_data_plus._M_actual_data + _M_data_length); }
+
 
         const_iterator
-        begin() const ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data); }
+        begin() const ustl_cpp_noexcept 
+        { return    const_iterator(_M_data_plus._M_actual_data); }
+
 
         const_iterator
-        end() const ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+        end() const ustl_cpp_noexcept 
+        { return    const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+
 
         const_iterator
-        cbegin() ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data); }
+        cbegin() ustl_cpp_noexcept 
+        { return    const_iterator(_M_data_plus._M_actual_data); }
+
 
         const_iterator
-        cend() ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+        cend() ustl_cpp_noexcept 
+        { return    const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+
 
         const_iterator
-        cbegin() const ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data); }
+        cbegin() const ustl_cpp_noexcept 
+        { return    const_iterator(_M_data_plus._M_actual_data); }
+
 
         const_iterator
-        cend() const ustl_cpp_noexcept { return const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+        cend() const ustl_cpp_noexcept 
+        { return    const_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+
 
         reverse_iterator
-        rbegin() ustl_cpp_noexcept { return reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+        rbegin() ustl_cpp_noexcept 
+        { return    reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+
 
         reverse_iterator
-        rend() ustl_cpp_noexcept { return reverse_iterator(_M_data_plus._M_actual_data); }
+        rend() ustl_cpp_noexcept 
+        { return    reverse_iterator(_M_data_plus._M_actual_data); }
+
 
         const_reverse_iterator
-        rbegin() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+        rbegin() const ustl_cpp_noexcept 
+        { return    const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+
 
         const_reverse_iterator
-        rend() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data); }
+        rend() const ustl_cpp_noexcept 
+        { return    const_reverse_iterator(_M_data_plus._M_actual_data); }
+
 
         const_reverse_iterator
-        crbegin() ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+        crbegin() ustl_cpp_noexcept 
+        { return    const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+
 
         const_reverse_iterator
-        crend() ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data); }
+        crend() ustl_cpp_noexcept 
+        { return    const_reverse_iterator(_M_data_plus._M_actual_data); }
+
 
         const_reverse_iterator
-        crbegin() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+        crbegin() const ustl_cpp_noexcept 
+        { return    const_reverse_iterator(_M_data_plus._M_actual_data + _M_data_length); }
+
 
         const_reverse_iterator
-        crend() const ustl_cpp_noexcept { return const_reverse_iterator(_M_data_plus._M_actual_data); }
+        crend() const ustl_cpp_noexcept 
+        { return    const_reverse_iterator(_M_data_plus._M_actual_data); }
+
 
         bool
-        empty() ustl_cpp_noexcept { return 0 == _M_data_length; }
+        empty() ustl_cpp_noexcept 
+        { return    0 == _M_data_plus._M_data_length; }
+
 
         bool
-        empty() const ustl_cpp_noexcept { return 0 == _M_data_length; }
+        empty() const ustl_cpp_noexcept 
+        { return    0 == _M_data_plus._M_data_length; }
+
 
         size_type
-        size() ustl_cpp_noexcept { return _M_data_length; }
+        size() ustl_cpp_noexcept 
+        { return    _M_data_length; }
+
 
         size_type
-        size() const ustl_cpp_noexcept { return _M_data_length; }
+        size() const ustl_cpp_noexcept 
+        { return    _M_data_length; }
+
 
         size_type
-        capacity() ustl_cpp_noexcept { return _M_data_is_local() ? _S_stack_buffer_size : _M_allocated_length; }
+        capacity() ustl_cpp_noexcept 
+        { return    _M_capacity(); }
+
 
         size_type
-        capacity() const ustl_cpp_noexcept { return _M_data_is_local() ? _S_stack_buffer_size : _M_allocated_length; }
+        capacity() const ustl_cpp_noexcept 
+        { return    _M_capacity(); }
+
 
     private:
         template <typename _InputIterator>
-        void _M_construct(_InputIterator, _InputIterator);
-        void _M_append(const_pointer, size_type = 1);
-        void _M_replace(size_type, size_type, const_pointer, size_type);
-        void _M_replace_aux(size_type, size_type, value_type, size_type = 1);
+        void 
+        _M_construct(_InputIterator, _InputIterator);
+
+        void 
+        _M_append(const_pointer, size_type = 1);
+
+        void 
+        _M_replace(size_type, size_type, const_pointer, size_type);
+
+        void 
+        _M_replace_aux(size_type, size_type, value_type, size_type = 1);
+
         template <typename _ForwardIterator>
-        void _M_replace_copy(const_iterator, const_iterator, _ForwardIterator, _ForwardIterator);
-        void _M_erase(size_type, size_type);
-        void _M_amend(const_pointer, size_type, const_pointer, size_type, size_type);
-        size_type _M_check_length(size_type __len);
+        void 
+        _M_replace_copy(const_iterator, const_iterator, _ForwardIterator, _ForwardIterator);
+
+        void 
+        _M_erase(size_type, size_type);
+
+        void 
+        _M_amend(const_pointer, size_type, const_pointer, size_type, size_type);
+
 
     public:
-        inline basic_string &append(basic_string const &);
-        inline basic_string &append(const_pointer);
-        inline basic_string &append(value_type const, size_type = 1);
+        basic_string &
+        append(basic_string const &);
 
-        inline basic_string &replace(size_type, size_type, value_type const, size_type);
-        inline basic_string &replace(size_type, size_type, const_pointer, size_type);
-        inline basic_string &replace(size_type, size_type, basic_string const &);
-        inline basic_string &replace(const_iterator, const_iterator, value_type const);
-        inline basic_string &replace(const_iterator, const_iterator, const_pointer);
-        inline basic_string &replace(const_iterator, const_iterator, basic_string const &);
+        basic_string &
+        append(const_pointer);
+
+        basic_string &
+        append(value_type const, size_type = 1);
+
+        basic_string &
+        replace(size_type, size_type, value_type const, size_type);
+
+        basic_string &
+        replace(size_type, size_type, const_pointer, size_type);
+
+        basic_string &
+        replace(size_type, size_type, basic_string const &);
+
+        basic_string &
+        replace(const_iterator, const_iterator, value_type const);
+
+        basic_string &
+        replace(const_iterator, const_iterator, const_pointer);
+        basic_string &
+        replace(const_iterator, const_iterator, basic_string const &);
+
         template <typename _InputIterator>
-        basic_string &replace(const_iterator, const_iterator, _InputIterator, _InputIterator);
+        basic_string &
+        replace(const_iterator, const_iterator, _InputIterator, _InputIterator);
 
-        inline iterator insert(size_type, value_type const, size_type);
-        inline iterator insert(size_type, const_pointer);
-        inline iterator insert(size_type, basic_string const &);
-        inline iterator insert(const_iterator, value_type const, size_type);
-        inline iterator insert(const_iterator, const_pointer);
-        inline iterator insert(const_iterator, basic_string const &);
+        iterator 
+        insert(size_type, value_type const, size_type);
+
+        iterator 
+        insert(size_type, const_pointer);
+
+        iterator 
+        insert(size_type, basic_string const &);
+        
+        iterator 
+        insert(const_iterator, value_type const, size_type);
+
+        iterator 
+        insert(const_iterator, const_pointer);
+
+        iterator 
+        insert(const_iterator, basic_string const &);
+
         template <typename _InputIterator>
-        inline iterator insert(const_iterator, _InputIterator, _InputIterator);
+        iterator 
+        insert(const_iterator, _InputIterator, _InputIterator);
+
         template <typename _InputIterator>
-        inline iterator insert(size_type, _InputIterator, _InputIterator);
+        iterator 
+        insert(size_type, _InputIterator, _InputIterator);
 
-        inline void push_back(value_type const, size_type = 1);
-        inline void push_back(const_pointer);
-        inline void push_back(basic_string const &);
+        void 
+        push_back(value_type const, size_type = 1);
+        
+        void 
+        push_back(const_pointer);
 
-        /** 1 : start pos     2 : erase counter */
-        void erase(const_iterator);
-        void erase(const_iterator, const_iterator);
-        void erase(size_type, size_type);
+        void 
+        push_back(basic_string const &);
 
-        size_type find(value_type const, size_type = 0) ustl_cpp_noexcept;
-        size_type find(const_pointer, size_type = 0) ustl_cpp_noexcept;
-        inline size_type find(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+        void 
+        erase(const_iterator);
 
-        size_type rfind(value_type const, size_type = 0) ustl_cpp_noexcept;
-        size_type rfind(const_pointer, size_type = 0) ustl_cpp_noexcept;
-        inline size_type rfind(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+        void 
+        erase(const_iterator, const_iterator);
 
-        inline size_type find_last_of(value_type const, size_type = 0) ustl_cpp_noexcept;
-        inline size_type find_last_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
-        inline size_type find_last_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
-        inline size_type find_first_of(value_type const, size_type = 0) ustl_cpp_noexcept;
-        inline size_type find_first_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
-        inline size_type find_first_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+        void 
+        erase(size_type, size_type);
 
-        int compare(const_pointer) const ustl_cpp_noexcept;
-        inline int compare(basic_string const &) const ustl_cpp_noexcept;
+        size_type 
+        find(value_type const, size_type = 0) ustl_cpp_noexcept;
 
-        basic_string substr(size_type, size_type);
+        size_type 
+        find(const_pointer, size_type = 0) ustl_cpp_noexcept;
 
-        inline void copy(pointer, size_type, size_type = 0) const;
+        size_type 
+        find(basic_string const &, size_type = 0) ustl_cpp_noexcept;
 
-        void swap(basic_string &);
-        inline void swap(basic_string &&);
+        size_type 
+        rfind(value_type const, size_type = 0) ustl_cpp_noexcept;
 
-        void assign(value_type const, size_type);
-        void assign(const_pointer);
-        void assign(basic_string const &);
+        size_type 
+        rfind(const_pointer, size_type = 0) ustl_cpp_noexcept;
+
+        size_type 
+        rfind(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+
+        size_type 
+        find_last_of(value_type const, size_type = 0) ustl_cpp_noexcept;
+
+        size_type 
+        find_last_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
+
+        size_type 
+        find_last_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+
+        size_type 
+        find_first_of(value_type const, size_type = 0) ustl_cpp_noexcept;
+
+        size_type 
+        find_first_of(const_pointer, size_type = 0) ustl_cpp_noexcept;
+
+        size_type 
+        find_first_of(basic_string const &, size_type = 0) ustl_cpp_noexcept;
+
+        int 
+        compare(const_pointer) const ustl_cpp_noexcept;
+
+        int 
+        compare(basic_string const &) const ustl_cpp_noexcept;
+
+        basic_string 
+        substr(size_type, size_type);
+
+        void 
+        copy(pointer, size_type, size_type = 0) const;
+
+        void 
+        swap(basic_string &);
+
+        void 
+        swap(basic_string &&);
+
+        void 
+        assign(value_type const, size_type);
+
+        void 
+        assign(const_pointer);
+        
+        void 
+        assign(basic_string const &);
+
         template <typename _InputIterator>
-        void assign(_InputIterator, _InputIterator);
+        void 
+        assign(_InputIterator, _InputIterator);
 
-        void reverse();
+        void 
+        reverse();
 
-        void reserve(size_type);
+        void 
+        reserve(size_type);
 
-        inline void resize(size_type);
-        inline void resize(size_type, value_type const);
+        void 
+        resize(size_type);
 
-        inline void clear();
+        void 
+        resize(size_type, value_type const);
+
+        void 
+        clear();
 
         /* just lvalue */
         /** assignment operator */
-        basic_string &operator=(basic_string const &) &;
-        basic_string &operator=(basic_string &&) &;
+        basic_string &
+        operator=(basic_string const &) &;
 
-        basic_string &operator+=(basic_string const &) &;
-        basic_string &operator+=(value_type const) &;
-        basic_string &operator+=(const_pointer) &;
+        basic_string &
+        operator=(basic_string &&) &;
+
+        basic_string &
+        operator+=(basic_string const &) &;
+
+        basic_string &
+        operator+=(value_type const) &;
+
+        basic_string &
+        operator+=(const_pointer) &;
         /** just lvalue */
 
-        inline reference operator[](size_type);
-        inline const_reference operator[](size_type) const;
+        reference 
+        operator[](size_type);
+
+        const_reference 
+        operator[](size_type) const;
 
     protected:
-        typedef basic_string_impl<value_type, allocator_type> impl_type;
-
-        enum
-        {
-            _S_stack_buffer_size = 16 / sizeof(value_type)
-        };
-
-        /**
-         * @if data is local
-         *      use _M_stack_buf, end of string is '\0'
-         * @else
-         *      use _M_data_plus, end of string don`t storage '\0'
-         */
-        union
-        {
-
-            value_type _M_stack_buf[_S_stack_buffer_size];
-            size_type _M_allocated_length;
-        };
-
-        size_type _M_data_length;
-        impl_type _M_data_plus;
+        using       _Base_type::_M_data_plus;
     };
 
 } // namespace ustl
-
-namespace ustl
-{
 
     template <typename _CharT, typename _Alloc>
     template <typename _InputIterator>
@@ -529,10 +819,7 @@ namespace ustl
         }
     }
 
-} // namespace ustl::basic_string
 
-namespace ustl
-{
 
     template <typename _CharT, typename _Alloc>
     inline auto
@@ -1205,11 +1492,7 @@ namespace ustl
         __ustl_throw_out_of_range("basic_string::operator[] const: index overlaps");
     }
 
-} // namespace ustl
 
-/** string operator funtion implement */
-namespace ustl
-{
 
     template <typename _CharT, typename _Alloc>
     inline bool
@@ -1337,6 +1620,5 @@ namespace ustl
         return __tmp;
     }
 
-} // namespace ustl::basic_string
 
 #endif

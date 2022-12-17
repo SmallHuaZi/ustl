@@ -6,9 +6,9 @@ namespace ustl
 #ifndef __TREE_BASIC_DEFINED
     void
     _rbt_insert(bool __is_l,
-                _Rbt_node_base *__new,
-                _Rbt_node_base *__ist,
-                _Rbt_node_base *__header) ustl_cpp_noexcept
+                _rbt_node_basic *__new,
+                _rbt_node_basic *__ist,
+                _rbt_node_basic *__header) ustl_cpp_noexcept
     {
 #ifndef __TREE_BASIC_DEFINED
         if (__is_l)
@@ -41,10 +41,10 @@ namespace ustl
 
 
     void
-    _rbt_rotate_left(_Rbt_node_base *__n,
-                        _Rbt_node_base *__h) ustl_cpp_noexcept
+    _rbt_rotate_left(_rbt_node_basic *__n,
+                        _rbt_node_basic *__h) ustl_cpp_noexcept
     {
-        _Rbt_node_base *__new = __n->right();
+        _rbt_node_basic *__new = __n->right();
 
         __new->right()->_M_setcolor(__new->_M_color);
         __new->_M_setcolor(__n->_M_color);
@@ -52,7 +52,7 @@ namespace ustl
 #ifdef  __TREE_BASIC_DEFINED
         _tree_rotate_left(__n, __h);
 #else
-        _Rbt_node_base *__parent = __n->parent();
+        _rbt_node_basic *__parent = __n->parent();
         __n->_M_parent = __new;
         __new->_M_parent = __parent;
 
@@ -72,10 +72,10 @@ namespace ustl
     }
 
     void
-    _rbt_rotate_right(_Rbt_node_base *__n,
-                        _Rbt_node_base *__h) ustl_cpp_noexcept
+    _rbt_rotate_right(_rbt_node_basic *__n,
+                        _rbt_node_basic *__h) ustl_cpp_noexcept
     {
-        _Rbt_node_base *__new = __n->left();
+        _rbt_node_basic *__new = __n->left();
 
         __new->left()->_M_setcolor(__new->_M_color);
         __new->_M_setcolor(__n->_M_color);
@@ -83,7 +83,7 @@ namespace ustl
 #ifdef  __TREE_BASIC_DEFINED
         _tree_rotate_right(__n, __h);
 #else
-        _Rbt_node_base *__parent = __n->parent();
+        _rbt_node_basic *__parent = __n->parent();
         __n->_M_parent = __new;
         __new->_M_parent = __parent;
 
@@ -104,9 +104,9 @@ namespace ustl
 
 #endif
 
-    _Rbt_node_base *
-    _rbt_erase(_Rbt_node_base *__del,
-                _Rbt_node_base *__h) ustl_cpp_noexcept
+    _rbt_node_basic *
+    _rbt_erase(_rbt_node_basic *__del,
+               _rbt_node_basic *__h) ustl_cpp_noexcept
     {
         if (__del->_M_left)
             __del = _rbt_decrement(__del);
@@ -130,11 +130,13 @@ namespace ustl
         return __del;
     }
 
+
+
     void
-    _rbt_rebalance_insert(_Rbt_node_base *__n,
-                          _Rbt_node_base *__h) ustl_cpp_noexcept
+    _rbt_rebalance_insert(_rbt_node_basic *__n,
+                          _rbt_node_basic *__h) ustl_cpp_noexcept
     {
-        typedef _Rbt_node_base *_Node_ptr;
+        typedef _rbt_node_basic *_Node_ptr;
         _Node_ptr __parent = __n->parent();
         _Node_ptr __gparnet = __parent->parent();
 
@@ -153,20 +155,22 @@ namespace ustl
         __gparnet->_M_setcolor(_Red);
     }
 
+
+
     void
-    _rbt_rebalance_erase( _Rbt_node_base *__del,
-                         _Rbt_node_base *__header) ustl_cpp_noexcept
+    _rbt_rebalance_erase(_rbt_node_basic *__del,
+                         _rbt_node_basic *__header) ustl_cpp_noexcept
     {
         /// @if color(__del) = red
         ///     don`t need rebalance operating
-        if (__del == __header->_M_parent || _Red == _Rbt_node_base::_S_color(__del))
+        if (__del == __header->_M_parent || _Red == _rbt_node_basic::_S_color(__del))
             return;
 
-        _Rbt_node_base *__bro = _rbt_node_bro(__del);
-        _Rbt_node_base *__parent = __del->parent();
+        _rbt_node_basic *__bro = _rbt_node_bro(__del);
+        _rbt_node_basic *__parent = __del->parent();
         bool    __right = _tree_is_rchild(__del);
 
-        if (_Black == _Rbt_node_base::_S_color(__bro))
+        if (_Black == _rbt_node_basic::_S_color(__bro))
         {
             if (!_rbt_rchild_is_red(__bro) && !_rbt_lchild_is_red(__bro))
             {
@@ -186,7 +190,7 @@ namespace ustl
                     __bro->_M_setcolor(_Red);
                     __bro = __bro->parent();
                 }
-                if (__bro && _Red == _Rbt_node_base::_S_color(__bro->left())) // ll
+                if (__bro && _Red == _rbt_node_basic::_S_color(__bro->left())) // ll
                 {
                     _rbt_rotate_right(__parent, __header);
                     __parent->_M_setcolor(_Black);
@@ -225,11 +229,11 @@ namespace ustl
     }
 
     void
-    _rbt_recolor(_Rbt_node_base *__n,
-                 _Rbt_node_base *__h) ustl_cpp_noexcept
+    _rbt_recolor(_rbt_node_basic *__n,
+                 _rbt_node_basic *__h) ustl_cpp_noexcept
     {
-        typedef _Rbt_node_base _Node;
-        typedef _Rbt_node_base *_Node_ptr;
+        typedef _rbt_node_basic _Node;
+        typedef _rbt_node_basic *_Node_ptr;
 
         if (__n == __h->_M_parent)
         {

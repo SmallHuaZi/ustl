@@ -16,30 +16,22 @@ namespace ustl
      *      @memberof iterator_tag : iterator category
      */
     struct _input_iterator
-    {
-        /**/
-    };
+    {};
 
     struct _output_iterator
-    {
-        /**/
-    };
+    {};
 
     struct _forword_iterator
         : _input_iterator
-    {
-        /**/
-    };
+    {};
 
     struct _bothway_iterator
         : _forword_iterator
-    {
-    };
+    {};
 
     struct _random_iterator
         : _bothway_iterator
-    {
-    };
+    {};
 
 } // namespace ustl
 #endif

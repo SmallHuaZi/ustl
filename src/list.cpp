@@ -5,7 +5,7 @@ namespace ustl
 
 
     void
-    _list_splice(list_node_basic *__pos, list_node_basic *__start, 
+    _list_node_splice(list_node_basic *__pos, list_node_basic *__start, 
                  list_node_basic *__finish) ustl_cpp_noexcept
     {
         list_node_basic *__start_pre  = __start->_M_last;
@@ -20,6 +20,8 @@ namespace ustl
        __pos->_M_last        = __finish_pre;
        __finish_pre->_M_next = __pos;
     }
+
+
 
 
 
@@ -40,14 +42,14 @@ namespace ustl
             else
             {
                 list_node_basic *__next = __yfirst->_M_next;
-                _list_splice(__xfirst, __yfirst, __next);
+                _list_node_splice(__xfirst, __yfirst, __next);
                 __yfirst = __next;
             }
         }
         if(__yfirst != __yend)
-            _list_splice(__xfirst, __yfirst, __yend);
+            _list_node_splice(__xfirst, __yfirst, __yend);
         __x->_M_inc_size(__y->_M_count);
-        __y->_M_count = 0;
+        __y->_M_reset();
     }
 
 

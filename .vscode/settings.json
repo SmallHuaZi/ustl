@@ -60,7 +60,8 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "typeinfo": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "cstring": "cpp"
     },
     "makefile.launchConfigurations": [
         {

@@ -1,6 +1,8 @@
 #ifndef __normal_iterator_h
 #define __normal_iterator_h
 
+#include "type/itr_traits.h"
+
 namespace ustl
 {
 
@@ -8,20 +10,19 @@ namespace ustl
     class normal_iterator
     {
     public:
-        typedef normal_iterator _Self;
-        typedef typename ustl::remove_cv<_Iterator>::type iterator_type;
-        typedef ustl::itr_traits<_Iterator> _iterator_traits;
+        typedef     normal_iterator                                 _Self;
+        typedef     ustl::itr_traits<_Iterator>                     _iterator_traits;
 
-        typedef typename _iterator_traits::iterator_tag iterator_tag;
-        typedef typename _iterator_traits::value_type value_type;
-        typedef typename _iterator_traits::pointer pointer;
-        typedef typename _iterator_traits::reference reference;
-        typedef typename _iterator_traits::const_pointer const_pointer;
-        typedef typename _iterator_traits::const_reference const_reference;
-        typedef typename _iterator_traits::difference_type difference_type;
+        typedef     typename ustl::remove_cv<_Iterator>::type       iterator_type;
+        typedef     typename _iterator_traits::iterator_tag         iterator_tag;
+        typedef     typename _iterator_traits::value_type           value_type;
+        typedef     typename _iterator_traits::pointer              pointer;
+        typedef     typename _iterator_traits::reference            reference;
+        typedef     typename _iterator_traits::const_pointer        const_pointer;
+        typedef     typename _iterator_traits::const_reference      const_reference;
+        typedef     typename _iterator_traits::difference_type      difference_type;
 
-        static_assert(ustl::is_same<iterator_tag, _bothway_iterator>()() ||
-                          ustl::is_same<iterator_tag, _random_iterator>()(),
+        static_assert(ustl::__is_base<iterator_tag, ustl::_bothway_iterator>::value,
                       "template paramater::type _Iterator is not bothway iterator");
 
     public:
@@ -89,21 +90,15 @@ namespace ustl
 
         pointer
         operator->() ustl_cpp_noexcept
-        {
-            return _M_current.operator->();
-        }
+        { return    _M_current.operator->(); }
 
         reference
         operator*() ustl_cpp_noexcept
-        {
-            return *_M_current;
-        }
+        { return    *_M_current; }
 
         iterator_type const &
         base_iterator() const ustl_cpp_noexcept
-        {
-            return _M_current;
-        }
+        { return    _M_current; }
 
     public:
         normal_iterator() = default;
@@ -118,8 +113,10 @@ namespace ustl
         iterator_type _M_current;
     };
 
+
+
     template <typename _Iterator>
-    ustl::diff_t
+    static inline ustl::diff_t
     operator-(normal_iterator<_Iterator> const &__l,
               normal_iterator<_Iterator> const &__r)
     {
@@ -130,21 +127,21 @@ namespace ustl
         return __dis;
     }
 
-    template <typename _Iterator>
-    bool
-    operator==(normal_iterator<_Iterator> const &__l,
-               normal_iterator<_Iterator> const &__r)
-    {
-        return __l.base_iterator() == __r.base_iterator();
-    }
+
 
     template <typename _Iterator>
-    bool
+    static inline bool
+    operator==(normal_iterator<_Iterator> const &__l,
+               normal_iterator<_Iterator> const &__r)
+    { return    __l.base_iterator() == __r.base_iterator(); }
+
+
+
+    template <typename _Iterator>
+    static inline bool
     operator!=(normal_iterator<_Iterator> const &__l,
                normal_iterator<_Iterator> const &__r)
-    {
-        return __l.base_iterator() != __r.base_iterator();
-    }
+    { return    __l.base_iterator() != __r.base_iterator(); }
 
 }
 // namespace ustl

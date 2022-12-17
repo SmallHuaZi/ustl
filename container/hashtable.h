@@ -51,7 +51,7 @@ namespace ustl
         };
 
         typedef     ustl::list<ustl::pair<_Key, _Val>>       list_node;
-        typedef     ustl::avl_tree<_Key, ustl::pair<_Key, _Val>, ustl::less<size_t>, extract_key, _Alloc>     tree_node;
+        typedef     ustl::avl_tree<_Key, ustl::pair<_Key, _Val>, ustl::less_t<size_t>, extract_key, _Alloc>     tree_node;
 
         struct hashtable_bucket
         {

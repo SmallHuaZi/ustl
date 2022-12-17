@@ -68,16 +68,16 @@ namespace ustl
         enum    { __MEMORY_MAPPING_SIZE = 0x7fffffffUL };
 #endif
 
-        typedef     allocator_basic     _Base_type;
+        typedef         allocator_basic     _Base_type;
     public:
-        typedef     _Tp                 value_type;
-        typedef     _Tp *               pointer;
-        typedef     _Tp &               reference;
-        typedef     _Tp const *         const_pointer;
-        typedef     _Tp const &         const_reference;
-        typedef     ustl::size_t        size_type;
-        typedef     allocator           allocator_type;
-        using       _Base_type::difference_type;
+        typedef         _Tp                                 value_type;
+        typedef         _Tp *                               pointer;
+        typedef         _Tp &                               reference;
+        typedef         _Tp const *                         const_pointer;
+        typedef         _Tp const &                         const_reference;
+        typedef         ustl::size_t                        size_type;
+        typedef         allocator                           allocator_type;
+        typedef         typename _Base_type::difference_type         difference_type;
 
 
         template <typename _OTp>
@@ -86,30 +86,30 @@ namespace ustl
 
     public:
 
-        pointer 
-        allocate(size_type __n)
+        static pointer 
+        allocate(size_type __n) 
         { return  static_cast<pointer>(_M_allocate(__n, sizeof(_Tp))); }
 
 
-        void 
+        static void 
         deallocate(void_ptr __p, size_type __n) ustl_cpp_noexcept
         { _M_deallocate(__p, __n, sizeof(_Tp)); }
 
 
         template <typename _OTp, typename... _Args>
-        _OTp *
-        construct(_OTp *__p, _Args &&...__a)
+        static _OTp *
+        construct(_OTp *__p, _Args &&...__a) 
         { return new (__p) _OTp(ustl::forward<_Args &&>(__a)...); }
 
 
         template <typename _OTp>
-        void
-        destory(_OTp *__p)
+        static void
+        destory(_OTp *__p) 
         { __p->~_OTp(); }
 
 
-        constexpr size_type
-        max_size()
+        static constexpr size_type
+        max_size() 
         { return size_type(__MEMORY_MAPPING_SIZE) / sizeof(_Tp); }
 
     };

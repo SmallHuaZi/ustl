@@ -15,12 +15,9 @@ namespace ustl
 
 
 #ifdef  __UNICODE
-
     typedef     wchar_t     _Wchar_t;
 #define __WCSTR(__str)   L##__str
-
 #else
-
     typedef     char        _Wchar_t;
 #define __WCSTR(__str)  __str
     
@@ -41,8 +38,6 @@ namespace ustl
 #define __ustl_throw_again throw;
 
 #define ustl_cpp_noexcept noexcept
-
-
 
 }
 #endif

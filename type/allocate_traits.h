@@ -30,33 +30,33 @@ namespace ustl
 
     public:
         static pointer
-        allocate(allocator_type &__a, size_t __s)
+        allocate(allocator_type const &__a, size_t __s)
         { return    __a.allocate(__s); }
 
 
 
         template <typename _Tp, typename... _Args>
         static _Tp *
-        construct(allocator_type &__a, _Tp *__p, _Args &&...__args)
+        construct(allocator_type const &__a, _Tp *__p, _Args &&...__args)
         { return    __a.construct(__p, ustl::forward(__args)...); }
 
 
 
         template <typename _OTp>
         static void
-        destory(allocator_type &__a, _OTp __p)
+        destory(allocator_type const &__a, _OTp __p)
         { __a.destory(__p); }
 
 
 
         static void
-        deallocate(allocator_type &__a, void_ptr __p, size_t __s)
+        deallocate(allocator_type const &__a, void_ptr __p, size_t __s)
         { __a.deallocate(__p, __s); }
 
 
 
         static size_t
-        max_size(allocator_type &__a)
+        max_size(allocator_type const &__a)
         { return    __a.max_size(); }
 
 
