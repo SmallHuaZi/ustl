@@ -478,9 +478,9 @@ namespace ustl
 
 
     protected:
-        template <typename _ImplAlloc = _Impl_allcator_type>
-        rb_tree_basic(_ImplAlloc const &__impl_allocator = _ImplAlloc()) 
-            : _M_data_plus(__impl_allocator.allocate(1))
+        template <typename _ImplAlloc>
+        rb_tree_basic(_ImplAlloc const &__impl_allocator) 
+            : _M_data_plus(_Impl_allocate_traits::allocate(__impl_allocator, 1))
         { _Impl_allocate_traits::construct(__impl_allocator, _M_data_plus); }
 
         rb_tree_basic(rb_tree_basic const &__lother)
@@ -488,8 +488,7 @@ namespace ustl
         {}
 
         rb_tree_basic(rb_tree_basic &&__rother)
-            : rb_tree_basic(__rother._M_data_plus)
-        { __rother._M_data_plus = 0; }
+        {}
 
         ~rb_tree_basic() ustl_cpp_noexcept
         {
@@ -637,6 +636,7 @@ namespace ustl
         typedef         typename _Base_type::_CNode_pointer         _CNode_pointer;
         typedef         typename _Base_type::_Node_base_pointer     _Node_base_pointer;
         typedef         typename _Base_type::_CNode_base_pointer    _CNode_base_pointer;
+        typedef         typename _Base_type::_Impl_allocator_type   _Impl_allcator_type;
 
 
     private:
@@ -901,18 +901,18 @@ namespace ustl
 
 
     public:
-        rb_tree()
-            : _Base_type()
+        template <typename _ImplAlloc = _Impl_allcator_type>
+        rb_tree(_ImplAlloc __impl_allocator = _ImplAlloc())
+            : _Base_type(__impl_allocator)
         {}
 
 
         rb_tree(rb_tree const &__other)
-            : _Base_type(__other)
+            : rb_tree() 
         { assign_equal(__other.begin(), __other.end()); }
 
 
         rb_tree(rb_tree &&__other)
-            : _Base_type(ustl::move(__other))
         {
             if (&__other == this)
                 return;
@@ -923,12 +923,12 @@ namespace ustl
 
         template <typename _Itr>
         rb_tree(_Itr __first, _Itr __last)
-            : _Base_type()
+            : rb_tree() 
         { assign_equal(__first, __last); }
 
 
         rb_tree(pointer __p, size_type  __len)
-            : _Base_type()
+            : rb_tree()
         { assign_equal(__p, __p + __len); }
 
 
