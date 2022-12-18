@@ -35,6 +35,7 @@ namespace ustl
             return normal_iterator(__tmp);
         }
 
+
         _Self
         operator-(size_t __n) ustl_cpp_noexcept
         {
@@ -44,6 +45,7 @@ namespace ustl
             return normal_iterator(__tmp);
         }
 
+
         _Self &
         operator+=(size_t __n) ustl_cpp_noexcept
         {
@@ -51,6 +53,7 @@ namespace ustl
                 ++_M_current;
             return *this;
         }
+
 
         _Self &
         operator-=(size_t __n) ustl_cpp_noexcept
@@ -60,12 +63,14 @@ namespace ustl
             return *this;
         }
 
+
         _Self &
         operator++() ustl_cpp_noexcept
         {
             ++_M_current;
             return *this;
         }
+
 
         _Self &
         operator--() ustl_cpp_noexcept
@@ -74,12 +79,14 @@ namespace ustl
             return *this;
         }
 
+
         _Self
         operator--(int) ustl_cpp_noexcept
         {
             iterator_type __tmp = _M_current--;
             return _Self(__tmp);
         }
+
 
         _Self
         operator++(int) ustl_cpp_noexcept
@@ -88,17 +95,26 @@ namespace ustl
             return _Self(__tmp);
         }
 
+
         pointer
         operator->() ustl_cpp_noexcept
         { return    _M_current.operator->(); }
+
 
         reference
         operator*() ustl_cpp_noexcept
         { return    *_M_current; }
 
+
+        iterator_type &
+        base_iterator() ustl_cpp_noexcept
+        { return    _M_current; }
+
+
         iterator_type const &
         base_iterator() const ustl_cpp_noexcept
         { return    _M_current; }
+
 
     public:
         normal_iterator() = default;
@@ -108,6 +124,7 @@ namespace ustl
 
         normal_iterator(normal_iterator<iterator_type> const &__non_cv)
             : _M_current(__non_cv.base_iterator()) {}
+
 
     protected:
         iterator_type _M_current;

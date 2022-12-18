@@ -40,17 +40,7 @@ struct compare
 int 
 main(int argc, char **argv)
 {
-    // ustl::list<int> __list(10, 2);
-    // __list.resize(20, 10);
-    // for(auto __x : __list)
-    //     std::cout << __x << std::endl;
-    char const *__x = "abc";
-    char const *__y = "abce";
-
-    std::string __sx(__x);
-    std::string __sy(__y);
-
-    std::cout << __sx.compare(__sy) << std::ends;
+    ustl::string __str;
 
 
     return 0;

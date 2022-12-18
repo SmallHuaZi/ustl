@@ -13,11 +13,11 @@ namespace ustl
    private:
     void
     _M_lock() ustl_cpp_noexcept
-    { asm volatile("mov $1, %0  \n\t" :"=m"(_M_mux) :"memory"); }
+    { asm volatile("mov $1, %0  \n\t" :"=m"(_M_mux) ::"memory"); }
 
     void
     _M_unlock() ustl_cpp_noexcept
-    { asm volatile("mov $0, %0  \n\t" :"=m"(_M_mux) :"memory"); }
+    { asm volatile("mov $0, %0  \n\t" :"=m"(_M_mux) ::"memory"); }
 
 
    public:
