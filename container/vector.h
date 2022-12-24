@@ -93,7 +93,7 @@ namespace ustl
         {}
 
         vector_iterator(noncv_iterator const &__non_cv)
-            : _M_data(__noncv._M_data)
+            : _M_data(__non_cv._M_data)
         {}
 
 
