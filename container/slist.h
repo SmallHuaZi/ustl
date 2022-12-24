@@ -58,7 +58,7 @@ namespace ustl
 
         typedef     slist_node<_Tp> *               _Node_pointer;
         typedef     slist_iterator                  _Self;
-        typedef     slist_iterator<_Tp, false>      non_cv_iterator;
+        typedef     slist_iterator<_Tp, false>      noncv_iterator;
 
 
     public:
@@ -91,9 +91,9 @@ namespace ustl
         { return    static_cast<_Node_pointer>(_M_data); }
 
 
-        non_cv_iterator
+        noncv_iterator
         _M_const_cast() ustl_cpp_noexcept
-        { return    non_cv_iterator(_M_data); }
+        { return    noncv_iterator(_M_data); }
 
 
         friend bool
@@ -113,7 +113,7 @@ namespace ustl
             : _M_data(__data)
         {}
 
-        slist_iterator(non_cv_iterator const &__non_cv)
+        slist_iterator(noncv_iterator const &__non_cv)
             : _M_data(__non_cv._M_data)
         {}
 
