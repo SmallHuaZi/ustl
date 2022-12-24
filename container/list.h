@@ -75,7 +75,7 @@ namespace ustl
 
         typedef     list_iterator                   _Self;
         typedef     ustl::_bothway_iterator         iterator_tag;
-        typedef     list_iterator<_Tp, false>       non_cv_iterator;
+        typedef     list_iterator<_Tp, false>       noncv_iterator;
     
     protected:
         typedef     list_node_basic *               _Node_base_pointer;
@@ -120,9 +120,9 @@ namespace ustl
         { return    static_cast<_Node_pointer>(_M_current)->_M_value(); }
 
 
-        non_cv_iterator
+        noncv_iterator
         _M_const_cast() ustl_cpp_noexcept
-        { return    non_cv_iterator(_M_current); }
+        { return    noncv_iterator(_M_current); }
 
 
         _Node_pointer
@@ -147,7 +147,7 @@ namespace ustl
             : _M_current(__p)
         {}
 
-        explicit list_iterator(non_cv_iterator const &__other)
+        explicit list_iterator(noncv_iterator const &__other)
             : _M_current(__other._M_current)
         {}
 
