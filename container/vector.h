@@ -581,9 +581,7 @@ namespace ustl
 
         template <typename _InputIterator, typename = RequireInputItr<_InputIterator>>
         vector(_InputIterator __first, _InputIterator __last)
-        {
-            assign(__first, __last);
-        }
+        { assign(__first, __last); }
 
 
     protected:

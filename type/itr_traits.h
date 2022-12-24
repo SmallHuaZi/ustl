@@ -6,12 +6,10 @@
 
 namespace ustl
 {
-
     template <typename _Iterator, typename = void>
     struct itr_traits_helper
-    {
+    {};
 
-    };
 
     template <typename _Iterator>
     struct itr_traits_helper<_Iterator, __uvoid_t<
@@ -33,10 +31,12 @@ namespace ustl
         typedef     ustl::diff_t                            difference_type;
     };
 
+
     template <typename _Iterator>
     struct itr_traits
         : itr_traits_helper<_Iterator>
     {};
+
 
     template <typename _Tp>
     struct itr_traits<_Tp *>
@@ -50,6 +50,7 @@ namespace ustl
 
         typedef     ustl::diff_t                difference_type;
     };
+
 
     template <typename _Tp>
     struct itr_traits<_Tp const *>
