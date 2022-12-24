@@ -2,6 +2,7 @@
 #define __ustl_deque_h
 
 #include "include/config.h"
+#include "allocator/memory.h"
 
 #define _DEQUE_ALLOC_SIZE 512
 
@@ -17,13 +18,14 @@ namespace ustl
     struct deque_iterator
     {
 
-        typedef     _Tp                     value_type;
-        typedef     _Tp *                   pointer;
-        typedef     _Tp &                   reference;
-        typedef     _Tp const *             const_pointer; 
-        typedef     _Tp const &             const_reference;
-        typedef     ustl::_random_iterator  iterator_tag;
-        typedef     ustl::diff_t            difference_type;
+        typedef     _Tp                         value_type;
+        typedef     _Tp *                       pointer;
+        typedef     _Tp &                       reference;
+        typedef     _Tp const *                 const_pointer; 
+        typedef     _Tp const &                 const_reference;
+
+        typedef     _random_iterator            iterator_tag;
+        typedef     diff_t                      difference_type;
 
         typedef     deque_iterator          _Self;
         typedef     deque_iterator<_Tp, false>      noncv_iterator;

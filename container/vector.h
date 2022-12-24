@@ -20,7 +20,7 @@ namespace ustl
         typedef     vector_iterator                 _Self;
         typedef     ustl::diff_t                    difference_type;
         typedef     _random_iterator                iterator_tag;
-        typedef     vector_iterator<_Tp, false>     non_cv_iterator;
+        typedef     vector_iterator<_Tp, false>     noncv_iterator;
 
 
     public:
@@ -32,9 +32,9 @@ namespace ustl
 
 
     public:
-        non_cv_iterator
+        noncv_iterator
         _M_const_cast() ustl_cpp_noexcept
-        { return    non_cv_iterator(_M_data); }
+        { return    noncv_iterator(_M_data); }
 
         pointer
         data() ustl_cpp_noexcept
@@ -92,8 +92,8 @@ namespace ustl
             : _M_data(__p)
         {}
 
-        vector_iterator(non_cv_iterator const &__non_cv)
-            : _M_data(__non_cv._M_data)
+        vector_iterator(noncv_iterator const &__non_cv)
+            : _M_data(__noncv._M_data)
         {}
 
 
