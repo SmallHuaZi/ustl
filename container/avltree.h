@@ -2,6 +2,7 @@
 #define __avl_tree_h
 
 #include "container/avltree_fwd.h"
+#include "allocator/memory.h"
 
 namespace ustl
 {
@@ -109,11 +110,11 @@ namespace ustl
 
         _Self &
         operator++() ustl_cpp_noexcept
-        { return    ++_M_current; }
+        { return    ++_M_current, *this; }
 
         _Self &
         operator--() ustl_cpp_noexcept
-        { return    --_M_current; }
+        { return    --_M_current, *this; }
 
         _Self
         operator--(int) ustl_cpp_noexcept
@@ -177,59 +178,39 @@ namespace ustl
         {
 
             void
-            _M_reset() ustl_cpp_noexcept
-            {
-                _M_header._M_reset();
-                _M_header._M_height = 0;
-            }
+            _M_reset() ustl_cpp_noexcept;
+
+            void
+            _M_swap(avl_tree_impl &__other) ustl_cpp_noexcept;
+
+            avl_tree_impl &
+            operator=(avl_tree_impl const &__lval) ustl_cpp_noexcept;
+
+            avl_tree_impl &
+            operator=(avl_tree_impl &&__rval) ustl_cpp_noexcept;
 
 
+        public:
             void
             _M_move(avl_tree_impl &__other) ustl_cpp_noexcept
             { *this = ustl::move(__other); }
 
 
-            void
-            _M_swap(avl_tree_impl &__other) ustl_cpp_noexcept
-            {
-                avl_tree_impl   __buf(*this);
-                _M_move(__other);
-                __other._M_move(__buf);
-            }
-
-
-            avl_tree_impl &
-            operator=(avl_tree_impl const &__lval) ustl_cpp_noexcept
-            {
-                if(&__lval != this)
-                    _M_header = __lval._M_header;
-                return  *this;
-            }
-
-
-            avl_tree_impl &
-            operator=(avl_tree_impl &&__rval) ustl_cpp_noexcept
-            {
-                if(&__rval != this)
-                    _M_header = ustl::move(__rval._M_header);
-                return  *this;
-            }
-
+        public:
             avl_tree_impl()
                 : _M_header()
             {}
-
 
             avl_tree_impl(avl_tree_impl const &__other)
                 : _M_header(__other._M_header)
             {}
 
-
             avl_tree_impl(avl_tree_impl &&__other)
                 : _M_header(__other._M_header)
             { __other._M_reset(); }
 
-
+        
+        public:
             avl_header      _M_header;
             _ExtractKey     _M_extract_key;
             compare_type    _M_compare;
@@ -268,6 +249,58 @@ namespace ustl
 
         impl_type       _M_data_plus;
     };
+
+
+
+    template<typename _Val, typename _Comp, typename _ExtractKey ,
+            typename _Alloc>
+    void
+    avl_tree_basic<_Val, _Comp, _ExtractKey, _Alloc>::
+    avl_tree_impl::
+        _M_reset() ustl_cpp_noexcept
+    {                
+        _M_header._M_reset();
+        _M_header._M_height = 0;
+    }
+
+
+    template<typename _Val, typename _Comp, typename _ExtractKey ,
+            typename _Alloc>
+    void
+    avl_tree_basic<_Val, _Comp, _ExtractKey, _Alloc>::
+    avl_tree_impl:: 
+        _M_swap(avl_tree_impl &__other) ustl_cpp_noexcept
+    {
+        avl_tree_impl   __buf(*this);
+        _M_move(__other);
+        __other._M_move(__buf);
+    }
+
+
+    template<typename _Val, typename _Comp, typename _ExtractKey ,
+            typename _Alloc>
+    auto
+    avl_tree_basic<_Val, _Comp, _ExtractKey, _Alloc>::
+    avl_tree_impl:: 
+        operator=(avl_tree_impl const &__lother) ustl_cpp_noexcept -> avl_tree_impl &
+    {
+        if(&__lother != this)
+            _M_header = __lother._M_header;
+        return  *this;
+    }
+
+
+    template<typename _Val, typename _Comp, typename _ExtractKey ,
+            typename _Alloc>
+    auto
+    avl_tree_basic<_Val, _Comp, _ExtractKey, _Alloc>::
+    avl_tree_impl::     
+        operator=(avl_tree_impl &&__rother) ustl_cpp_noexcept -> avl_tree_impl &
+    {
+        if(&__rother != this)
+            _M_header = ustl::move(__rother._M_header);
+        return  *this;
+    }
     
 
 
@@ -324,15 +357,29 @@ namespace ustl
         _S_valptr(node_base_pointer __nptr)
         { return    static_cast<node_pointer>(__nptr)->_M_valptr(); }
 
+
     private:
-
-        iterator
-        _M_insert_aux(value_type const &__val);
-
         template<typename ..._Args>
         iterator
         _M_emplace_aux(_Args &&... __init_args);
+
+        template <typename _InputIterator>
+        iterator
+        _M_range_insert(_InputIterator __first, _InputIterator __last);
+
+        void
+        _M_lower_bound();
+
+        void
+        _M_upper_bound();
+
+        void
+        _M_erase(iterator);
+
+        void
+        _M_range_erase(iterator, iterator);
     
+
     public:
         iterator
         begin() ustl_cpp_noexcept
@@ -439,14 +486,6 @@ namespace ustl
         using   _Base_type::_M_data_plus; 
     };
 
-    template<typename _Key, typename _Val, typename _Comp,
-             typename _ExtractKey, typename _Alloc>
-    auto
-    avl_tree<_Key, _Val, _Comp, _ExtractKey, _Alloc>::
-        _M_insert_aux(value_type const &__val) -> iterator
-    {
-
-    }
 
     template<typename _Key, typename _Val, typename _Comp,
              typename _ExtractKey, typename _Alloc>

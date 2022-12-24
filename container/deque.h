@@ -8,170 +8,88 @@
 
 namespace ustl
 {
-    static inline constexpr size_t
-    _S_size_of_bucket(size_t __size)
-    {
-        return _DEQUE_ALLOC_SIZE > __size ? _DEQUE_ALLOC_SIZE / __size : 1;
-    }
 
     template <typename _Tp, bool _Const>
     struct deque_iterator
     {
+        enum        { __ALLOC_BLOCK_SIZE        =   512 };
 
+    public:
         typedef     _Tp                         value_type;
         typedef     _Tp *                       pointer;
         typedef     _Tp &                       reference;
         typedef     _Tp const *                 const_pointer; 
         typedef     _Tp const &                 const_reference;
 
-        typedef     _random_iterator            iterator_tag;
-        typedef     diff_t                      difference_type;
-
-        typedef     deque_iterator          _Self;
+        typedef     deque_iterator                  _Self;
+        typedef     _random_iterator                iterator_tag;
+        typedef     diff_t                          difference_type;
         typedef     deque_iterator<_Tp, false>      noncv_iterator;
-
         typedef     _Tp **                  _bc_pointer;
 
 
     public:
+        static constexpr size_t
+        _M_bucket_capacity() ustl_cpp_noexcept;
+
         void
-        _M_update(_bc_pointer __new_bucket)
-        {
-            _M_bucket_cur = __new_bucket;
-            _M_ele_first = *__new_bucket;
-            _M_ele_last = _M_ele_first + _S_size_of_bucket(sizeof(_Tp));
-        }
+        _M_update(_bc_pointer __new) ustl_cpp_noexcept;
 
+        _Self & 
+        operator++() ustl_cpp_noexcept;
+
+        _Self &
+        operator--() ustl_cpp_noexcept;
+
+        _Self &
+        operator+=(difference_type  __step) ustl_cpp_noexcept;
+
+        _Self &
+        operator-=(difference_type  __step) ustl_cpp_noexcept;
+
+        _Self
+        operator++(int) ustl_cpp_noexcept;
+
+        _Self
+        operator--(int) ustl_cpp_noexcept;
+
+        _Self
+        operator+(difference_type   __step) ustl_cpp_noexcept;
+
+        _Self
+        operator-(difference_type   __step) ustl_cpp_noexcept;
+
+        _Self &
+        operator=(_Self const &__other) ustl_cpp_noexcept;
+
+
+    public:
         noncv_iterator 
-       _M_const_cast()
-       {
-            return noncv_iterator(_M_data, _M_bucket_cur);
-       }
-
-        _Self &
-        operator++()
-        {
-            if (_M_data == _M_ele_last - 1)
-            {
-                _M_update(_M_bucket_cur + 1);
-                _M_data = _M_ele_first;
-            }
-            else
-                ++_M_data;
-            return *this;
-        }
-
-        _Self
-        operator++(int)
-        {
-            _Self __ret(*this);
-            ++*this;
-            return __ret;
-        }
-
-        _Self &
-        operator--()
-        {
-            if (_M_data == _M_ele_first)
-            {
-                _M_update(_M_bucket_cur - 1);
-                _M_data = _M_ele_last - 1;
-            }
-            else
-                --_M_data;
-            return *this;
-        }
-
-        _Self
-        operator--(int)
-        {
-            _Self __ret(*this);
-            --*this;
-            return __ret;
-        }
+       _M_const_cast() ustl_cpp_noexcept
+       { return     noncv_iterator(_M_data, _M_bucket_cur); }
 
         typename ustl::if_else<_Const, const_reference, reference>::type
-        operator*()
-        {
-            return *_M_data;
-        }
+        operator*() ustl_cpp_noexcept
+        { return *_M_data; }
 
         typename ustl::if_else<_Const, const_pointer, pointer>::type
-        operator->()
-        {
-            return _M_data;
-        }
-
-        _Self
-        operator+(difference_type __step)
-        {
-            _Self __ret(*this);
-            for (; __step > 0; --__step)
-                ++__ret;
-            if (__step < 0)
-                __ret - (-__step);
-            return __ret;
-        }
-
-        _Self
-        operator-(difference_type __step)
-        {
-            _Self __ret(*this);
-            for (; __step > 0; --__step)
-                --__ret;
-            if (__step < 0)
-                __ret + (-__step);
-            return __ret;
-        }
-
-        _Self &
-        operator+=(difference_type __step)
-        {
-            for (; __step > 0; --__step)
-                ++*this;
-            if (__step < 0)
-                *this - (-__step);
-            return *this;
-        }
-
-        _Self &
-        operator-=(difference_type __step)
-        {
-            for (; __step > 0; --__step)
-                --*this;
-            if (__step < 0)
-                *this - (-__step);
-            return *this;
-        }
-
-        _Self &
-        operator=(_Self const &__other)
-        {
-            _M_data = __other._M_data;
-            _M_ele_first = __other._M_ele_first;
-            _M_ele_last = __other._M_ele_last;
-            _M_bucket_cur = __other._M_bucket_cur;
-            return *this;
-        }
+        operator->() ustl_cpp_noexcept
+        { return _M_data; }
 
         typename ustl::if_else<_Const, const_reference, reference>::type
         operator[](difference_type __idx)
-        {
-            return *(*this + __idx);
-        }
+        { return    *(*this + __idx); }
 
         friend bool
         operator==(_Self const &__l, _Self const &__r)
-        {
-            return __l._M_data == __r._M_data;
-        }
+        { return    __l._M_data == __r._M_data; }
 
         friend bool
         operator!=(_Self const &__l, _Self const &__r)
-        {
-            return __l._M_data != __r._M_data;
-        }
+        { return    __l._M_data != __r._M_data; }
 
+
+    public:
         deque_iterator() = default;
 
         deque_iterator(const_pointer __data, _bc_pointer __bucket)
@@ -186,11 +104,173 @@ namespace ustl
              {}
 
         // 数据按非只读方式存储，但对于只读迭代器，给外部留的访问接口是返回的只读数据
+    public:
         pointer                    _M_data;
         pointer                    _M_ele_first;
         pointer                    _M_ele_last;
         _bc_pointer                _M_bucket_cur;
     };
+
+
+    template <typename _Tp, bool _Const>
+    constexpr size_t
+    deque_iterator<_Tp, _Const>::
+        _M_bucket_capacity() ustl_cpp_noexcept
+    {
+        constexpr size_t    __size = size_t(__ALLOC_BLOCK_SIZE);
+        return  __size > sizeof(_Tp) ? __size / sizeof(_Tp) : 1;
+    }
+
+
+    template <typename _Tp, bool _Const>
+    void
+    deque_iterator<_Tp, _Const>::
+        _M_update(_bc_pointer __new) ustl_cpp_noexcept
+    {
+        _M_bucket_cur =  __new;
+        _M_ele_first  = *__new;
+        _M_ele_last   = _M_ele_first + _M_bucket_capacity();
+    }
+
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator++() ustl_cpp_noexcept -> _Self &
+    {
+        if(_M_data == _M_ele_last - 1)
+        {
+            _M_update(_M_bucket_cur + 1);
+            _M_data = _M_ele_first;
+        }
+        else
+            ++_M_data;
+        return  *this;
+    }
+
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator--() ustl_cpp_noexcept -> _Self &
+    {
+        if(_M_data == _M_ele_first)
+        {
+            _M_update(_M_bucket_cur - 1);
+            _M_data = _M_ele_last - 1;
+        }
+        else
+            --_M_data;
+        return  *this;
+    }
+
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator++(int) ustl_cpp_noexcept -> _Self
+    {
+        _Self   __tmp(*this);
+        ++*this;
+        return  __tmp;
+    }
+
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator--(int) ustl_cpp_noexcept -> _Self
+    {
+        _Self   __tmp(*this);
+        --*this;
+        return  __tmp;
+    }
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator=(deque_iterator const &__other) ustl_cpp_noexcept -> _Self &
+    {
+        _M_data         =  __other._M_data;
+        _M_ele_first    =  __other._M_ele_first;
+        _M_ele_last     =  __other._M_ele_last;
+        _M_bucket_cur   =  __other._M_bucket_cur;
+        return  *this;
+    }
+
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator+(difference_type   __step) ustl_cpp_noexcept-> _Self
+    {
+        deque_iterator  __tmp(*this);
+        __tmp += __step;
+        return  __tmp;
+    }
+
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator-(difference_type   __step) ustl_cpp_noexcept -> _Self
+    {
+        deque_iterator  __tmp(*this);
+        __tmp -= __step;
+        return  __tmp;
+    }
+
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator+=(difference_type   __step) ustl_cpp_noexcept -> _Self &
+    {
+        constexpr size_t    __size = _M_bucket_capacity();
+        if(__step > 0)
+        {
+            difference_type __pos = _M_ele_last - _M_data;
+            if(__step >= __pos)
+            {
+                __step += __pos;
+                difference_type __buckets = __step / __size;
+                difference_type __surplus = __step % __size;
+                _M_update(_M_bucket_cur + __buckets);
+                _M_data = _M_ele_first + __surplus;
+            }
+            else
+                ++_M_data;
+        }
+        else
+            *this -= (-__step);
+        return  *this;
+    }
+
+
+    template <typename _Tp, bool _Const>
+    auto
+    deque_iterator<_Tp, _Const>::
+        operator-=(difference_type   __step) ustl_cpp_noexcept -> _Self &
+    {
+        constexpr size_t    __size = _M_bucket_capacity();
+        if(__step > 0)
+        {
+            size_t  __pos = _M_data - _M_ele_first;
+            if(__step >= __pos)
+            {
+                __step -= __pos;
+                difference_type __buckets = __step / __size;
+                difference_type __surplus = __step % __size;
+                _M_update(_M_bucket_cur - __buckets);
+                _M_data =_M_ele_last - __surplus - 1;
+            }
+            else
+                --_M_data;
+        }
+        else
+            *this += (-__step);
+        return  *this;
+    }
 
 
     template<typename _Tp, bool _Const>
@@ -202,115 +282,106 @@ namespace ustl
         return  __ret;
     }
 
-    template <typename _Tp, typename _Alloc>
-    struct deque_impl
-        : _Alloc,
-          _Alloc::template rebind<_Tp *>::other
-    {
-        typedef     _Tp *       _ele_pointer;
-        typedef     _Tp **      _bc_pointer;
-        typedef     deque_iterator<_Tp, false>   iterator;
 
-        static constexpr size_t
-        _M_bucket_capacity() ustl_cpp_noexcept
-        { return    _S_size_of_bucket(sizeof(_Tp)); }
 
-        size_t
-        _M_capacity() ustl_cpp_noexcept
-        { return    _M_bucket_size * _M_bucket_capacity(); }
 
-        size_t
-        _M_ele_size() ustl_cpp_noexcept
-        { return    size_t(_M_end - _M_begin); }
-
-        void
-        _M_reset()
-        {
-            _M_bucket = 0;
-            _M_bucket_size = 0;
-            _M_begin._M_update(0);
-            _M_begin._M_data = 0;
-            _M_end._M_update(0);
-            _M_end._M_data = 0;
-        }
-
-        void
-        _M_swap(deque_impl &__other)
-        {
-            deque_impl __tmp(*this);
-            *this = __other;
-            __other = this;
-        }
-
-        deque_impl &
-        operator=(deque_impl &__r)
-        {
-            _M_bucket = __r._M_bucket;
-            _M_begin = __r._M_begin;
-            _M_end = __r._M_end;
-            _M_bucket_size = __r._M_bucket_size;
-        }
-
-        deque_impl()
-            : _M_bucket(0), _M_begin(),
-              _M_end(), _M_bucket_size(0)
-        {}
-
-        _bc_pointer     _M_bucket;
-        iterator        _M_begin;
-        iterator        _M_end;
-        size_t          _M_bucket_size;
-    };
-
+/// @class ustl::deque_basic
     template <typename _Tp, typename _Alloc>
     class deque_basic
     {
+        enum        { __ALLOC_BLOCK_SIZE        =   512 };
+        enum        { __MIN_BUCKET_TABLE_SIZE   =   16 };
+
     protected:
-        typedef     _Tp             value_type;
-        typedef     _Tp *           pointer;
-        typedef     _Tp &           reference;
-        typedef     _Tp const *     const_pointer;
-        typedef     _Tp const &     const_reference;
-        typedef     _Alloc          allocator_type;
-        typedef     ustl::size_t    size_type;
-        typedef     ustl::diff_t    difference_type;
-        typedef     _Tp **          _bc_pointer;
+        typedef     _Tp                     value_type;
+        typedef     _Tp *                   pointer;
+        typedef     _Tp &                   reference;
+        typedef     _Tp const *             const_pointer;
+        typedef     _Tp const &             const_reference;
 
-        typedef     deque_iterator<_Tp, false>            iterator;
-        typedef     deque_iterator<_Tp, true>             const_iterator;
-        typedef     ustl::reverse_iterator<iterator>            reverse_iterator;
-        typedef     ustl::reverse_iterator<const_iterator>      const_reverse_iterator;
+        typedef     _Tp **                  _bc_pointer;
+        typedef     ustl::size_t            size_type;
+        typedef     ustl::diff_t            difference_type;
 
-        typedef     deque_impl<_Tp, _Alloc>           impl_type;
-        typedef     allocate_traits<_Alloc>           _Ele_allocator_traits;
-        typedef     typename allocate_traits<_Alloc>::template rebind<pointer>::other       
-                        _Bc_allocator_type;
-        typedef     allocate_traits<_Bc_allocator_type>      _Bc_allocator_traits;
+        typedef     deque_iterator<_Tp, false>                      iterator;
+        typedef     deque_iterator<_Tp, true>                       const_iterator;
+        typedef     ustl::reverse_iterator<iterator>                reverse_iterator;
+        typedef     ustl::reverse_iterator<const_iterator>          const_reverse_iterator;
 
-        enum { __MIN_BUCKET_TABLE_SIZE = 16 };
+        typedef     _Alloc                              _Tp_allocator_type;
+        typedef     allocate_traits<_Alloc>             _Tp_allocator_traits;
+        typedef     typename allocate_traits<_Alloc>::template rebind_t<pointer>    
+                    _Bc_allocator_type;
+        typedef     allocate_traits<_Bc_allocator_type>      
+                    _Bc_allocator_traits;
 
-        /** private interface */
-        allocator_type &
-        _M_get_allocator()
+
+    protected:
+        static constexpr size_type
+        _S_bukcet_capacity() ustl_cpp_noexcept;
+
+
+        struct deque_impl
+            : _Tp_allocator_type,
+              _Bc_allocator_type
+        {
+            size_type   
+            _M_capacity() ustl_cpp_noexcept
+            { return    _M_bucket_size * _S_bukcet_capacity(); }
+
+
+        public:
+            void
+            _M_reset() ustl_cpp_noexcept;
+
+            void
+            _M_move(deque_impl &__other) ustl_cpp_noexcept;
+
+            void
+            _M_swap(deque_impl &__other) ustl_cpp_noexcept;
+
+            deque_impl &
+            operator=(deque_impl const &__other) ustl_cpp_noexcept;
+
+
+        public:
+            deque_impl()
+                : _M_bucket(0),
+                  _M_begin(),
+                  _M_end(),
+                  _M_bucket_size(0)
+            {}
+
+
+        public:
+            _bc_pointer         _M_bucket;
+            iterator            _M_begin;
+            iterator            _M_end;
+            size_type           _M_bucket_size;
+        };
+
+        typedef     deque_impl          impl_type;
+
+
+    protected:
+        _Tp_allocator_type &
+        _M_get_allocator() ustl_cpp_noexcept
         { return    _M_data_plus; }
 
          _Bc_allocator_type &
-        _M_get_bc_allocator()
+        _M_get_bc_allocator() ustl_cpp_noexcept
         { return    _M_data_plus; }
 
         pointer
         _M_allocate_bucket()
-        {
-            constexpr size_t __default_size = _S_size_of_bucket(sizeof(_Tp));
-            return _Ele_allocator_traits::allocate(_M_get_allocator(), __default_size);
-        }
+        { return    _Ele_allocator_traits::allocate(_M_get_allocator(), _S_bukcet_capacity()); }
 
         void
         _M_deallocate_bucket(pointer __p)
-        {
-            constexpr size_t __default_size = _S_size_of_bucket(sizeof(_Tp));
-            _Ele_allocator_traits::deallocate(_M_get_allocator(), __p, __default_size);
-        }
+        { _Ele_allocator_traits::deallocate(_M_get_allocator(), __p, _S_bukcet_capacity()); }
+
+        void
+        _M_deallocate_bucket(_bc_pointer __start, _bc_pointer __finish);
 
         void
         _M_deallocate_bucket(_bc_pointer __start, _bc_pointer __finish)
@@ -320,14 +391,14 @@ namespace ustl
         }
 
         _bc_pointer
-        _M_allocate_bucket_table(size_type &__len)
+        _M_allocate_table(size_type &__len)
         {
             __len = ustl::max(__len, size_type(__MIN_BUCKET_TABLE_SIZE));
             return _Bc_allocator_traits::allocate(_M_get_bc_allocator(), __len);
         }
 
         void
-        _M_deallocate_bucket_table(_bc_pointer __start, _bc_pointer __finish)
+        _M_deallocate_table(_bc_pointer __start, _bc_pointer __finish)
         {
             for(; __start != __finish; ++__start)
                 _Bc_allocator_traits::deallocate(_M_get_bc_allocator(), __start, 1);
@@ -403,48 +474,72 @@ namespace ustl
         impl_type       _M_data_plus;
     };
 
+
+    template <typename _Tp, typename _Alloc>
+    void
+    deque_basic<_Tp, _Alloc>::
+    deque_impl::
+        _M_reset() ustl_cpp_noexcept
+    {
+        _M_bucket = 0;
+        _M_begin._M_update(0);
+        _M_begin._M_data = 0;
+        _M_end._M_update(0);
+        _M_end._M_data = 0;
+        _M_bucket_size = 0;
+    }
+
+
+    template <typename _Tp, typename _Alloc>
+    void
+    deque_basic<_Tp, _Alloc>::
+    deque_impl::
+        _M_move(deque_impl &__other) ustl_cpp_noexcept
+    {
+        
+
+
+    }
+
+
+
+/// @class ustl::deque
     template <typename _Tp, typename _Alloc = ustl::allocator<_Tp>>
     class deque
-        : public deque_basic<_Tp, _Alloc>
+        : deque_basic<_Tp, _Alloc>
     {
         typedef     deque_basic<_Tp, _Alloc>                _Base_type;
         typedef     typename _Base_type::_bc_pointer        _bc_pointer;
 
+
     public:
-        typedef     _Tp             value_type;
-        typedef     _Tp *           pointer;
-        typedef     _Tp &           reference;
-        typedef     _Tp const *     const_pointer;
-        typedef     _Tp const &     const_reference;
-        typedef     _Alloc          allocator_type;
-        typedef     ustl::diff_t    difference_type;
-        typedef     ustl::size_t    size_type;
+        typedef     _Tp                 value_type;
+        typedef     _Tp *               pointer;
+        typedef     _Tp &               reference;
+        typedef     _Tp const *         const_pointer;
+        typedef     _Tp const &         const_reference;
+        typedef     _Alloc              allocator_type;
 
         typedef     typename _Base_type::iterator               iterator;
         typedef     typename _Base_type::const_iterator         const_iterator;
         typedef     typename _Base_type::reverse_iterator       reverse_iterator;
         typedef     typename _Base_type::const_reverse_iterator const_reverse_iterator;
+        typedef     typename _Base_type::size_type              size_type;
+        typedef     typename _Base_type::difference_type        difference_type;
 
-    public:
-        deque()
-            : _Base_type() {}
 
-        deque(size_type __n, value_type const &__val)
-            : _Base_type()
-        { _M_default_append(__n); }
+    protected:
+        using   _Base_type::_M_get_allocator;
+        using   _Base_type::_M_get_bc_allocator;
+        using   _Base_type::_M_allocate_bucket;
+        using   _Base_type::_M_allocate_bucket_table;
+        using   _Base_type::_M_construct;
+        using   _Base_type::_M_deallocate_bucket;
+        using   _Base_type::_M_deallocate_bucket_table;
+        using   _Base_type::_M_desotry;
+        using   _Base_type::_M_destory_bucket;
+        using   _Base_type::_M_initialize_table;
 
-        template<typename _InputIterator>
-        deque(_InputIterator __first, _InputIterator __last)
-            : _Base_type()
-        { _M_range_initialize(__first, __last, 0); }
-
-        deque(deque const &__other)
-            : _Base_type()
-        { _M_range_initialize(__other.begin(), __other.end()); }
-
-        deque(deque &&__rother)
-            :_Base_type()
-        { swap(ustl::move(__rother)); }
 
     public:
         iterator
@@ -543,32 +638,40 @@ namespace ustl
         empty() const
         { return    _M_data_plus._M_begin == _M_data_plus._M_end; }
 
+
     private:
         iterator
         _M_reserve_at_back(size_type);
+
         iterator
         _M_reserve_at_front(size_type);
+
         void
         _M_new_at_back(size_type);
+
         void
         _M_new_at_front(size_type);
+
         void
         _M_relocate_table(size_type);
 
         void 
         _M_default_initialize();
+
         void
         _M_default_append(size_type);
 
         template <typename... _Args>
         iterator
         _M_insert_aux(iterator, _Args &&...);
+
         iterator 
         _M_insert_aux(iterator, value_type const &, size_type = 1);
 
         template<typename ..._Args>
         void
         _M_push_back(_Args &&...);
+
         template<typename ..._Args>
         void
         _M_push_front(_Args &&...);
@@ -576,6 +679,7 @@ namespace ustl
         template <typename _ForwardIterator>
         iterator
         _M_range_insert(iterator, _ForwardIterator, _ForwardIterator);
+
         iterator
         _M_fill_insert(iterator,value_type const&,size_type);
 
@@ -585,12 +689,16 @@ namespace ustl
 
         iterator
         _M_erase(iterator);
+
         iterator
         _M_erase(iterator, iterator);
+
         void
         _M_erase_from_front(iterator);
+
         void
         _M_erase_to_back(iterator);
+
 
     public:
         void
@@ -683,20 +791,31 @@ namespace ustl
         const_reference 
         operator[](size_type) const ustl_cpp_noexcept;
 
-    protected:
-        using   _Base_type::_M_get_allocator;
-        using   _Base_type::_M_get_bc_allocator;
-        using   _Base_type::_M_allocate_bucket;
-        using   _Base_type::_M_allocate_bucket_table;
-        using   _Base_type::_M_construct;
-        using   _Base_type::_M_deallocate_bucket;
-        using   _Base_type::_M_deallocate_bucket_table;
-        using   _Base_type::_M_desotry;
-        using   _Base_type::_M_destory_bucket;
-        using   _Base_type::_M_initialize_table;
+
+    public:
+        deque()
+            : _Base_type() {}
+
+        deque(size_type __n, value_type const &__val)
+            : _Base_type()
+        { _M_default_append(__n); }
+
+        template<typename _InputIterator>
+        deque(_InputIterator __first, _InputIterator __last)
+            : _Base_type()
+        { _M_range_initialize(__first, __last, 0); }
+
+        deque(deque const &__other)
+            : _Base_type()
+        { _M_range_initialize(__other.begin(), __other.end()); }
+
+        deque(deque &&__rother)
+            :_Base_type()
+        { swap(ustl::move(__rother)); }
+
 
     protected:
-        using   _Base_type::_M_data_plus;
+        using       _Base_type::_M_data_plus;
     };
 
     template<typename _Tp, typename _Alloc>

@@ -1,4 +1,6 @@
-./debug
-./debug.cpp
-./debug_tree.cpp
-./obj
+debug
+lib
+obj
+.vscode
+*.d
+*.log
