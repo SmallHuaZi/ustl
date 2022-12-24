@@ -2,24 +2,33 @@
 #define __ustl_container_standard
 
 /**
+ * internal container
+*/
+#include "container/rbtree.h"       // red black tree
+#include "container/avltree.h"      // avl tree
+
+/**
  * container
  */
-#include "container/pair.h"
-#include "container/tuple.h"
-#include "container/slist.h"
-#include "container/rbtree.h"
-#include "container/avltree.h"
-#include "container/vector.h"
-#include "container/bvector.h"
-#include "container/deque.h"
-#include "container/list.h"
-#include "container/string.h"
+#include "container/pair.h"         // pair
+#include "container/tuple.h"        // tuple (compile time container)
+#include "container/slist.h"        // signle list
+#include "container/vector.h"       // vector
+#include "container/bvector.h"      // specialization vector for bool
+#include "container/deque.h"        // Double Entry Queue
+#include "container/list.h"         // bothway list
+#include "container/string.h"       // String
+#include "container/hashtable.h"    // Hash table [based on list and red black tree]
 
-#include "container/map.h"
-#include "container/set.h"
-#include "container/multimap.h"
-#include "container/multiset.h"
-#include "container/hashtable.h"
+#include "container/map.h"          // ordered map based on red black tree
+#include "container/set.h"          // ordered set based on red black tree
+#include "container/multimap.h"     
+#include "container/multiset.h"     
+#include "container/unordered_map.h"        // unordered map based on hashtable
+#include "container/unordered_set.h"        // unordered set based on hashtable
+#include "container/unordered_multimap.h" 
+#include "container/unordered_multiset.h"
+
 
 /**
  * adapter

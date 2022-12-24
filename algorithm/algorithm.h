@@ -1,7 +1,7 @@
 #ifndef __algorithm_h
 #define __algorithm_h
 
-#include "include/ustl.h"
+#include "include/config.h"
 
 namespace ustl
 {

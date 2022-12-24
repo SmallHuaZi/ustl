@@ -38,7 +38,7 @@ namespace ustl
         template <typename _Tp, typename... _Args>
         static _Tp *
         construct(allocator_type const &__a, _Tp *__p, _Args &&...__args)
-        { return    __a.construct(__p, ustl::forward(__args)...); }
+        { return    __a.construct(__p, ustl::forward<_Args &&>(__args)...); }
 
 
 
@@ -62,6 +62,9 @@ namespace ustl
 
 
     };
+
+    template <typename _Alloc, typename _Tp>
+    using   __alloc_rebind_t = typename allocate_traits<_Alloc>::template rebind_t<_Tp>;
 }
 
 #endif

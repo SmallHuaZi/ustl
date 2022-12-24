@@ -478,10 +478,10 @@ namespace ustl
 
 
     protected:
-        template <typename _ImplAlloc>
+        template <typename _ImplAlloc, typename _ATraits = allocate_traits<_ImplAlloc>>
         rb_tree_basic(_ImplAlloc const &__impl_allocator) 
-            : _M_data_plus(_Impl_allocate_traits::allocate(__impl_allocator, 1))
-        { _Impl_allocate_traits::construct(__impl_allocator, _M_data_plus); }
+            : _M_data_plus(_ATraits::allocate(__impl_allocator, 1))
+        { _ATraits::construct(__impl_allocator, _M_data_plus); }
 
         rb_tree_basic(rb_tree_basic const &__lother)
             : rb_tree_basic() 

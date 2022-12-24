@@ -61,7 +61,9 @@
         "semaphore": "cpp",
         "typeinfo": "cpp",
         "list": "cpp",
-        "cstring": "cpp"
+        "cstring": "cpp",
+        "queue": "cpp",
+        "forward_list": "cpp"
     },
     "makefile.launchConfigurations": [
         {

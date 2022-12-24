@@ -239,7 +239,7 @@ namespace ustl
         bool    __recall = false;
         bool    __from_lchild = false;
         tree_node_basic *__first = __root;
-        tree_node_basic const *__last  = __root->_M_Max_node();
+        tree_node_basic * const __last  = __root->_M_Max_node();
 
         do
         {

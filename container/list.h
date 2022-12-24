@@ -420,10 +420,10 @@ namespace ustl
 
 
     protected:
-        template <typename _ImplAlloc>
+        template <typename _ImplAlloc, typename _ATraits = allocate_traits<_ImplAlloc>>
         list_basic(_ImplAlloc const &__impl_alloctor = _ImplAlloc())
-            : _M_data_plus(_Impl_allocate_traits::allocate(__impl_alloctor, 1))
-        { _Impl_allocate_traits::construct(__impl_alloctor, _M_data_plus); }
+            : _M_data_plus(_ATraits::allocate(__impl_alloctor, 1))
+        { _ATraits::construct(__impl_alloctor, _M_data_plus); }
 
         list_basic(list_basic const &__lother)
             : list_basic()

@@ -695,9 +695,9 @@ namespace ustl
             : _Base_type(__impl_allocator)
         {}
 
-        slist(slist const &__lohter)
+        slist(slist const &__lother)
             : slist()
-        { _M_assign_aux(__val, __n); }
+        { _M_range_assign(__lother.begin(), __lother.en()); }
 
         slist(slist &&__rother)
             : _Base_type(ustl::move(__rother))

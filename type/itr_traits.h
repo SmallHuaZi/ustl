@@ -2,22 +2,26 @@
 #define __itr_traits_h
 
 #include "type/type_base.h"
+#include "type/type.h"
 
 namespace ustl
 {
-    template <typename, typename>
-    struct itr_traits;
 
+    template <typename _Iterator, typename = void>
+    struct itr_traits_helper
+    {
 
-    template <typename _Iterator, typename = __uvoid_t<
-             typename _Iterator::value_type,
-             typename _Iterator::pointer,
-             typename _Iterator::reference,
-             typename _Iterator::const_pointer,
-             typename _Iterator::const_reference,
-             typename _Iterator::iterator_tag,
-             typename _Iterator::difference_type>>
-    struct itr_traits
+    };
+
+    template <typename _Iterator>
+    struct itr_traits_helper<_Iterator, __uvoid_t<
+            typename _Iterator::value_type,
+            typename _Iterator::pointer,
+            typename _Iterator::reference,
+            typename _Iterator::const_pointer,
+            typename _Iterator::const_reference,
+            typename _Iterator::iterator_tag,
+            typename _Iterator::difference_type>>
     {
         typedef     typename _Iterator::value_type          value_type;
         typedef     typename _Iterator::pointer             pointer;
@@ -29,8 +33,13 @@ namespace ustl
         typedef     ustl::diff_t                            difference_type;
     };
 
+    template <typename _Iterator>
+    struct itr_traits
+        : itr_traits_helper<_Iterator>
+    {};
+
     template <typename _Tp>
-    struct itr_traits<_Tp *, void>
+    struct itr_traits<_Tp *>
     {
         typedef     _Tp                         value_type;
         typedef     _Tp *                       pointer;
@@ -43,7 +52,7 @@ namespace ustl
     };
 
     template <typename _Tp>
-    struct itr_traits<_Tp const *, void>
+    struct itr_traits<_Tp const *>
     {
         typedef     _Tp                         value_type;
         typedef     _Tp const *                 pointer;

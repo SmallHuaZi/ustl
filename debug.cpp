@@ -4,6 +4,7 @@
 // #include <utility>
 // #include <bits/stl_map.h>
 // #include <map>
+// #include <forward_list>
 // #include <hash_map>
 
 struct get_key
@@ -30,18 +31,42 @@ struct compare
 #include "include/ustl_container.h"
 
 // #include <mutex>
-// #include <memory>
-#include <cstring>
-#include <string>
+#include <bits/shared_ptr_base.h>
+// #include <cstring>
+// #include <string>
+// #include <queue>
 
 // template <typename _Tp = int>
 // using list = std::list<_Tp>;
 
+
+struct recycle
+{
+    void
+    operator()(void *)
+    {}
+};
+
+
 int 
 main(int argc, char **argv)
 {
-    ustl::string __str;
+    ustl::vector<int>       __vec(10, 10);
 
+    // for(auto __x : __vec)
+    //     std::cout << __x << std::endl;
 
+    for(ustl::size_t __i = 0; __i < 20; ++__i)
+        __vec.push_back(__i);
+    
+    std::cout << *__vec.insert(++++++__vec.cbegin(), 200);
+    std::cout << std::endl;
+
+    __vec.reverse();
+    __vec.remove(10);
+
+    for(auto __x : __vec)
+        std::cout << __x << std::endl;
+    
     return 0;
 }

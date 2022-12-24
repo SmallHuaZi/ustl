@@ -16,6 +16,31 @@ namespace ustl
                                                 _input_iterator>::value>;
 
 
+   
+   template <typename _Iterator, typename _DifT>
+   static inline _Iterator &
+   _M_advance(_Iterator &__itr, _DifT __dif, ustl::false_type)
+   { 
+      if(__dif < 0)
+         while(__dif++)
+            --__itr;
+      else
+         while(__dif--)
+            ++__itr;
+      return   __itr;
+   }
+
+
+   template <typename _Iterator, typename _DifT>
+   static inline _Iterator &
+   _M_advance(_Iterator &__itr, _DifT __dif, ustl::true_type)
+   { return    __itr += __dif; }
+
+
+   template <typename _Iterator, typename _DifT>
+   static inline _Iterator &
+   advance(_Iterator &__itr, _DifT __dif)
+   { return    _M_advance(__itr, __dif, is_same<_iterator_tag_t<_Iterator>, _random_iterator>()()); }
 
 } // namespace ustl
 
