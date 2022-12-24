@@ -138,7 +138,7 @@ namespace ustl
         typedef     _rbtree_node<_Tp>               _Rbt_node_type;
         typedef     _rbtree_node<_Tp> *             _Rbt_node_pointer;
         typedef     _rbt_node_basic *                _rbt_node_basic_pointer;
-        typedef     _rbtree_iterator<_Tp, false>    non_cv_iterator;
+        typedef     _rbtree_iterator<_Tp, false>    noncv_iterator;
 
 
     public:
@@ -148,7 +148,7 @@ namespace ustl
             : _M_current(__p)
         {}
 
-        explicit _rbtree_iterator(non_cv_iterator const &__non_cv)
+        explicit _rbtree_iterator(noncv_iterator const &__non_cv)
             : _M_current(__non_cv._M_current)
         {}
 
@@ -163,9 +163,9 @@ namespace ustl
         { return    static_cast<_Rbt_node_pointer>(_M_current._M_data); }
 
 
-        non_cv_iterator
+        noncv_iterator
         _M_const_cast()
-        { return    non_cv_iterator(_M_current); }
+        { return    noncv_iterator(_M_current); }
 
 
         _Self &
