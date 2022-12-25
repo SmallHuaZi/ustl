@@ -5,12 +5,10 @@
 #include "container/avltree.h"
 #include "container/slist.h"
 
-#include "include/ustl_memory.h"
-#include "include/ustl_functor.h"
-#include "include/ustl_exception.h"
+#include "allocator/memory.h"
+#include "include/ufunctor.h"
+#include "include/uexception.h"
 
-#define __hashtable_template_paramter \
-    template <typename _Key, typename _Val, typename _Hash, typename _Alloc>
 
 
 namespace ustl
@@ -439,7 +437,8 @@ namespace ustl
         impl_type   _M_data_plus;
     };
 
-    __hashtable_template_paramter
+
+    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
     void
     hashtable_basic<_Key, _Val, _Hash, _Alloc>::
         _M_rehash(size_t __len)
@@ -465,7 +464,9 @@ namespace ustl
         _M_data_plus._M_table_size = __new_size;
     }
 
-    __hashtable_template_paramter
+
+
+    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
     void
     hashtable_basic<_Key, _Val, _Hash, _Alloc>::
         _M_default_initialize()
@@ -478,6 +479,8 @@ namespace ustl
         _M_data_plus._M_stroge_start  = 0;
         _M_data_plus._M_stroge_finish = 0;
     }
+
+
 
     template <typename _Key, typename _Val, 
               typename _Hash = ustl::hash<_Key>,
@@ -640,7 +643,7 @@ namespace ustl
 
     };
 
-    __hashtable_template_paramter
+    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
     size_t
     hashtable<_Key, _Val, _Hash, _Alloc>::
         _M_hash(key_type const  &__key) ustl_cpp_noexcept
@@ -648,7 +651,8 @@ namespace ustl
         return  _M_data_plus._M_hash(__key) % size_type(__MAX_TABLE_SIZE);
     }
 
-    __hashtable_template_paramter
+
+    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
     auto
     hashtable<_Key, _Val, _Hash, _Alloc>::
         _M_calculate_postion(key_type const &__key) -> bucket_pointer
@@ -665,7 +669,8 @@ namespace ustl
         return  __pos; 
     }
 
-    __hashtable_template_paramter
+
+    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
     auto
     hashtable<_Key, _Val, _Hash, _Alloc>::
         _M_insert_aux(key_type const &__key, value_type const &__val) -> iterator

@@ -1,5 +1,5 @@
-#ifndef __ustl_container_standard
-#define __ustl_container_standard
+#ifndef __USTL_CONTAINER
+#define __USTL_CONTAINER 
 
 /**
  * internal container

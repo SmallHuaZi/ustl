@@ -1,5 +1,5 @@
-#ifndef __ustl_iterator_standard
-#define __ustl_iterator_standard
+#ifndef __USTL_ITERATOR
+#define __USTL_ITERATOR
 
 #include "iterator/iterator.h"
 #include "iterator/fwd_iterator.h"

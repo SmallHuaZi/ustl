@@ -1,5 +1,5 @@
-#ifndef __ustl_exception_standard
-#define __ustl_exception_standard
+#ifndef __USTL_EXCEPTION 
+#define __USTL_EXCEPTION 
 
 #include "exception/defaultmes.h"
 #include "exception/exception.h"

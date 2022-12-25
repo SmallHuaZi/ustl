@@ -1,7 +1,8 @@
 #ifndef __object_h
 #define __object_h
 
-#include "include/ustl_tmp.h"
+#include "include/utmp.h"
+#include "type/allocate_traits.h"
 
 namespace ustl
 {
@@ -46,7 +47,7 @@ namespace ustl
     {
         typedef     ustl::allocate_traits<_Alloc>     __traits;
         for(; __first != __last; ++__first1, (void)++__first)
-            __traits::construct(__alloc, &*__first, *__first1);
+            __traits::construct(__alloc, &*__first, &*__first1);
     }
 
     template<typename _Iterator, typename _Alloc>

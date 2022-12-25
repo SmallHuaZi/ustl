@@ -1,5 +1,5 @@
-#ifndef __ustl_functor_h
-#define __ustl_functor_h
+#ifndef __USTL_FUNCTOR 
+#define __USTL_FUNCTOR
 
 #include "functor/hash.h"
 #include "functor/function.h"

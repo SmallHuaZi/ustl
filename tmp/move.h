@@ -16,23 +16,20 @@ namespace ustl
     template <typename _Tp>
     typename remove_reference<_Tp>::type &&
     move(_Tp &&__lr)
-    {
-        return static_cast<typename remove_reference<_Tp>::type &&>(__lr);
-    }
+    { return static_cast<typename remove_reference<_Tp>::type &&>(__lr); }
+
 
     template <typename _Tp>
     _Tp &&
     forward(_Tp &__lr)
-    {
-        return static_cast<_Tp &&>(__lr);
-    }
+    { return static_cast<_Tp &&>(__lr); }
+
 
     template <typename _Tp>
     _Tp &&
     forward(_Tp &&__rr)
-    {
-        return static_cast<_Tp &&>(__rr);
-    }
+    { return static_cast<_Tp &&>(__rr); }
+
 
 } // namespace ustl
 #endif

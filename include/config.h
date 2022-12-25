@@ -1,5 +1,5 @@
-#ifndef __config_h
-#define __config_h
+#ifndef __USTL_CONFIG 
+#define __USTL_CONFIG 
 
 #include "include/ustl.h"
 

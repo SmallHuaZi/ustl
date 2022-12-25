@@ -1,5 +1,5 @@
-#ifndef __memory_ustl
-#define __memory_ustl
+#ifndef __USTL_MEMORY 
+#define __USTL_MEMORY 
 
 #include "allocator/memory.h"
 #include "allocator/object.h"

@@ -1,5 +1,5 @@
-#ifndef __ustl_type_traits_standard
-#define __ustl_type_traits_standard
+#ifndef __USTL_TYPE_TRAITS 
+#define __USTL_TYPE_TRAITS 
 
 #include "type/type.h"
 #include "type/allocate_traits.h"
