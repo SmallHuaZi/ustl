@@ -212,7 +212,7 @@ namespace ustl
 
         void
         _M_deallocate(pointer __p, size_type __len)
-        { return    _Tp_allocate_traits::deallocate(_M_get_allocator(), __p, __len); }
+        { return    _Tp_allocate_traits::deallocate(_M_get_allocator(), __p, sizeof(_Tp) * __len); }
 
         template <typename ..._Args>
         void
