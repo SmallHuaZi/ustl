@@ -289,7 +289,7 @@ namespace ustl
 
             void
             _M_deallocate_node(_Node_base_pointer __p)
-            { _Node_allocate_traits::deallocate(*this, __p, 1); }
+            { _Node_allocate_traits::deallocate(*this, __p, sizeof(_Node_type)); }
 
 
             template<typename ..._Args>
@@ -300,7 +300,7 @@ namespace ustl
 
             _Node_pointer 
             _M_destory_node(_Node_pointer __p) ustl_cpp_noexcept
-            { _Node_allocate_traits::destory(*this, __p); }
+            { _Node_allocate_traits::destory(*this, __p->_M_valptr()); }
 
 
             void
