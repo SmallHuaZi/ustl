@@ -318,6 +318,12 @@ namespace ustl
             _rbt_node_basic *
             _M_acquire_node(_Args &&...__init_args);
 
+        
+        public:
+            rbtree_node_pool(tree_node_basic *__header)
+                : _M_Manager(__header)
+            {}
+
 
             ~rbtree_node_pool() ustl_cpp_noexcept;
 
@@ -331,15 +337,17 @@ namespace ustl
         struct rbt_impl
         {
             void
-            _M_copy(rbt_impl const &__other) ustl_cpp_noexcept;
-
-            void
             _M_move(rbt_impl &__other) ustl_cpp_noexcept;
 
             void
             _M_swap(rbt_impl &__other) ustl_cpp_noexcept;
 
-            rbt_impl() = default;
+            rbt_impl()
+                : _M_header(),
+                  _M_compare()
+                  _M_node_pool(&_M_header)
+            {}
+
 
         public:
             _Rbt_header                     _M_header;
@@ -545,17 +553,6 @@ namespace ustl
         ~rbtree_node_pool() ustl_cpp_noexcept
     { _M_Manager.~tree_node_pool(); }
 
-
-
-    template <typename _Key, typename _Val, typename _KeyOfVal,
-              typename _Compare, typename _Alloc>
-    inline void
-    rb_tree_basic<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
-    rbt_impl::
-        _M_copy(rbt_impl const &__other) ustl_cpp_noexcept
-    {
-
-    }
 
 
     template <typename _Key, typename _Val, typename _KeyOfVal,
@@ -1137,6 +1134,7 @@ namespace ustl
     rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         assign_equal(_Itr __first, _Itr __last)
     {
+        _M_data_plus._M_header._M_reset();
         for(; __first != __last; ++__first)
         {
             _Node_base_pointer __new = _M_data_plus._M_node_pool._M_reusing_tree(*__first);
@@ -1155,6 +1153,7 @@ namespace ustl
     rb_tree<_Key, _Val, _KeyOfVal, _Compare, _Alloc>::
         assign_unique(_Itr __first, _Itr __last)
     {
+        _M_data_plus._M_header._M_reset();
         _Node_base_pointer __new = 0;
         for(; __first != __last; ++__first)
         {
