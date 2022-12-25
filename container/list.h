@@ -471,7 +471,7 @@ namespace ustl
     {
         for(size_type __idx = 0; __idx < __n; ++__idx)
             _M_destory(__p + __idx);     
-        _Node_allocate_traits::deallocate(_M_get_allocator(), __p, __n); 
+        _Node_allocate_traits::deallocate(_M_get_allocator(), __p,sizeof(_Node_type) *  __n); 
     }
 
 
