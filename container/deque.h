@@ -6,7 +6,7 @@
 #include "algorithm/algorithm.h"
 #include "type/iterator_type.h"
 
-#define _DEQUE_ALLOC_SIZE 512
+
 
 namespace ustl
 {
