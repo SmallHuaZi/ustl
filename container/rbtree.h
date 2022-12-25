@@ -344,7 +344,7 @@ namespace ustl
 
             rbt_impl()
                 : _M_header(),
-                  _M_compare()
+                  _M_compare(),
                   _M_node_pool(&_M_header)
             {}
 
