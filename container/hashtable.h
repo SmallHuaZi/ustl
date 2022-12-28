@@ -13,11 +13,24 @@
 
 namespace ustl
 {
+    template <bool _Const>
+    struct hashtable_iterator
+    {
 
-    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
+    };
+
+
+
+    template <typename _Key, typename _Val, typename _Hash, typename _Alloc>
     struct hashtable_basic
     {
 
+        enum    { __DEFAULT_HASH_FACTOR = 75 };
+        enum    { __DEFAULT_TABLE_LENGTH = 16 };
+        enum    { __DEFAULT_LIST_LIMIT = 16 };        
+        enum    { __MAX_TABLE_SIZE = 2048 };
+
+    protected:
         typedef     _Key            key_type;
         typedef     _Val            value_type;
         typedef     _Val &          reference;
@@ -27,12 +40,8 @@ namespace ustl
         typedef     _Hash           hash_type;
         typedef     _Alloc          allcoator_type;
 
-        enum    { __DEFAULT_HASH_FACTOR = 75 };
-        enum    { __DEFAULT_TABLE_LENGTH = 16 };
-        enum    { __DEFAULT_LIST_LIMIT = 16 };        
-        enum    { __MAX_TABLE_SIZE = 2048 };
 
-
+    protected:
         static constexpr float
         _S_require_factor()
         { return    float(__DEFAULT_HASH_FACTOR) / float(100);}
@@ -42,7 +51,7 @@ namespace ustl
         { return     _M_data_plus._M_table_size * _S_require_factor() < _M_data_plus._M_key_count; }
 
 
-
+    protected:
         struct extract_key
         {
 
@@ -136,195 +145,6 @@ namespace ustl
         };  
 
         typedef     hashtable_impl              impl_type;
-  
-        template<bool _Const>
-        struct hashtable_iterator
-        {
-
-            typedef     hashtable_iterator  _Self;
-            typedef     ustl::diff_t        difference_type;
-            typedef     _Val                value_type;
-            typedef     _Val *              pointer;
-            typedef     _Val &              reference;
-            typedef     _Val const *        const_pointer;
-            typedef     _Val const &        const_reference;
-            typedef     hashtable_iterator<false>       non_cv_iterator;
-
-            typedef     typename list_node::iterator    list_iterator;
-            typedef     typename tree_node::iterator    tree_iterator;
-
-            non_cv_iterator
-            _M_const_cast()
-            { return non_cv_iterator(_M_data_nodes, _M_table); }
-
-            _Self &
-            operator++()
-            { return  _M_inc(); }
-
-            _Self &
-            operator--()
-            { return  _M_dec(); }
-
-            _Self
-            operator--(int)
-            {
-                _Self __tmp(*this);
-                _M_dec();
-                return  __tmp;
-            }
-
-            _Self
-            operator++(int)
-            {
-                _Self  __tmp(*this);
-                _M_inc();
-                return  __tmp;
-            }
-
-            _Self
-            operator-(difference_type __step)
-            {
-                _Self   __tmp(*this);
-                if(__step > 0)
-                {
-                    for(; __step; --__step)
-                        __tmp._M_dec();
-                }
-                else   
-                    __tmp + (-__step);
-                return  __tmp;
-            }
-
-            _Self
-            operator+(difference_type __step)
-            {
-                _Self   __tmp(*this);
-                if(__step > 0)
-                {
-                    for(; __step; --__step)
-                        __tmp._M_dec();
-                }
-                else   
-                    __tmp - (-__step);
-                return  __tmp;
-            }
-
-            typename ustl::if_else<_Const, const_reference, reference>::type
-            operator*()
-            {
-                if(size_t(__DEFAULT_LIST_LIMIT) <  _M_data_nodes->_M_size)
-                    return  (*_M_tree_data)._M_second_val;
-                else
-                    return  (*_M_list_data)._M_second_val;
-            }
-
-            typename ustl::if_else<_Const, const_pointer, pointer>::type
-            operator->()
-            {
-                if(size_t(__DEFAULT_LIST_LIMIT) <  _M_data_nodes->_M_size)
-                    return  (*_M_tree_data).second_valptr();
-                else
-                    return  (*_M_list_data).second_valptr();
-            }
-
-            _Self & 
-            _M_inc()
-            {
-                if(size_t(__DEFAULT_LIST_LIMIT) <  _M_data_nodes->_M_size)
-                {                    
-                    if(_M_tree_data == _M_data_nodes->_M_rbt_table->end())
-                    {
-                        _M_data_nodes = _S_next(_M_data_nodes, _M_table._M_stroge_end);
-                        _M_relocate(true);
-                    }
-                    else
-                        ++_M_tree_data;
-                }
-                else
-                {
-                    if(_M_list_data == _M_data_nodes->_M_list_table->end())
-                    {
-                        _M_data_nodes = _S_next(_M_data_nodes, _M_table._M_stroge_end);
-                        _M_relocate(true);
-                    }
-                    else
-                        ++_M_list_data;
-
-                }
-                return *this;
-            }
-
-            _Self & 
-            _M_dec()
-            {
-                if(size_t(__DEFAULT_LIST_LIMIT) < _M_data_nodes->_M_size)
-                {
-                    if(_M_tree_data == _M_data_nodes->_M_rbt_table->begin())
-                    {
-                        _M_data_nodes = _S_last(_M_data_nodes, _M_table._M_table - 1);
-                        _M_relocate(false);
-                    }
-                    else
-                        --_M_tree_data;
-                }
-                else
-                {
-                    if(_M_list_data == _M_data_nodes->_M_list_table->begin())
-                    {
-                        _M_data_nodes = _S_last(_M_data_nodes, _M_table._M_table - 1);
-                        _M_relocate(false);
-                    }
-                    else
-                        --_M_list_data;
-                }
-                return *this;
-            }
-
-            void
-            _M_relocate(bool    __inc)
-            {
-                if(_M_data_nodes)
-                {
-                    if(size_t(__DEFAULT_LIST_LIMIT) < _M_data_nodes->_M_size)               
-                    {
-                        if(__inc)
-                            _M_tree_data = _M_data_nodes->_M_rbt_table->begin();
-                        else
-                        {
-                            _M_tree_data = _M_data_nodes->_M_rbt_table->end();
-                            --_M_tree_data;
-                        }
-                    }
-                    else
-                    {
-                        if(__inc)
-                            _M_list_data = _M_data_nodes->_M_list_table->begin();                
-                        else
-                        {
-                            _M_list_data = _M_data_nodes->_M_list_table->end();
-                            --_M_list_data;
-                        }
-
-                    }
-                }
-            }
-
-            hashtable_iterator(impl_type &__table)
-                : _M_data_nodes(0), _M_table(__table) {}
-
-            hashtable_iterator(bucket_pointer __data, impl_type &__table)
-                : _M_data_nodes(__data), _M_table(__table) 
-            { _M_relocate(); }
-
-
-            union {
-                list_iterator    _M_list_data;
-                tree_iterator    _M_tree_data;
-            };
-            bucket_pointer    _M_data_nodes;
-            impl_type       &_M_table;
-        };          
-
 
 
         typedef     typename allocate_traits<_Alloc>::template rebind<hashtable_bucket>::other  
@@ -483,7 +303,8 @@ namespace ustl
 
 
     template <typename _Key, typename _Val, 
-              typename _Hash = ustl::hash<_Key>,
+              typename _Hash  = ustl::hash<_Key>,
+              typename _Comp  = ustl::less_t<decltype(ustl::hash<_Key>()())>,
               typename _Alloc = ustl::allocator<ustl::pair<_Key, _Val>>>
     class hashtable
         : hashtable_basic<_Key, _Val, _Hash, _Alloc>
@@ -518,11 +339,8 @@ namespace ustl
         using   _Base_type::__DEFAULT_TABLE_LENGTH;
         using   _Base_type::__DEFAULT_LIST_LIMIT;       
 
-#ifndef __debug_ustl
+
     private:
-#else
-    public:
-#endif
         using   _Base_type::_M_get_kvp_allocator;
         using   _Base_type::_M_get_hn_allocator;
         using   _Base_type::_M_allocate_kvp;
@@ -554,35 +372,35 @@ namespace ustl
     public:
         iterator
         begin()
-        { return    iterator(_M_data_plus._M_stroge_start, _M_data_plus); }
+        { return    iterator(); }
 
         iterator
         end()
-        { return    iterator(0, _M_data_plus); }
+        { return    iterator(); }
 
         const_iterator
         begin() const
-        { return    const_iterator(_M_data_plus._M_stroge_start, _M_data_plus); }
+        { return    const_iterator(); }
 
         const_iterator
         end() const
-        { return    const_iterator(0, _M_data_plus); }
+        { return    const_iterator(); }
 
         const_iterator
         cbegin()
-        { return    const_iterator(_M_data_plus._M_stroge_start, _M_data_plus); }
+        { return    const_iterator(); }
 
         const_iterator
         cend()
-        { return    const_iterator(0, _M_data_plus); }
+        { return    const_iterator(); }
 
         const_iterator
         cbegin() const
-        { return    const_iterator(_M_data_plus._M_stroge_start, _M_data_plus); }
+        { return    const_iterator(); }
 
         const_iterator
         cend() const
-        { return    const_iterator(0, _M_data_plus); }
+        { return    const_iterator(); }
 
         size_type
         size()
@@ -639,58 +457,9 @@ namespace ustl
 
 
     protected:
-        using   _Base_type::_M_data_plus;
+        using       _Base_type::_M_data_plus;
 
     };
-
-    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
-    size_t
-    hashtable<_Key, _Val, _Hash, _Alloc>::
-        _M_hash(key_type const  &__key) ustl_cpp_noexcept
-    {
-        return  _M_data_plus._M_hash(__key) % size_type(__MAX_TABLE_SIZE);
-    }
-
-
-    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
-    auto
-    hashtable<_Key, _Val, _Hash, _Alloc>::
-        _M_calculate_postion(key_type const &__key) -> bucket_pointer
-    {
-        size_t  __hash_value = _M_hash(__key);
-        if(__hash_value > _M_data_plus._M_table_size)
-            _M_rehash(__hash_value);
-        bucket_pointer   __pos = _M_data_plus._M_table + __hash_value;
-        if(0 == __pos->_M_list_table)
-        {
-            __pos->_M_list_table = _M_allocate_list_node(1);        
-
-        }
-        return  __pos; 
-    }
-
-
-    template<typename _Key, typename _Val, typename _Hash, typename _Alloc>
-    auto
-    hashtable<_Key, _Val, _Hash, _Alloc>::
-        _M_insert_aux(key_type const &__key, value_type const &__val) -> iterator
-    {
-        bucket_pointer  __pos = _M_calculate_postion(__key);
-        node_type   __ist(__key, __val);
-        if(size_type(__DEFAULT_LIST_LIMIT) < __pos->_M_size)
-        {
-            __pos->_M_list_table->push_back(__ist);
-        }
-        else if(size_type(__DEFAULT_LIST_LIMIT) > __pos->_M_size)
-        {
-            // __pos->_M_rbt_table->insert_equal({__key, __val});
-        }
-        else
-        {
-
-        }
-        ++__pos->_M_size;
-    }
 
     
 
