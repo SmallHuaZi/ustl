@@ -1,5 +1,5 @@
-#ifndef __tree_basic_h
-#define __tree_basic_h
+#ifndef __USTL_TREE_BASIC_H
+#define __USTL_TREE_BASIC_H
 
 
 #include "include/config.h"

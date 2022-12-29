@@ -1,5 +1,5 @@
-#ifndef __hashtable_h
-#define __hashtable_h
+#ifndef __USTL_HASHTABLE_H
+#define __USTL_HASHTABLE_H
 
 #include "container/pair.h"
 #include "container/avltree.h"

@@ -1,5 +1,5 @@
-#ifndef __avl_tree_h
-#define __avl_tree_h
+#ifndef __USTL_AVL_TREE_H
+#define __USTL_AVL_TREE_H
 
 #include "container/avltree_fwd.h"
 #include "allocator/memory.h"

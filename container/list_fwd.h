@@ -1,5 +1,5 @@
-#ifndef __list_forward_h
-#define __list_forward_h
+#ifndef __USTL_LIST_FWD_H
+#define __USTL_LIST_FWD_H
 
 #include "include/config.h"
 

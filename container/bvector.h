@@ -1,5 +1,5 @@
-#ifndef __bool_vector_h
-#define __bool_vector_h
+#ifndef __USTL_BOOL_VECTOR_H
+#define __USTL_BOOL_VECTOR_H
 
 #include "container/bvector_fwd.h"
 

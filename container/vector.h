@@ -1,5 +1,5 @@
-#ifndef __vector_h
-#define __vector_h
+#ifndef __USTL_VECTOR_H 
+#define __USTL_VECTOR_H 
 
 #include "allocator/memory.h"
 #include "type/iterator_type.h"

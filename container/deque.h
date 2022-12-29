@@ -1,5 +1,5 @@
-#ifndef __ustl_deque_h
-#define __ustl_deque_h
+#ifndef __USTL_DEQUE_H
+#define __USTL_DEQUE_H
 
 #include "include/config.h"
 #include "allocator/memory.h"

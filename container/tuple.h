@@ -1,3 +1,7 @@
+#ifndef __USTL_TUPLE_H
+#define __USTL_TUPLE_H
+
+
 namespace ustl
 {
     template <size_t _Idx, typename _Element>
@@ -193,3 +197,5 @@ namespace ustl
     { return    _Tuple_Impl<_Idx, _Eles...>::_M_value(__t); }
 
 }
+
+#endif

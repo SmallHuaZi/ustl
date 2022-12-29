@@ -1,5 +1,5 @@
-#ifndef __bool_vector_fwd_h
-#define __bool_vector_fwd_h
+#ifndef __USTL_BOOL_VECTOR_FWD_H
+#define __BOOL_VECTOR_FWD_H
 
 #include "include/config.h"
 

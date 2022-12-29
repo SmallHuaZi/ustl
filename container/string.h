@@ -1,5 +1,5 @@
-#ifndef __ustl_basic_string_h
-#define __ustl_basic_string_h
+#ifndef __USTL_BASIC_STRING_H
+#define __USTL_BASIC_STRING_H
 
 #include "include/config.h"
 #include "algorithm/algorithm.h"

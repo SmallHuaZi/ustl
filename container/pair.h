@@ -1,5 +1,5 @@
-#ifndef __pair_h
-#define __pair_h
+#ifndef __USTL_PAIR_H
+#define __USTL_PAIR_H
 
 namespace ustl
 {

@@ -1,5 +1,5 @@
-#ifndef __List_h
-#define __list_h
+#ifndef __USTL_LIST_H
+#define __USTL_LIST_H
 
 #include "container/list_fwd.h"
 #include "allocator/memory.h"

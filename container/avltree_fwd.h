@@ -1,5 +1,5 @@
-#ifndef __avl_tree_fwd_h
-#define __avl_tree_fwd_h
+#ifndef __USTL_AVL_TREE_FWD_H
+#define __USTL_AVL_TREE_FWD_H
 
 #include "algorithm/math.h"
 #include "include/config.h"

@@ -1,5 +1,5 @@
-#ifndef __rbt_fwd_h
-#define __rbt_fwd_h
+#ifndef __USTL_RBTREE_FWD_H
+#define __USTL_RBTREE_FWD_H
 
 #include "include/config.h"
 #include "container/tree_basic.h"

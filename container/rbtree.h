@@ -1,5 +1,5 @@
-#ifndef __rbtree_h
-#define __rbtree_h
+#ifndef __USTL_RBTREE_H
+#define __USTL_RBTREE_H
 
 #include "include/config.h"
 #include "iterator/iterator.h"
