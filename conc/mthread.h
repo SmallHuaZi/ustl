@@ -1,9 +1,10 @@
-#ifndef __ustl_multi_threading_h
-#define __ustl_multi_threading_h
+#ifndef __USTL_MULTI_THREAD_H
+#define __USTL_MULTI_THREAD_H
 
 
-#ifndef __ustl_multi_processtor
-#define __ustl_multi_processtor
+
+#ifndef __USTL_MULTI_PROCESSTOR
+#define __USTL_MULTI_PROCESSTOR
 #endif
 
 

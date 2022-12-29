@@ -1,5 +1,5 @@
-#ifndef __thread_basic_h
-#define __thread_basic_h
+#ifndef __USTL_THREAD_BASIC_H
+#define __USTL_THREAD_BASIC_H
 
 #include "include/config.h"
 #include "conc/mthread.h"

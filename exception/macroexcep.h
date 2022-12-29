@@ -1,5 +1,5 @@
-#ifndef __macro_exception_h
-#define __macro_exception_h
+#ifndef __USTL_MACRO_EXCEPTION_H
+#define __USTL_MACRO_EXCEPTION_H
 
 
 

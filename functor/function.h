@@ -1,5 +1,5 @@
-#ifndef __function_h
-#define __function_h
+#ifndef __USTL_FUNCTION_H
+#define __USTL_FUNCTION_H 
 
 namespace ustl
 {

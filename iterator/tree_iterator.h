@@ -1,5 +1,5 @@
-#ifndef __tree_iterator_h
-#define __tree_iterator_h
+#ifndef __USTL_TREE_ITERATOR_H
+#define __USTL_TREE_ITERATOR_H
 
 #include "include/config.h"
 #include "container/tree_basic.h"

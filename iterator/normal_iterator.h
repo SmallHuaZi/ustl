@@ -1,7 +1,8 @@
-#ifndef __normal_iterator_h
-#define __normal_iterator_h
+#ifndef __USTL_NORMAL_ITERATOR_H
+#define __USTL_NORMAL_ITERATOR_H
 
 #include "type/itr_traits.h"
+#include "include/config.h"
 
 namespace ustl
 {

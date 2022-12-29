@@ -1,7 +1,5 @@
-#ifndef __ustl_thread_h
-#define __ustl_thread_h
-
-#define __ustl_multi_processtor
+#ifndef __USTL_THREAD_H
+#define __USTL_THREAD_H
 
 #ifdef __linux__
 #include <unistd.h>

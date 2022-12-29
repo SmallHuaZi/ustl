@@ -1,5 +1,5 @@
-#ifndef __iterator_h
-#define __iterator_h
+#ifndef __USTL_ITERATOR_H
+#define __USTL_ITERATOR_H
 
 #include "include/ustl.h"
 

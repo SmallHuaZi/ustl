@@ -1,5 +1,5 @@
-#ifndef __default_message_h
-#define __default_message_h
+#ifndef __USTL_DEFAULT_MESSAGE_H
+#define __USTL_DEFAULT_MESSAGE_H
 
 /**
  * @brief this header is used to description exception message

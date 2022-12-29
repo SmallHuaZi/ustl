@@ -1,5 +1,5 @@
-#ifndef __ustl_ostream_h
-#define __ustl_ostream_h
+#ifndef __USTL_OSTREAM_H
+#define __USTL_OSTREAM_H
 
 #include "ios.h"
 

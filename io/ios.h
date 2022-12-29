@@ -1,5 +1,5 @@
-#ifndef __ustl_ios_h
-#define __ustl_ios_h
+#ifndef __USTL_IOS_H
+#define __USTL_IOS_H
 
 #include "ios_base.h"
 

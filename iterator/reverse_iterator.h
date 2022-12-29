@@ -1,5 +1,5 @@
-#ifndef __reverse_iterator_h
-#define __reverse_iterator_h
+#ifndef __USTL_REVERSE_ITERATOR_H
+#define __USTL_REVERSE_ITERATOR_H
 
 #include "include/ustl_type_traits.h"
 

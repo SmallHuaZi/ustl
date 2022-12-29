@@ -1,5 +1,5 @@
-#ifndef ___atomic_t_h
-#define ___atomic_t_h
+#ifndef __USTL_ATOMIC_T_H
+#define __USTL_ATOMIC_T_H
 
 #include "include/config.h"
 #include "conc/atomic.h"

@@ -1,5 +1,5 @@
-#ifndef __ustl_ios_base_h
-#define __ustl_ios_base_h
+#ifndef __USTL_IOS_BASE_H
+#define __USTL_IOS_BASE_H
 
 class ios_basic
 {

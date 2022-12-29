@@ -1,5 +1,5 @@
-#ifndef __move_h
-#define __move_h
+#ifndef __USTL_MOVE_H
+#define __USTL_MOVE_H
 
 #include "type/type.h"
 

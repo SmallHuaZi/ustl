@@ -1,5 +1,5 @@
-#ifndef __mutex_h
-#define __mutex_h
+#ifndef __USTL_MUTEX_H
+#define __USTL_MUTEX_H
 
 #include "include/config.h"
 #include "conc/atomic.h"

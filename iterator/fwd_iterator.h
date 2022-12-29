@@ -1,5 +1,5 @@
-#ifndef __fwd_iterator_h
-#define __fwd_iterator_h
+#ifndef __USLT_FWD_ITERATOR_H
+#define __USLT_FWD_ITERATOR_H
 
 #include "include/ustl_type_traits.h"
 

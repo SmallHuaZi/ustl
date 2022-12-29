@@ -1,5 +1,5 @@
-#ifndef __ustl_hash_h
-#define __ustl_hash_h
+#ifndef __USTL_HASH_H
+#define __USTL_HASH_H
 
 #include "include/config.h"
 

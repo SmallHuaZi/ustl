@@ -1,5 +1,5 @@
-#ifndef __ustl_ios_fwd_h
-#define __ustl_ios_fwd_h
+#ifndef __USTL_IOS_FWD_H
+#define __USTL_IOS_FWD_H
 
 class ios_basic;
 
