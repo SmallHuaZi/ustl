@@ -22,19 +22,12 @@ namespace ustl
         typedef     _Comp               compare_type;
         typedef     _Alloc              allocator_type;        
 
-        typedef     typename impl_type::size_type                       size_type;
-        typedef     typename impl_type::difference_type                 difference_type;
-        typedef     typename impl_type::iterator                        iterator;
-        typedef     typename impl_type::const_iterator                  const_iterator;
-        typedef     typename impl_type::reverse_iterator                reverse_iterator;
-        typedef     typename impl_type::const_reverse_iterator          const_reverse_iterator;
-
     
     private:
         struct compare_t
         {
             bool
-            operator()(_Val __l, _Val __r) const 
+            operator()(_Tp __l, _Tp __r) const 
     #ifdef ustl_cpp_noexcept
             noexcept(noexcept(__cmp(__l, __r)))
     #endif
@@ -57,6 +50,13 @@ namespace ustl
         };  
 
         typedef     ustl::rb_tree<key_type, value_type, compare_t, extract_key_t, _Alloc>  impl_type;
+
+        typedef     typename impl_type::size_type                       size_type;
+        typedef     typename impl_type::difference_type                 difference_type;
+        typedef     typename impl_type::iterator                        iterator;
+        typedef     typename impl_type::const_iterator                  const_iterator;
+        typedef     typename impl_type::reverse_iterator                reverse_iterator;
+        typedef     typename impl_type::const_reverse_iterator          const_reverse_iterator;
 
     
     public:
@@ -121,11 +121,11 @@ namespace ustl
         { return    _M_data_plus.count(); }
 
         void
-        swap(map &__other)  ustl_cpp_noexcept
+        swap(set &__other)  ustl_cpp_noexcept
         { _M_data_plus.swap(__other._M_data_plus); }
 
         void
-        swap(map &&__rother)ustl_cpp_noexcept
+        swap(set &&__rother)ustl_cpp_noexcept
         { _M_data_plus.swap(ustl::move(__rother._M_data_plus)); }
 
         iterator
@@ -171,6 +171,7 @@ namespace ustl
 
     public:
         template <typename _InputIterator>
+        iterator
         insert(_InputIterator __first, _InputIterator __last);
 
         iterator
@@ -199,3 +200,5 @@ namespace ustl
     };
 
 } // namespace ustl
+
+#endif

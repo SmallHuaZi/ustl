@@ -171,6 +171,7 @@ namespace ustl
 
     public:
         template <typename _InputIterator>
+        iterator
         insert(_InputIterator __first, _InputIterator __last);
 
         iterator

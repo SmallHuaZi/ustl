@@ -4,7 +4,7 @@
 #include "include/config.h"
 
 
-#ifdef  __ustl_multi_processtor
+#ifdef  __USTL_MULTI_PROCESSTOR
 
 #define __USTL_MEMORY_BARRIER_LOAD \
 asm inline("lfence    \n\t" : : : "memory");
@@ -31,7 +31,7 @@ namespace ustl
     typedef     long long       atomic_t;
 
 
-#ifdef  __ustl_multi_processtor    
+#ifdef  __USTL_MULTI_PROCESSTOR    
 
     template <typename _Tp>
     [[gnu::always_inline]]
