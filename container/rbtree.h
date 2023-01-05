@@ -824,6 +824,14 @@ namespace ustl
         { return    _M_insert_equal(ustl::move(__rval)); }
 
 
+        iterator
+        insert_equal(const_iterator __pos, value_type const &__lval);
+
+
+        iterator
+        insert_equal(const_iterator __pos, value_type &&__rval);
+
+
         pair<iterator, bool>
         insert_unique(value_type const &__lval)
         { return    _M_insert_unique(__lval); }
@@ -834,6 +842,14 @@ namespace ustl
         { return    _M_insert_unique(ustl::move(__rval)); }
 
 
+        pair<iterator, bool>
+        insert_unique(const_iterator __pos, value_type const &__lval);
+
+
+        pair<iterator, bool>
+        insert_unique(const_iterator __pos, value_type &&__rval);
+
+
         template <typename... _Args>
         iterator 
         emplace_equal(_Args &&...__init_args)
@@ -841,9 +857,19 @@ namespace ustl
 
 
         template <typename... _Args>
-        iterator 
+        pair<iterator, bool> 
         emplace_unique(_Args &&...__init_args)
         { return    _M_insert_unique(ustl::forward<_Args &&>(__init_args)...); }
+
+
+        template <typename... _Args>
+        iterator 
+        emplace_equal(const_iterator __pos, _Args &&...__init_args);
+
+
+        template <typename... _Args>
+        pair<iterator, bool> 
+        emplace_unique(const_iterator __pos, _Args &&...__init_args);
 
 
         void 
