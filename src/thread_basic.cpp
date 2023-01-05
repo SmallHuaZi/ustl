@@ -8,7 +8,7 @@ namespace ustl
 
         tid_t
         thread_basic::
-            _M_create_thread()
+            _M_create_thread ()
         {
             constexpr   int __clone_flag = CLONE_PIDFD | CLONE_VM | CLONE_FS |
                                               CLONE_FILES | CLONE_THREAD;
@@ -24,7 +24,7 @@ namespace ustl
 
         tid_t
         thread_basic::
-            _M_get_free_tid()
+            _M_get_free_tid ()
         {
             size_t  __bit = 1;
             for(; __bit ; __bit << 1)

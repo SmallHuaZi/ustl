@@ -2,7 +2,7 @@ include dir.mk
 include ${__va_depends}
 
 debug_enbale := true
-CXXFLAGS = ${__include_path} -c
+CXXFLAGS = -I. -c
 
 ifeq ($(debug_enbale),true)
 CXXFLAGS += -g
@@ -18,7 +18,7 @@ __va_slib := ${__slib_dir}/libimpl.a
 
 main: auto_dir debug.o FORCE
 	@make -C ${__impl_dir}/; \
-	g++ ${__obj_dir}/debug.o ${__va_slib} \
+	${CXX} ${__obj_dir}/debug.o ${__va_slib} \
 	-o ${__va_executable_dir}/$@ 
 
 FORCE:
@@ -44,7 +44,7 @@ auto_dir:
 	rm -f $@.tmp
 
 %.o : %.cpp
-	@g++ ${__include_path} -c -o ${__obj_dir}/$@ $^ -g
+	@g++ ${CXXFLAGS} -o ${__obj_dir}/$@ $<
 
 
 

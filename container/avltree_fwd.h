@@ -11,19 +11,19 @@ namespace ustl
     struct avl_node_basic;
 
     avl_node_basic * 
-    _avlt_erase(avl_node_basic *__del, avl_node_basic *__header) ustl_cpp_noexcept;
+    _avlt_erase (avl_node_basic *__del, avl_node_basic *__header) ustl_cpp_noexcept;
 
     void
-    _avlt_insert_balance(bool __right,
-                         avl_node_basic *__pos, 
+    _avlt_insert_balance (bool __right,
+                          avl_node_basic *__pos, 
+                          avl_node_basic *__header) ustl_cpp_noexcept;
+
+    void
+    _avlt_erase_balance (avl_node_basic *__del, 
                          avl_node_basic *__header) ustl_cpp_noexcept;
 
     void
-    _avlt_erase_balance(avl_node_basic *__del, 
-                        avl_node_basic *__header) ustl_cpp_noexcept;
-
-    void
-    _avlt_update_factor(avl_node_basic *__node) ustl_cpp_noexcept;
+    _avlt_update_factor (avl_node_basic *__node) ustl_cpp_noexcept;
 
 
     enum class _Rotate_Mode { 
@@ -39,9 +39,9 @@ namespace ustl
     struct avl_node_basic
         : tree_node_basic
     {
-        typedef avl_node_basic   node_basic_type;
-        typedef avl_node_basic * node_basic_pointer;
-        typedef avl_node_basic const * const_node_basic_pointer;
+        typedef     avl_node_basic          node_basic_type;
+        typedef     avl_node_basic *        node_basic_pointer;
+        typedef     avl_node_basic const *  const_node_basic_pointer;
 
         avl_node_basic();
 

@@ -4,8 +4,8 @@ namespace ustl
 {
 
     _rbt_node_basic *
-    _rbt_erase(_rbt_node_basic *__del,
-               _rbt_node_basic *__h) ustl_cpp_noexcept
+    _rbt_erase (_rbt_node_basic *__del,
+                _rbt_node_basic *__h) ustl_cpp_noexcept
     {
         if (__del->_M_left)
             __del = _rbt_decrement(__del);
@@ -32,8 +32,8 @@ namespace ustl
 
 
     void
-    _rbt_rebalance_insert(_rbt_node_basic *__n,
-                          _rbt_node_basic *__h) ustl_cpp_noexcept
+    _rbt_rebalance_insert (_rbt_node_basic *__n,
+                           _rbt_node_basic *__h) ustl_cpp_noexcept
     {
         typedef _rbt_node_basic *_Node_ptr;
         _Node_ptr __parent = __n->parent();
@@ -57,8 +57,8 @@ namespace ustl
 
 
     void
-    _rbt_rebalance_erase(_rbt_node_basic *__del,
-                         _rbt_node_basic *__header) ustl_cpp_noexcept
+    _rbt_rebalance_erase (_rbt_node_basic *__del,
+                          _rbt_node_basic *__header) ustl_cpp_noexcept
     {
         /// @if color(__del) = red
         ///     don`t need rebalance operating
@@ -130,8 +130,8 @@ namespace ustl
 
 
     void
-    _rbt_recolor(_rbt_node_basic *__n,
-                 _rbt_node_basic *__h) ustl_cpp_noexcept
+    _rbt_recolor (_rbt_node_basic *__n,
+                  _rbt_node_basic *__h) ustl_cpp_noexcept
     {
         typedef _rbt_node_basic _Node;
         typedef _rbt_node_basic *_Node_ptr;

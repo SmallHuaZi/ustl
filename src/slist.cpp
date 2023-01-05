@@ -4,19 +4,19 @@ namespace ustl
 {
 
     void
-    _slist_reverse(slist_header *__header) ustl_cpp_noexcept
+    _slist_reverse (slist_header *__header) ustl_cpp_noexcept
     {
         slist_node_basic *__first  = 0;
         slist_node_basic *__second = __header->_M_next;
         slist_node_basic *__third  = __second->_M_next;
 
         __header->_M_last = __second;
-        while(__third)
+        while (__third)
         {
             __second->_M_next = __first;
-            __first = __second;
-            __second = __third;
-            __third = __third->_M_next;
+            __first  =  __second;
+            __second =  __third;
+            __third  =  __third->_M_next;
         }
         __second->_M_next = __first;
         __header->_M_next = __second;
@@ -25,16 +25,16 @@ namespace ustl
 
 
     void
-    _slist_merge(slist_header *__x, slist_header *__y, slist_compare_basic const &__cmp) ustl_cpp_noexcept
+    _slist_merge (slist_header *__x, slist_header *__y, slist_compare_basic const &__cmp) ustl_cpp_noexcept
     {
         slist_node_basic *__first   = __x->_M_next;
         slist_node_basic *__first1  = __y->_M_next;
         slist_node_basic *__before  = __x;
         slist_node_basic *__before1 = __y;
 
-        while(0 != __first && 0 != __first1)
+        while (0 != __first && 0 != __first1)
         {
-            if(__cmp(__first, __first))
+            if (__cmp(__first, __first))
             {
                 __before = __first;
                 __first  = __first->_M_next;
@@ -47,7 +47,7 @@ namespace ustl
                 __first1 = __next->_M_next;
             }
         }
-        if(0 != __first1)
+        if (0 != __first1)
         {
             __x->_M_last = __y->_M_last;
             __before->_M_transer_after(__before1, 0);
@@ -58,9 +58,9 @@ namespace ustl
     }
 
 
-    /// @GNU std::forward_list::sort() source code
+    /// @GNU std::forward_list::sort () source code
     void
-    _slist_sort(slist_header *__header, slist_compare_basic const &__cmp) ustl_cpp_noexcept
+    _slist_sort (slist_header *__header, slist_compare_basic const &__cmp) ustl_cpp_noexcept
     {
         size_t      __tag;
         size_t      __xsize;
@@ -78,31 +78,31 @@ namespace ustl
 
             __tag  = 0;
             __tail = 0;
-            while(__x)
+            while (__x)
             {
                 ++__tag;
                 __xsize = __merge_size;
                 __ysize = __merge_size;
 
-                for(size_t __i = 0; __i < __merge_size && __x; ++__i)
+                for (size_t __i = 0; __i < __merge_size && __x; ++__i)
                     __x = __x ->_M_next;
                 
                 slist_node_basic *__lower;
-                while(__ysize || (__xsize && __x))
+                while (__ysize || (__xsize && __x))
                 {
-                    if(!__ysize)
+                    if (!__ysize)
                     {
                         __lower = __x;
                         __x = __x->_M_next;
                         --__xsize;
                     }
-                    else if(!__xsize || !__x)
+                    else if (!__xsize || !__x)
                     {
                         __lower = __y;
                         __y = __y->_M_next;
                         --__ysize;
                     }
-                    else if(__cmp(__x, __y))
+                    else if (__cmp(__x, __y))
                     {
                         __lower = __x;
                         __x = __x->_M_next;
@@ -116,7 +116,7 @@ namespace ustl
 
                     }
 
-                    if(0 == __tail)
+                    if (0 == __tail)
                         __front = __lower;
                     else
                         __tail->_M_next = __lower;
@@ -128,7 +128,7 @@ namespace ustl
             __tail->_M_next = 0;
  
             // last merger was only one merger 
-            if(1 >=__tag)
+            if (1 >=__tag)
             {
                 __header->_M_next = __front;
                 __header->_M_last = __tail;
