@@ -1,0 +1,13 @@
+#ifndef __USTL_CORE_OPTIONAL__
+#define __USTL_CORE_OPTIONAL__
+
+namespace ustl
+{
+namespace core
+{
+    
+} // namespace core
+} // namespace ustl
+
+
+#endif

@@ -1,0 +1,246 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_TYPE_TRAITS__
+#define __USTL_CORE_TYPE_TRAITS__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#include <ustl/core/internal/type_traits/tt_base.hpp>
+#include <ustl/core/internal/type_traits/tt_integer.hpp>
+#include <ustl/core/internal/type_traits/tt_floating.hpp>
+#include <ustl/core/internal/type_traits/tt_object.hpp>
+#include <ustl/core/internal/type_traits/tt_pointer.hpp>
+#include <ustl/core/internal/type_traits/tt_reference.hpp>
+#include <ustl/core/internal/type_traits/tt_operator.hpp>
+#include <ustl/core/internal/type_traits/tt_typeseq_indexer.hpp>
+#include <ustl/core/internal/type_traits/tt_cv.hpp>
+
+
+namespace ustl
+{
+namespace core
+{
+
+    template <typename T>
+    USTL_CONSTEXPR bool const is_integer_v = internal::type_traits::IsInteger<T>::value;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const is_floating_v = internal::type_traits::IsFloating<T>::value;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const is_pointer_v = internal::type_traits::IsPointer<T>::value;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const is_reference_v = internal::type_traits::IsReference<T>::value;
+
+    template <typename Base, typename Derived>
+    USTL_CONSTEXPR bool const is_base_of_v = internal::type_traits::IsBaseOf<Base, Derived>::value;
+
+    template <typename From, typename To>
+    USTL_CONSTEXPR bool const is_convertible_v = internal::type_traits::IsConvertible<From, To>::value;
+
+    template <typename T, typename U>
+    USTL_CONSTEXPR bool const is_same_v = internal::type_traits::IsSame<T, U>::value;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_const_v = internal::type_traits::HadConst<T>::value;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_volatile_v = internal::type_traits::HadVolatile<T>::value;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_cv_v = internal::type_traits::HadConstOrVolatile<T>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_mul_v = internal::type_traits::IsOverrideMul<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_div_v = internal::type_traits::IsOverrideDiv<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_add_v = internal::type_traits::IsOverrideAdd<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_sub_v = internal::type_traits::IsOverrideSub<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_ls_v = internal::type_traits::IsOverrideLeftShift<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_rs_v = internal::type_traits::IsOverrideRightShift<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_lt_v = internal::type_traits::IsOverrideLt<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_gt_v = internal::type_traits::IsOverrideGt<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_le_v = internal::type_traits::IsOverrideLe<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_ge_v = internal::type_traits::IsOverrideGe<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_ne_v = internal::type_traits::IsOverrideNe<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_eq_v = internal::type_traits::IsOverrideEq<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_rel_v = internal::type_traits::IsOverrideRel<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_or_v = internal::type_traits::IsOverrideOr<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_not_v = internal::type_traits::IsOverrideNot<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_and_v = internal::type_traits::IsOverrideAnd<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_bitor_v = internal::type_traits::IsOverrideBitOr<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_bitand_v = internal::type_traits::IsOverrideBitAnd<T, U, R>::value;
+
+    template <typename T, typename U, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_bitnot_v = internal::type_traits::IsOverrideBitNot<T, R>::value;
+
+    template <typename T, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_def_v = internal::type_traits::IsOverrideDef<T, R>::value;
+
+    template <typename T, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_incb_v = internal::type_traits::IsOverrideIncb<T, R>::value;
+
+    template <typename T, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_incf_v = internal::type_traits::IsOverrideIncf<T, R>::value;
+
+    template <typename T, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_decb_v = internal::type_traits::IsOverrideDecb<T, R>::value;
+
+    template <typename T, typename R>
+    USTL_CONSTEXPR bool const had_custom_op_decf_v = internal::type_traits::IsOverrideDecf<T, R>::value;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_mul_v = had_custom_op_mul_v<T, T, T>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_div_v = had_custom_op_div_v<T, T, T>;;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_add_v = had_custom_op_add_v<T, T, T>;;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_sub_v = had_custom_op_sub_v<T, T, T>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_ls_v = had_custom_op_ls_v<T, T, T>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_rs_v = had_custom_op_rs_v<T, T, T>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_lt_v = had_custom_op_lt_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_gt_v = had_custom_op_gt_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_le_v = had_custom_op_le_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_ge_v = had_custom_op_ge_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_ne_v = had_custom_op_ne_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_eq_v = had_custom_op_eq_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_rel_v = had_custom_op_rel_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_not_v = had_custom_op_not_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_or_v = had_custom_op_or_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_and_v = had_custom_op_and_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_bitnot_v = had_custom_op_bitnot_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_bitor_v = had_custom_op_bitor_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_bitand_v = had_custom_op_bitand_v<T, T, bool>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_def_v = had_custom_op_def_v<T, T>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_incb_v = had_custom_op_incb_v<T, T>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_decb_v = had_custom_op_decb_v<T, T>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_incf_v = had_custom_op_incf_v<T, T &>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const had_regular_op_decf_v = had_custom_op_decf_v<T, T &>;
+
+    template <typename T>
+    USTL_CONSTEXPR bool const is_primary_type_v = is_integer_v<T> || is_floating_v<T> 
+                                                    || is_pointer_v<T> || is_reference_v<T>:
+
+
+    template <typename ...T>
+    using void_t = typename internal::type_traits::MakeVoid<T...>::type;
+
+    template <typename T>
+    using idextity_t = typename internal::type_traits::TypeIdextity<T>::type;
+
+    template <bool Cond, typename T = void>
+    using enable_if_t = typename internal::type_traits::EnableIf<Cond, T>::type;
+
+    template <bool Cond, typename T = void>
+    using disable_if_t = typename internal::type_traits::EnableIf<!Cond, T>::type;
+
+    template <bool Cond, typename Then, typename Else>
+    using conditional_t = typename internal::type_traits::Conditional<Cond, Then, Else>::type;
+
+    template <unsigned int Idx, typename... Ts>
+    using seq_index_t = typename internal::type_traits::TypeSeqIndexer<Idx, Ts...>::type;
+
+    template <typename T>
+    using remove_reference_t = typename internal::type_traits::RemoveReference<T>::type;
+
+    template <unsigned int Idx, typename T>
+    using remove_const_t = typename internal::type_traits::RemoveConst<I>::type;
+
+    template <unsigned int Idx, typename T>
+    using remove_volatile_t = typename internal::type_traits::RemoveVolatile<I>::type;
+
+    template <unsigned int Idx, typename T>
+    using remove_cv_t = typename internal::type_traits::RemoveConstAndVolatile<I>::type;
+
+
+    using  internal::type_traits::declval;
+    using  internal::type_traits::true_type; 
+    using  internal::type_traits::false_type; 
+
+} // namespace ustl::core
+} // namespace ustl
+
+
+
+#endif

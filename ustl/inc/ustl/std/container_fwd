@@ -1,0 +1,28 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_STD_FORWARD_DECLARATION__
+#define __USTL_STD_FORWARD_DECLARATION__
+
+#include <ustl/core/container_fwd>
+
+namespace ustl
+{
+namespace std
+{
+
+    template <typename Tp>
+    using initialize_list = core::initialize_list<Tp>;
+
+    template <typename Frist, typename Second>
+    using pair = core::pair<First, Second>;
+
+    template <typename... Elems>
+    using tuple = core::tuple<Elems...>;
+    
+} // namespace ustl::std
+} // namespace ustl
+
+
+
+#endif

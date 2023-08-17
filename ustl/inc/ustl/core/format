@@ -1,0 +1,43 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_FORMAT__
+#define __USTL_CORE_FORMAT__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#ifndef __USTL_CORE_INTERFACE_IDISPLAY__
+#include <ustl/core/interface/idisplay>
+#endif
+
+namespace ustl
+{
+namespace core
+{
+
+    template <usize _Idx, typename _Head, typename ..._Tail>
+    class _Format_helper
+        : _Format_helper<_Idx - 1, _Tail>
+    {
+    };
+
+
+    template <typename _Last>
+    class _Format_helper<0, _Last>
+    {
+    };
+
+
+    template <typename ..._Args>
+    string &
+    format(string &__fmt, _Args &&...__args);
+
+} // namespace ustl::core
+} // namespace ustl
+
+
+
+
+#endif

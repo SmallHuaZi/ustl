@@ -1,0 +1,84 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_CONTAINER_FORWARD_DECLARATION__
+#define __USTL_CORE_CONTAINER_FORWARD_DECLARATION__
+
+
+namespace ustl
+{
+namespace core
+{
+
+    template <typename First, typename Second>
+    class pair;
+
+    template <typename... Elems>
+    class tuple;
+
+    template <typename Tp>
+    class initialize_list;
+
+    template <typename Val>
+    class vector;
+
+    template <typename Val>
+    class list;
+
+    template <typename Val>
+    class slist;
+
+    template <typename Val>
+    class deque;
+
+    template <typename Val>
+    class circular_queue;
+
+    template <typename Key, typename Val, typename Comp, typename Container>
+    class map;
+
+    template <typename Key, typename Val, typename Comp, typename Container>
+    class multimap;
+
+    template <typename Key, typename Comp, typename Container>
+    class set;
+
+    template <typename Key, typename Comp, typename Container>
+    class multiset;
+
+    template <typename key, typename Val, typename Comp, typename KeyOfVal>
+    class rb_tree;
+
+    template <typename key, typename Val, typename Comp, typename KeyOfVal>
+    class avl_tree;
+
+    template <typename key, typename Val, typename Comp, typename KeyOfVal>
+    class splay_tree;
+
+    template <typename key, typename Val, typename Comp, typename KeyOfVal>
+    class hash_table;
+
+    template <typename CharT, typename Traits = void>
+    class basic_string;
+
+    typedef basic_string<char>      string;
+    typedef basic_string<wchar_t>   wstring;
+
+    template <typename Key, typename Val, typename Comp, typename KeyOfVal>
+    using unordered_map = map<Key, Val, Comp, hash_table<Key, Val, Comp, KeyOfVal>>;
+
+    template <typename Key, typename Val, typename Comp, typename KeyOfVal>
+    using unordered_multimap = map<Key, Val, Comp, hash_table<Key, Val, Comp, KeyOfVal>>;
+
+    template <typename Key, typename Comp, typename KeyOfVal>
+    using unordered_set = map<Key, Comp, hash_table<Key, Key, Comp, KeyOfVal>>;
+
+    template <typename Key, typename Comp, typename KeyOfVal>
+    using unordered_multiset = set<Key, Comp, hash_table<Key, Key, Comp, KeyOfVal>>;
+    
+} // namespace core
+} // namespace ustl
+
+
+
+#endif

@@ -1,0 +1,29 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_PAIR__
+#define __USTL_CORE_PAIR__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#include <ustl/core/internal/type_traits/tt_typeseq_indexer.hpp>
+#include <ustl/core/internal/container/con_pair.hpp>
+
+
+namespace ustl
+{
+namespace core
+{
+    template <unsigned int Idx, typename... Elems>
+    using elem_extractor = internal::container::ElemExtractor<Idx, Elems...>;
+
+    template <typename First, typename Second>
+    using pair = internal::container::Pair<First, Second>;
+
+} // namespace ustl::core
+} // namespace ustl
+
+
+#endif

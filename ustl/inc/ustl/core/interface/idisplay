@@ -1,0 +1,43 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_INTERFACE_IDISPLAY__
+#define __USTL_CORE_INTERFACE_IDISPLAY__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#ifndef __USTL_CORE_STRING_FORWARD_DECLARATION__
+#include <ustl/core/string_fwd>
+#endif
+
+namespace ustl
+{
+namespace core
+{
+namespace interface
+{
+
+    struct idispaly 
+    {
+        virtual string & 
+        show() USTL_INTERFACE;
+    };
+
+    template <typename Object>
+    struct impl_display
+    {
+        string &
+        show() 
+        { return _M_obj.show(); }
+
+    private:
+        Object const &_M_obj;
+    };
+    
+} // namespace ustl::core::interface
+} // namespace ustl::core
+} // namespace ustl
+
+#endif

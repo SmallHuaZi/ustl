@@ -1,0 +1,15 @@
+#ifndef __USTL_CORE_ATOMIC__
+#define __USTL_CORE_ATOMIC__
+
+
+namespace ustl
+{
+namespace core
+{
+    
+} // namespace core
+} // namespace ustl
+
+
+
+#endif

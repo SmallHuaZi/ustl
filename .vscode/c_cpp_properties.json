@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/ustl/inc",
+                "${workspaceFolder}/ustl/src",
+                "${workspaceFolder}/tests/inc",
+                "${workspaceFolder}/tests/third-party/googletest/googletest/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "intelliSenseMode": "linux-gcc-x64",
+        }
+    ],
+    "version": 4
+}

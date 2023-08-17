@@ -1,0 +1,166 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_BITSET__
+#define __USTL_CORE_BITSET__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+
+namespace ustl
+{
+namespace core
+{
+
+    /**
+     * @class:  'bitset'
+     * @details: 
+    */
+    class USTL_API bitset
+    {
+        enum { LOCAL_MAP_SIZE = sizeof(void *) };
+
+    public:
+        struct _Bitset_impl;
+        typedef bitset      _Self_type;
+
+    private:
+        bool
+        _M_is_local_data() const USTL_NOEXCEPT
+        { return    _M_maps == _M_stack_map; }
+
+    public:
+        /**
+         * @brief:
+         * @param __pos:
+        */
+        void
+        set(usize const __pos) USTL_NOEXCEPT;
+
+
+        /**
+         * @brief:
+         * @param __pos:
+         * @param __len:
+        */
+        void
+        set(usize const __pos, usize const __len) USTL_NOEXCEPT;
+
+
+        /**
+         * @brief:
+         * @param __pos:
+        */
+        void
+        clr(usize const __pos) USTL_NOEXCEPT;
+
+
+        /**
+         * @brief:
+         * @param __pos:
+         * @param __len:
+        */
+        void
+        clr(usize const __pos, usize const __len) USTL_NOEXCEPT;
+
+
+        /**
+         * @brief:
+        */
+        void
+        neg() USTL_NOEXCEPT;
+
+
+        /**
+         * @brief:
+         * @param __pos:
+         * @return:
+        */
+        bool
+        exist(usize const __pos) const USTL_NOEXCEPT;
+
+
+        /**
+         * @brief:
+         * @return:
+        */
+        usize
+        find_first() const USTL_NOEXCEPT;
+
+
+        /**
+         * @brief:
+         * @return:
+        */
+        usize
+        set_first() USTL_NOEXCEPT;
+
+
+        /**
+         * 
+        */
+        usize
+        clr_first() USTL_NOEXCEPT;
+
+
+        /**
+         * @brief:
+         * @return:
+        */
+        _Self_type &
+        operator=(_Self_type const &__other) &;
+
+
+        /**
+         * @brief:
+         * @return:
+        */
+        _Self_type &
+        operator=(_Self_type &&__other) &;
+
+
+        /**
+         * @brief:
+        */
+        explicit
+        bitset();
+
+
+        /**
+         * @brief:
+         * @param __m:
+         * @param __len:
+        */
+        explicit
+        bitset(usize *__m, usize __len);
+
+    private:
+        union {
+        struct {
+            usize  *_M_maps;                           ///<
+            usize   _M_size;                           ///<
+        };
+            usize   _M_stack_map[LOCAL_MAP_SIZE];      ///<
+        };
+    };
+
+
+    inline bitset::
+        bitset()
+        : _M_maps(_M_stack_map)
+    {};
+
+
+    inline bitset::
+        bitset(usize *__m, usize __len)
+        : _M_maps(__m), 
+          _M_size(__len)
+    {}
+        
+} // namespace ustl::core
+} // namespace ustl
+
+
+#endif

@@ -1,0 +1,26 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_STD_PAIR__
+#define __USTL_STD_PAIR__
+
+#include <ustl/core/pair>
+
+namespace ustl
+{
+namespace std
+{
+
+    template <unsigned int Idx, typename... Elems>
+    using elem_extractor = CORE elem_extractor<Idx, Elems...>;
+
+    template <typename First, typename Second>
+    using pair = CORE pair<First, Second>;
+    
+} // namespace ustl::std
+} // namespace ustl
+
+
+
+
+#endif

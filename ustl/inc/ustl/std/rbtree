@@ -1,0 +1,76 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_STD_RBTREE__
+#define __USTL_STD_RBTREE__
+
+/// Public header
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#ifndef __USTL_STD_PAIR__
+#include <ustl/std/pair>
+#endif
+
+#ifndef __USTL_STD_INITIALIZER_LIST___
+#include <ustl/std/initializer_list>
+#endif
+
+/// Internal header
+#include <ustl/core/internal/compare/cmp_less.hpp>
+#include <ustl/core/internal/type_traits/tt_base.hpp>
+#include <ustl/core/internal/type_traits/tt_allocator_trait.hpp>
+#include <ustl/core/internal/iterator/itr_tree_iter.hpp>
+#include <ustl/core/internal/container/base/con_rbtnode.hpp>
+#include <ustl/core/internal/utility/move.hpp>
+#include <ustl/std/internal/container/con_rbtree.hpp>
+#include <ustl/std/internal/container/con_rbtree.tcc>
+#include <ustl/std/internal/scope/mem_allocator.hpp>
+
+
+namespace ustl
+{
+namespace std 
+{
+
+/**
+ * @brief 
+ * @tparam Key
+ * @tparam Val
+ * @tparam Compare 
+ * @tparam KeyOfVal 
+ * @tparam Allocator 
+ * 
+ * @interface 
+ *      iter_mut
+ *      insert_unique(value_type const &flush)
+ * @interface insert_unique(value_type &&flush)
+ * @interface 
+ *      iter_mut
+ *      insert_multi(value_type const &flush)
+ * 
+ * @interface 
+ *      iter_mut
+ *      insert_multi(value_type &&flush)
+ * 
+ * @interface 
+ *      template <typename...Args> 
+ *      iter_mut
+ *      emplace_unique(Args&& ...constrctor);
+ * 
+ * @interface erase_unique()
+ * @interface erase_multi()
+ * @interface lower_bound()
+ * @interface upper_bound()
+ * @interface clear()
+*/
+    template <typename Key, typename Val, typename KeyOfVal>
+    using rbtree = internal::container::RBTree<Key, Val, KeyOfVal, 
+                   internal::compare::Less<Key>, 
+                   internal::scope::Allocator<Val>>;
+
+} // namespace ustl::std
+} // namespace ustl
+
+#endif

@@ -1,0 +1,12 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_MATH__
+#define __USTL_CORE_MATH__
+
+#include <ustl/core/internal/math/mt_power.hpp>
+#include <ustl/core/internal/math/mt_section.hpp>
+#include <ustl/core/internal/math/mt_trigonometric.hpp>
+
+
+#endif

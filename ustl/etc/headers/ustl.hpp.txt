@@ -1,0 +1,27 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL__
+#define __USTL__
+
+#if defined(__cplusplus) && __cplusplus < 201103L
+#error "The C++ version requires a minimum of 11 in ustl"
+#endif
+
+#include    <ustl/hidden/define.hpp>
+#include    <ustl/hidden/config.hpp>
+#include    <ustl/hidden/namespace.hpp>
+#include    <ustl/hidden/architecture.hpp>
+#include    <ustl/hidden/type.hpp>
+
+
+#define     __USTL_VERSION_MAJOR    ${${PROJECT_NAME}_VERSION_MAJOR}
+#define     __USTL_VERSION_MINOR    ${${PROJECT_NAME}_VERSION_MINOR}
+#define     __USTL_VERSION_PATCH    ${${PROJECT_NAME}_VERSION_PATCH}
+
+#define     __USTL_VERSION  "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}"
+
+
+
+
+#endif

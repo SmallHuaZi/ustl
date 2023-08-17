@@ -1,0 +1,26 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_COMPARE__
+#define __USTL_CORE_COMPARE__
+
+#include <ustl/core/internal/compare/cmp_max.hpp>
+#include <ustl/core/internal/compare/cmp_min.hpp>
+#include <ustl/core/internal/compare/cmp_less.hpp>
+#include <ustl/core/internal/compare/cmp_ordering.hpp>
+
+namespace ustl
+{
+namespace core
+{
+
+    using internal::max;
+    using internal::min;
+    using internal::Ordering;
+    
+} // namespace core
+} // namespace ustl
+
+
+
+#endif

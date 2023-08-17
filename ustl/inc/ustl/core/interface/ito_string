@@ -1,0 +1,48 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_INTERFACE_ITOSTRING__
+#define __USTL_CORE_INTERFACE_ITOSTRING__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#ifndef __USTL_CORE_STRING_FORWARD_DECLARATION__
+#include <ustl/core/string_fwd>
+#endif
+
+namespace ustl
+{
+namespace core
+{
+namespace interface
+{
+
+    struct ito_string
+    {
+        virtual string &
+        to_string() USTL_INTERFACE;
+    };
+    
+
+    template <typename Object>
+    struct impl_to_string
+    {
+        string &
+        to_string() 
+        { return _M_obj.to_string(); }
+
+    private:
+        Object const &_M_obj;
+    };
+    
+    
+} // namespace ustl::core::interface
+} // namespace ustl::core
+} // namespace ustl
+
+
+
+
+#endif

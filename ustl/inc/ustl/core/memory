@@ -1,0 +1,42 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_MEMORY__
+#define __USTL_CORE_MEMORY__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+namespace ustl 
+{
+namespace core
+{
+
+    template <typename _Tp>
+    class allocator
+    {
+    public:
+        typedef _Tp      value_type;
+        typedef _Tp &    reference;
+        typedef _Tp *    pointer;
+
+    public:
+        static value_type *
+        allocate(size_t __ns)
+        { return static_cast<value_type *>(__ustl_init_mem_allocate(sizeof(_Tp) * __ns)); }
+
+        static void
+        deallocate(value_type *__data, size_t __ns)
+        { __ustl_mem_deallocate(__data, sizeof(value_type) * __ns); }
+
+    private:
+        allocator() = delete;
+
+        ~allocator() = delete;
+    };
+
+} // namespace ustl::core
+} // namespace ustl
+
+#endif

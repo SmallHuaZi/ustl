@@ -1,0 +1,27 @@
+#ifndef __USTL_CORE_TUPLE__
+#define __USTL_CORE_TUPLE__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#include <ustl/core/internal/type_traits/tt_typeseq_indexer.hpp>
+#include <ustl/core/internal/container/con_tuple.hpp>
+
+namespace ustl
+{
+namespace core
+{
+
+    using internal::container::get;
+    using internal::container::operator!=;
+    using internal::container::operator==;
+
+    template <typename... Elements>
+    using tuple = internal::container::Tuple<Elements...>;
+    
+} // namespace core
+} // namespace ustl
+
+
+#endif

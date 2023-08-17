@@ -1,0 +1,131 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_GRAPH__
+#define __USTL_CORE_GRAPH__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+
+namespace ustl
+{
+namespace core
+{
+    template <typename _Weight, typename _Val, typename _Comp, typename _WeightOfVal>
+    class graph
+    {
+    private:
+        struct _Path;
+        struct _Edge;
+        struct _Vertex;
+
+        template <bool _Mut>
+        struct _Graph_iterator;
+
+        enum _Short_path_policy
+        {        
+            AStar,
+            Johnsons,
+            Dijkstra,
+            BellmanFord,
+            FloydWarshell,
+        };
+
+    public:
+        typedef _Val            value_type;
+        typedef _Val *          pointer;
+        typedef _Val &          reference;
+        typedef _Val const *    const_pointer;
+        typedef _Val const &    const_reference;
+        typedef _Graph_iterator<true>       itr_mut;
+        typedef _Graph_iterator<false>      itr_const;
+
+        typedef graph       Self;
+        typedef _Path       path_type;
+        typedef _Vertex     vertex_type;
+        typedef _Short_path_policy  policy;
+
+    public:
+        USTL_CONSTEXPR policy astar          =  policy::AStar;
+        USTL_CONSTEXPR policy johnsons       =  policy::Johnsons;
+        USTL_CONSTEXPR policy dijkstra       =  policy::Dijkstra;
+        USTL_CONSTEXPR policy bellmanford    =  policy::BellmanFord;
+        USTL_CONSTEXPR policy floyd_warshell =  policy::FloydWarshell;
+    
+    public:
+        /**
+         * @brief: Dtermine whether the edge exists
+         * @param __beg:
+         * @param __end:
+         * @return:
+        */
+        bool
+        contains(itr_const __beg, itr_const __end) const USTL_NOEXCEPT;
+
+
+        /**
+         * @brief: Dtermine whether the edge exists
+         * @param __val:
+         * @return:
+        */
+        bool
+        contains(value_type const &__val) const USTL_NOEXCEPT;
+
+
+        /**
+         * @brief: 
+         * @param __val:
+         * @return:
+        */
+        itr_mut
+        insert(vertex_type *__val) USTL_NOEXCEPT;
+
+
+        /**
+         * @brief: Insert the edge from %__beg to %__end
+         * @param __beg:  The edge start vertex 
+         * @param __end:  The edge finish vertex
+        */
+        itr_mut
+        insert(itr_const __from, itr_const __to) USTL_NOEXCEPT;
+
+
+        path_type
+        routing(itr_const __from, itr_const __to, policy pc = Self::astar);
+    };
+
+
+    template <typename _Weight, typename _Val, typename _Comp, typename _WeightOfVal>
+    struct graph<_Weight, _Val, _Comp, _WeightOfVal>::_Path
+    {
+
+    };
+
+
+    template <typename _Weight, typename _Val, typename _Comp, typename _WeightOfVal>
+    struct graph<_Weight, _Val, _Comp, _WeightOfVal>::_Vertex
+    {
+
+    private:
+        value_type      _M_data;
+    };
+
+
+    template <typename _Weight, typename _Val, typename _Comp, typename _WeightOfVal>
+    template <bool _Mut>
+    struct graph<_Weight, _Val, _Comp, _WeightOfVal>::_Graph_iterator
+    {
+        typedef graph<_Weight, _Val, _Comp, _WeightOfVal>   _Wrapper_type;
+        typedef _Wrapper_type::_Path        path_type;
+
+    private:
+        vertex      _M_vertex;
+    };
+    
+} // namespace core
+} // namespace ustl
+
+
+#endif

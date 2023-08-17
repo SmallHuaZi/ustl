@@ -1,0 +1,25 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_STD_INITIALIZER_LIST___
+#define __USTL_STD_INITIALIZER_LIST___
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#include <ustl/core/internal/container/con_initializer_list.hpp>
+
+namespace ustl
+{
+namespace std
+{
+
+    template <typename T>
+    using initializer_list = internal::container::InitializerList<T>;
+    
+} // namespace ustl::std
+} // namespace ustl
+
+
+#endif

@@ -1,0 +1,20 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_RBTREE_FORWARD_DECLARATION__
+#define __USTL_CORE_RBTREE_FORWARD_DECLARATION__
+
+
+namespace ustl
+{
+namespace core
+{
+
+    template <typename _Key, typename _Val, typename _Comp, typename _KeyOfVal>
+    class rb_tree;
+
+} // namespace ustl::core
+} // namespace ustl
+
+
+#endif

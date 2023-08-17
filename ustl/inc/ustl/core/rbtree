@@ -1,0 +1,47 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_RBTREE__
+#define __USTL_CORE_RBTREE__
+
+/// Public header
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#ifndef __USTL_CORE_PAIR__
+#include <ustl/core/pair>
+#endif
+
+/// Internal header
+#include <ustl/core/internal/type_traits/tt_base.hpp>
+#include <ustl/core/internal/container/con_tree_base.hpp>
+
+
+namespace ustl
+{
+namespace core
+{
+
+/**
+ * @brief 
+ * @tparam Key
+ * @tparam Val
+ * @tparam Comp 
+ * @tparam KeyOfVal 
+ * 
+ * @interface insert_unique()
+ * @interface insert_multi()
+ * @interface erase_unique()
+ * @interface erase_multi()
+ * @interface lower_bound()
+ * @interface upper_bound()
+ * @interface clear()
+*/
+    template <typename Key, typename Val, typename Comp, typename KeyOfVal>
+    using rb_tree = internal::RBTree<Key, Val, Comp, KeyOfVal>;
+
+} // namespace ustl::core
+} // namespace ustl
+
+#endif

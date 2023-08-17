@@ -1,0 +1,33 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_LIST__
+#define __USTL_CORE_LIST__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#include <ustl/core/internal/type_traits/tt_base.hpp>
+#include <ustl/core/internal/container/con_list_base.hpp>
+#include <ustl/core/internal/container/con_list.hpp>
+#include <ustl/core/internal/container/con_list.tcc>
+
+
+namespace ustl
+{
+namespace core
+{
+/**
+ * @class list
+ * @brief
+ * @tparam T 
+*/
+    template <typename T>
+    using list = internal::_List<T>;
+
+} // namespace ustl::core
+} // namespace ustl
+
+
+#endif

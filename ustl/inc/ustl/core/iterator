@@ -1,0 +1,63 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_ITERATOR__
+#define __USTL_CORE_ITERATOR__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#include <ustl/core/internal/iterator/itr_category.hpp>
+#include <ustl/core/internal/iterator/itr_traits.hpp>
+#include <ustl/core/internal/iterator/itr_list_iter.hpp>
+#include <ustl/core/internal/iterator/itr_tree_iter.hpp>
+#include <ustl/core/internal/iterator/itr_slice_iter.hpp>
+#include <ustl/core/internal/iterator/itr_helper.hpp>
+
+namespace ustl
+{
+namespace core
+{
+
+    using  internal::iterator::input_iter_category;
+    using  internal::iterator::output_iter_category;
+    using  internal::iterator::forward_iter_category;
+    using  internal::iterator::bothway_iter_category;
+    using  internal::iterator::random_iter_category;
+
+    template <typename Iter>
+    using iter_traits = internal::iterator::IterTraits<Iter>;
+
+    template <typename T>
+    using list_iter = internal::iterator::ListIter<T>;
+
+    template <typename T>
+    using tree_iter = internal::iterator::TreeIter<T>;
+
+    template <typename T>
+    using slice_iter = internal::iterator::SliceIter<T>;
+
+    template <typename Iter>
+    USTL_CONSTEXPR bool const is_iter_v = internal::iterator::IsIter<Iter>::value;
+
+    template <typename Iter>
+    USTL_CONSTEXPR bool const is_input_iter_v = internal::iterator::IsInputIter<Iter>::value;
+
+    template <typename Iter>
+    USTL_CONSTEXPR bool const is_output_iter_v = internal::iterator::IsOutputIter<Iter>::value;
+
+    template <typename Iter>
+    USTL_CONSTEXPR bool const is_forward_iter_v = internal::iterator::IsForwardIter<Iter>::value;
+
+    template <typename Iter>
+    USTL_CONSTEXPR bool const is_bothway_iter_v = internal::iterator::IsBothwayIter<Iter>::value;
+
+    template <typename Iter>
+    USTL_CONSTEXPR bool const is_random_iter_v = internal::iterator::IsRandomIter<Iter>::value;
+
+} // namespace ustl::core
+} // namespace ustl 
+
+
+#endif

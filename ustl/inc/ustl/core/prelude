@@ -1,0 +1,34 @@
+#ifndef __USTL_CORE_PRELUDE__
+#define __USTL_CORE_PRELUDE__
+
+#ifndef __USTL__
+#include <ustl/ustl> 
+#endif
+
+#include <ustl/core/type_traits>
+#include <ustl/core/iterator>
+#include <ustl/core/optional>
+#include <ustl/core/compare>
+#include <ustl/core/container_fwd>
+
+#if __cplusplus >= 202002ul
+#include <ustl/core/concept>
+#endif
+
+// Internal header
+#include <ustl/core/internal/move.hpp>
+
+namespace ustl
+{
+namespace core
+{
+
+    using  internal::move;
+    using  internal::forward;
+    
+} // namespace ustl::core
+} // namespace ustl
+
+
+
+#endif

@@ -1,0 +1,80 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_INTERFACE_IALLOCATOR__
+#define __USTL_CORE_INTERFACE_IALLOCATOR__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+
+namespace ustl
+{
+namespace core
+{
+namespace interface
+{
+
+    struct iallocator
+    {
+        virtual void * 
+        allocate_zeroed(usize layou) USTL_INTERFACE;
+
+        virtual void *
+        allocate_uninit(usize layout) USTL_INTERFACE;
+
+        virtual void *
+        grow_zeroed(void *ptr, usize layout) USTL_INTERFACE;
+
+        virtual void *
+        grow_uninit(void *ptr, usize layout) USTL_INTERFACE;
+
+        virtual void *
+        shrink(void *ptr, usize layout) USTL_INTERFACE;
+
+        virtual void
+        deallocate(void *ptr) USTL_INTERFACE;
+    };
+
+
+    template <typename Allocator>
+    struct impl_allocator
+    {
+
+        void *
+        allocate_zeroed(usize layout)
+        { return _M_alloc.allocate_zeroed(layout); }
+
+        void *
+        allocate_uninit(usize layout)
+        { return _M_alloc.allocate_zeroed(layout); }
+
+        void *
+        grow_zeroed(void *ptr, usize layout) 
+        { return _M_alloc.grow_zeroed(ptr, layout); }
+
+        void *
+        grow_uninit(void *ptr, usize layout)
+        { return _M_alloc.grow_uninit(ptr, layout); }
+
+        void *
+        shrink(void *ptr, usize layout) 
+        { return _M_alloc.shrink(ptr, layout); }
+
+        void
+        deallocate(void *ptr, usize layout)
+        { return _M_alloc.deallocate(ptr); }
+
+    private:
+        Allocator const &_M_alloc;
+    };
+    
+    
+} // namespace ustl::core::interface
+} // namespace ustl::core
+} // namespace ustl
+
+
+
+#endif

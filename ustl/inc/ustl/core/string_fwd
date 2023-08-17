@@ -1,0 +1,22 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_STRING_FORWARD_DECLARATION__
+#define __USTL_CORE_STRING_FORWARD_DECLARATION__
+
+
+namespace ustl
+{
+namespace core
+{
+
+    template <typename _CharT, typename _Traits = void>
+    class basic_string;
+
+    using string  =  basic_string<char>;
+    using wstring =  basic_string<wchar_t>;
+
+} // namespace ustl::core
+} // namespace ustl
+
+#endif

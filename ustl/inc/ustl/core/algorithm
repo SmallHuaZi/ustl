@@ -1,0 +1,83 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+#ifndef __USTL_CORE_ALGORITHM__
+#define __USTL_CORE_ALGORITHM__
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#include <ustl/core/internal/algorithm/algo_find.hpp>
+#include <ustl/core/internal/algorithm/algo_fill.hpp>
+#include <ustl/core/internal/algorithm/algo_copy.hpp>
+#include <ustl/core/internal/algorithm/algo_sort.hpp>
+#include <ustl/core/internal/algorithm/algo_hash.hpp>
+#include <ustl/core/internal/algorithm/algo_remove.hpp>
+#include <ustl/core/internal/algorithm/algo_unique.hpp>
+#include <ustl/core/internal/algorithm/algo_numberical.hpp>
+#include <ustl/core/internal/algorithm/algo_compress.hpp>
+#include <ustl/core/internal/algorithm/algo_foreach.hpp>
+#include <ustl/core/internal/algorithm/algo_count.hpp>
+
+#if __cplusplus >= 201103ul
+#include <ustl/core/internal/algorithm/algo_move.hpp>
+#endif
+
+namespace ustl
+{
+namespace core
+{
+
+    using  internal::algorithm::lerp;
+    using  internal::algorithm::slerp;
+
+    using  internal::algorithm::find;
+    using  internal::algorithm::find_if;
+    using  internal::algorithm::find_if_not;
+
+    using  internal::algorithm::fill;
+    using  internal::algorithm::fill_n;
+
+    using  internal::algorithm::copy;
+    using  internal::algorithm::copy_n;
+    using  internal::algorithm::copy_if;
+    using  internal::algorithm::copy_backward;
+    using  internal::algorithm::copy_backward_n;
+    using  internal::algorithm::copy_backward_if;
+    using  internal::algorithm::reverse_copy;
+    using  internal::algorithm::reverse_copy_n;
+    using  internal::algorithm::reverse_copy_if;
+
+    using  internal::algorithm::remove;
+    using  internal::algorithm::remove_if;
+
+#if __cplusplus >= 201103ul
+    using  internal::algorithm::move_forward;
+    using  internal::algorithm::move_forward_n;
+    using  internal::algorithm::move_forward_if;
+    using  internal::algorithm::move_backward;
+    using  internal::algorithm::move_backward_n;
+    using  internal::algorithm::move_backward_if;
+    using  internal::algorithm::reverse_move;
+    using  internal::algorithm::reverse_move_n;
+    using  internal::algorithm::reverse_move_if;
+#endif
+
+    using  internal::algorithm::count;
+    using  internal::algorithm::count_if;
+
+    using  internal::algorithm::for_each;
+    using  internal::algorithm::for_each_n;
+
+    using  internal::algorithm::sort;
+    using  internal::algorithm::unique;
+
+    template <typename T>
+    using hash = internal::algorithm::Hash<T>;
+
+} // namespace ustl::core 
+} // namespace ustl
+
+
+#endif
