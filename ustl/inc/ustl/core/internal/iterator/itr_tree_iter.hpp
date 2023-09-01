@@ -141,7 +141,7 @@ namespace iterator
          * 
         */
         friend bool
-        operator!=<>(Self const &x, Self const &y) USTL_NOEXCEPT;
+        operator!= <>(Self const &x, Self const &y) USTL_NOEXCEPT;
 
         /**
          * 

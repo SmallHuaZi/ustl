@@ -27,6 +27,7 @@ foreach(In ${USTL_UNIT_TESTS})
     target_include_directories(${ExecutableName}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/inc
         PRIVATE ../ustl/inc
+        PRIVATE ../ustl/lib
     )
 
     set_target_properties(${ExecutableName}

@@ -22,6 +22,9 @@ namespace platform
 
         static void 
         close();
+
+        static void *
+        mmap();
     };
     
 } // namespace platform

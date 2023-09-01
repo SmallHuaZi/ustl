@@ -39,6 +39,30 @@ namespace core
     using slice_iter = internal::iterator::SliceIter<T>;
 
     template <typename Iter>
+    using iter_op_le = internal::iterator::IterOpLe<Iter>;
+
+    template <typename Iter>
+    using iter_op_lt = internal::iterator::IterOpLt<Iter>;
+
+    template <typename Iter>
+    using iter_op_ge = internal::iterator::IterOpGe<Iter>;
+
+    template <typename Iter>
+    using iter_op_gt = internal::iterator::IterOpGt<Iter>;
+
+    template <typename Iter>
+    using iter_op_eq = internal::iterator::IterOpEq<Iter>;
+
+    template <typename Iter>
+    using iter_op_ne = internal::iterator::IterOpNe<Iter>;
+
+    template <typename Iter, typename Compare>
+    using iter_op_cmp = internal::iterator::IterOpCmp<Iter, Compare>;
+
+    template <typename Iter, typename Compare>
+    using iter_op_rev = internal::iterator::IterOpReverse<Iter, Compare>;
+
+    template <typename Iter>
     USTL_CONSTEXPR bool const is_iter_v = internal::iterator::IsIter<Iter>::value;
 
     template <typename Iter>

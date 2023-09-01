@@ -9,13 +9,7 @@
 #include <ustl/core/internal/iterator/itr_category.hpp>
 #endif
 
-namespace ustl
-{
-namespace core
-{
-namespace internal
-{
-namespace iterator
+namespace ustl::core::internal::iterator
 {
 
     template <typename _Iter, typename = void>
@@ -30,7 +24,7 @@ namespace iterator
             typename _Iter::const_pointer,
             typename _Iter::const_reference,
             typename _Iter::iter_category,
-            typename _Iter::difference_type>::type>
+            typename _Iter::diff_type>::type>
     {
         typedef typename _Iter::value_type          value_type;
         typedef typename _Iter::pointer             pointer;
@@ -67,16 +61,11 @@ namespace iterator
         typedef _Iter &         reference;
         typedef _Iter const *   const_pointer;
         typedef _Iter const &   const_reference;
-        typedef isize           difference_type;
+        typedef isize           diff_type;
         typedef bothway_iter_category   iter_category;
     };
-
     
 } // namespace ustl::core::internal::iterator
-} // namespace ustl::core::internal
-} // namespace ustl::core
-} // namespace ustl
-
 
 
 #endif

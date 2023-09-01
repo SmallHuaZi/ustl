@@ -15,8 +15,8 @@
 #include <ustl/core/internal/type_traits/tt_pointer.hpp>
 #include <ustl/core/internal/type_traits/tt_reference.hpp>
 #include <ustl/core/internal/type_traits/tt_operator.hpp>
-#include <ustl/core/internal/type_traits/tt_typeseq_indexer.hpp>
 #include <ustl/core/internal/type_traits/tt_cv.hpp>
+#include <ustl/core/internal/type_traits/tt_index_sequence.hpp>
 
 
 namespace ustl
@@ -126,6 +126,9 @@ namespace core
     template <typename T, typename R>
     USTL_CONSTEXPR bool const had_custom_op_decf_v = internal::type_traits::IsOverrideDecf<T, R>::value;
 
+    template <typename... Ts>
+    USTL_CONSTEXPR long const index_sequence_length_v = internal::type_traits::IndexSequenceLength<Ts...>::value;
+
     template <typename T>
     USTL_CONSTEXPR bool const had_regular_op_mul_v = had_custom_op_mul_v<T, T, T>;
 
@@ -219,7 +222,7 @@ namespace core
     using conditional_t = typename internal::type_traits::Conditional<Cond, Then, Else>::type;
 
     template <unsigned int Idx, typename... Ts>
-    using seq_index_t = typename internal::type_traits::TypeSeqIndexer<Idx, Ts...>::type;
+    using index_sequence_t = typename internal::type_traits::IndexSequence<Idx, Ts...>::type;
 
     template <typename T>
     using remove_reference_t = typename internal::type_traits::RemoveReference<T>::type;
@@ -235,8 +238,8 @@ namespace core
 
 
     using  internal::type_traits::declval;
-    using  internal::type_traits::true_type; 
-    using  internal::type_traits::false_type; 
+    using  internal::type_traits::true_type;
+    using  internal::type_traits::false_type;
 
 } // namespace ustl::core
 } // namespace ustl

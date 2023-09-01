@@ -15,8 +15,6 @@
 
 /// Internal header
 #include <ustl/core/internal/type_traits/tt_base.hpp>
-#include <ustl/core/internal/container/con_tree_base.hpp>
-
 
 namespace ustl
 {

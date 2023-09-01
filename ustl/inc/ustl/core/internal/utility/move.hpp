@@ -1,3 +1,6 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
 #ifndef __USTL_CORE_INTERNAL_UTILITY_MOVE_HPP__
 #define __USTL_CORE_INTERNAL_UTILITY_MOVE_HPP__
 

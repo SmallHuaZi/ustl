@@ -5,13 +5,7 @@
 #define __USTL_CORE_INTERNAL_ALGORITHM_COPY_HPP__
 
 
-namespace ustl
-{
-namespace core
-{
-namespace internal
-{
-namespace algorithm
+namespace ustl::core::internal::algorithm
 {
 
     template <typename InputIter, typename OutputIter>
@@ -44,7 +38,7 @@ namespace algorithm
     {
         while (first != last) {
             if (pred(*first)) {
-                *result++ = *frist;
+                *result++ = *first;
             }
             ++first;
         }
@@ -129,11 +123,7 @@ namespace algorithm
         return first1;
     }
 
-    
 } // namespace ustl::core::internal::algorithm
-} // namespace ustl::core::internal
-} // namespace ustl::core
-} // namespace ustl
 
 
 

@@ -8,12 +8,14 @@ namespace ustl
 {
     namespace core
     {
+        namespace sorting {} // namespace sorting
+        namespace hasher {} // namespace hasher
+
         namespace internal
         {
             namespace algorithm
             {
                 namespace hash {} // namespace hash
-                namespace heap {} // namespace heap 
             } // namespace algorithm
 
             namespace container

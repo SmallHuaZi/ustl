@@ -5,13 +5,7 @@
 #define __USTL_CORE_INTERNAL_ITERATOR_CATEGORY_HPP__
 
 
-namespace ustl
-{
-namespace core
-{
-namespace internal
-{
-namespace iterator
+namespace ustl::core::internal::iterator
 {
 
     struct InputIter
@@ -44,9 +38,6 @@ namespace iterator
     typedef iterator::RandomIter      random_iter_category;
 
 } // namespace ustl::core::internal::iterator
-} // namespace ustl::core::internal
-} // namespace ustl::core
-} // namespace ustl
 
 
 #endif

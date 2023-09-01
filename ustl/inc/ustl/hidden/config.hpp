@@ -4,22 +4,46 @@
 #ifndef __USTL_CONFIG_HPP__
 #define __USTL_CONFIG_HPP__
 
-
-/// Keyword
-#define USTL_TRY           try
-#define USTL_THROW         throw
-#define USTL_CATCH_ALL     catch (...)
-#define USTL_CATCH(except) catch (except const &__e)
-#define USTL_THROW_AGAIN   throw;
 #define USTL_INTERFACE     = 0
-#if defined(__cplusplus) && __cplusplus < 201103ul
-#   define USTL_NOEXCEPT   throw()
+
+#if !defined(USTL_ENABLE_EXCEPTION)
+#define USTL_ENABLE_EXCEPTION 1
+#endif
+
+/// Memory alignment
+#if defined(__cplusplus) && __cplusplus >= 201103ul
+#   define USTL_ALIGN(a)    alignas(a)
+#elif defined(__GNUC__)
+#   define USTL_ALIGN(a)    __attribute__((align(a)))
+#elif defined(_MSC_VER)
+#   define USTL_ALIGN(a)    __declspec(align(a))
+#endif
+
+/// Exception management
+#if defined(USTL_ENABLE_EXCEPTION)
+#   define USTL_TRY           try
+#   define USTL_THROW         throw
+#   define USTL_CATCH_ALL     catch (...)
+#   define USTL_CATCH(except) catch (except const &__e)
+#   define USTL_THROW_AGAIN   throw
+#   if defined(__cplusplus) && __cplusplus < 201103ul
+#       define USTL_NOEXCEPT   throw()
+#       define USTL_CONSTEXPR
+#       define USTL_HAD_EXCEPT(...)
+#   else
+#       define USTL_NOEXCEPT           noexcept
+#       define USTL_CONSTEXPR          constexpr
+#       define USTL_HAD_EXCEPT(expr) noexcept(expr)
+#   endif
+#else
+#   define USTL_TRY
+#   define USTL_THROW
+#   define USTL_CATCH_ALL
+#   define USTL_CATCH(...)
+#   define USTL_THROW_AGAIN
+#   define USTL_NOEXCEPT
 #   define USTL_CONSTEXPR
 #   define USTL_HAD_EXCEPT(...)
-#else
-#   define USTL_NOEXCEPT           noexcept
-#   define USTL_CONSTEXPR          constexpr
-#   define USTL_HAD_EXCEPT(expr) noexcept(expr)
 #endif
 
 /// Property [noreturn]
@@ -29,7 +53,7 @@
 #   define USTL_NORETURN            __attribute__((noreturn))
 #elif defined(_MSC_VER)
 #   define USTL_NORETURN            __declspec(noreturn)
-#elif 1
+#else
 #   define USTL_NORETURN
 #endif
 
@@ -45,12 +69,12 @@
 #       define USTL_NAKED               __declspec(naked)
 #   endif
 #elif defined(__GNUC__)
-#   define USTL_ALWAYS_INLINE   inline __attribute__((always_inline))    
+#   define USTL_ALWAYS_INLINE   __attribute__((always_inline)) inline
 #   define USTL_PACKED          __attribute__((packed))
 #   define USTL_NAKED           __attribute__((naked)) 
 #elif defined(_MSC_VER)
 #   define USTL_ALWAYS_INLINE   __forceinline
-#   define USTL_PACKED              
+#   define USTL_PACKED
 #   define USTL_NAKED           __declspec(naked) 
 #elif 1
 #   define USTL_ALWAYS_INLINE

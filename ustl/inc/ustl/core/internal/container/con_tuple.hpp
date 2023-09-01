@@ -9,6 +9,10 @@
 #include <ustl/core/internal/utility/move.hpp>
 #endif
 
+#ifndef __USTL_CORE_INTERNAL_TYPE_INDEX_SEQUENCE_HPP__
+#include <ustl/core/internal/type_traits/tt_index_sequence.hpp>
+#endif
+
 namespace ustl
 {
 namespace core
@@ -292,12 +296,12 @@ namespace container
 
     template <unsigned int Idx, typename... Elems>
     USTL_ALWAYS_INLINE USTL_CONSTEXPR
-    typename internal::type_traits::TypeSeqIndexer<Idx, Elems...>::type &
+    typename internal::type_traits::IndexSequence<Idx, Elems...>::type &
     get(Tuple<Elems...> &t) USTL_NOEXCEPT
     { 
-        using internal::type_traits::TypeSeqIndexer;
+        using internal::type_traits::IndexSequence;
 
-        typedef typename TypeSeqIndexer<Idx, Elems...>::type 
+        typedef typename IndexSequence<Idx, Elems...>::type 
             element_type;
 
         return TupleImpl<Idx, element_type>::_S_value(t); 
@@ -305,12 +309,12 @@ namespace container
 
     template <unsigned int Idx, typename... Elems>
     USTL_ALWAYS_INLINE USTL_CONSTEXPR
-    typename internal::type_traits::TypeSeqIndexer<Idx, Elems...>::type const &
+    typename internal::type_traits::IndexSequence<Idx, Elems...>::type const &
     get(Tuple<Elems...> const &t) USTL_NOEXCEPT
     { 
-        using internal::type_traits::TypeSeqIndexer;
+        using internal::type_traits::IndexSequence;
 
-        typedef typename TypeSeqIndexer<Idx, Elems...>::type 
+        typedef typename IndexSequence<Idx, Elems...>::type 
             element_type;
 
         return TupleImpl<Idx, element_type>::_S_value(t); 
@@ -348,9 +352,9 @@ namespace container
     bool
     operator==(Tuple<Elems...> const &x, Tuple<Elems...> const &y) USTL_NOEXCEPT
     {
-        using internal::type_traits::TypeSeqLength;
+        using internal::type_traits::IndexSequenceLength;
 
-        USTL_CONSTEXPR unsigned int const LENGTH = TypeSeqLength<Elems...>::value;
+        USTL_CONSTEXPR long const LENGTH = IndexSequenceLength<Elems...>::value;
         static_assert(LENGTH != 0, "[ustl-error] Empty tuple cause undefined behavior.\n");
 
         return TupleEqHelper<LENGTH - 1, Elems...>{}(x, y);

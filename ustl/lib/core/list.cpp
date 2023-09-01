@@ -50,9 +50,9 @@ Header::
     _S_swap(Header &x, Header &y) USTL_NOEXCEPT
 {
     if (0 != x._M_count() && 0 != y._M_count()) {
-        auto __tmp {x};
+        Header tmp {x};
         x._M_move(y);
-        y._M_move(__tmp);
+        y._M_move(tmp);
     }
     else if (0 == y._M_count()) {
         y._M_move(x);
@@ -66,9 +66,9 @@ Header::
 void
 base::ustl_list_splice(Ptr pos, Ptr start, Ptr finish) USTL_NOEXCEPT
 {
-    auto pos_prev = pos->prev();
-    auto start_pre  = start->prev();
-    auto finish_pre = finish->prev();
+    Ptr pos_prev = pos->prev();
+    Ptr start_pre  = start->prev();
+    Ptr finish_pre = finish->prev();
 
     start_pre->set_next(finish);
     finish->set_prev(start_pre);
@@ -88,17 +88,17 @@ base::ustl_list_merge(Header * x, Header * y, Compare &cmp) USTL_NOEXCEPT
         return;
     }
 
-    auto xfirst = x->next();
-    auto xend   = x;
-    auto yfirst = y->next();
-    auto yend   = y;
+    Ptr xfirst = x->next();
+    Ptr xend   = x;
+    Ptr yfirst = y->next();
+    Ptr yend   = y;
 
     while (xfirst != xend && yfirst != yend) {
         if (cmp(xfirst, yfirst)) {
             xfirst = xfirst->next();
         }
         else {
-            auto next = yfirst->next();
+            Ptr next = yfirst->next();
             ustl_list_splice(xfirst, yfirst, next);
             yfirst = next;
         }
@@ -120,37 +120,33 @@ base::ustl_list_sort(Header *header, Compare &cmp) USTL_NOEXCEPT
         return;
     }
 
-    USTL_CONSTEXPR usize len = sizeof(usize) << 3;
-
-    usize counter;
-    usize fill_number = 0;
+    usize count;
+    usize level = 0;
     Header z;
-    Header y[len];
-    auto tmp = header->next();
+    Header y[sizeof(usize) * 8];
+    Ptr tmp = header->next();
 
     do {
         header->_M_dec_size(1);
-        auto last = tmp;
+        Ptr last = tmp;
         tmp = tmp->_M_next;
         last->_M_unhook ();
         z._M_hook_before (last);
         z._M_set_count(1);
 
-        for (counter = 0; 
-             counter != fill_number && y[counter]._M_count();
-            ++counter) {
-            ustl_list_merge(&z, &y[counter], cmp);
+        for (count = 0; count != level && y[count]._M_count(); ++count) {
+            ustl_list_merge(&z, &y[count], cmp);
         }
 
-        Header::_S_swap(z, y[counter]);
-        if (counter == fill_number) {
-            ++fill_number;
+        Header::_S_swap(z, y[count]);
+        if (count == level) {
+            ++level;
         }
 
-    } while  (0 != header->_M_count());
+    } while (0 != header->_M_count());
 
-    for (counter = 0; counter != fill_number; ++counter) {
-        ustl_list_merge (&z, &y[counter], cmp);
+    for (count = 0; count != level; ++count) {
+        ustl_list_merge (&z, &y[count], cmp);
     }
 
     Header::_S_swap(*header, z);
@@ -164,12 +160,11 @@ base::ustl_list_reverse(Header *header) USTL_NOEXCEPT
         return;
     }
 
-    auto first = header->next();
-    auto last  = header->prev();
-    Ptr tmp;
+    Ptr first = header->next();
+    Ptr last  = header->prev();
 
-    while  (first != last) {
-        tmp = last;
+    while (first != last) {
+        Ptr tmp = last;
         last = last->prev();
         tmp->_M_unhook();
         first->_M_hook_before(tmp);

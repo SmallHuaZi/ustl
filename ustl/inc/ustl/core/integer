@@ -1,0 +1,57 @@
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+#ifndef __USTL_CORE_INTEGER__
+#define __USTL_CORE_INTEGER__ 1
+
+#ifndef __USTL__
+#include <ustl/ustl>
+#endif
+
+#include <ustl/core/internal/integer.hpp>
+
+namespace ustl
+{
+namespace core
+{
+
+    using CORE internal::I8_MIN;
+    using CORE internal::I8_MAX;
+    
+    using CORE internal::I16_MIN;
+    using CORE internal::I16_MAX;
+    
+    using CORE internal::I32_MIN;
+    using CORE internal::I32_MAX;
+    
+    using CORE internal::I64_MIN;
+    using CORE internal::I64_MAX;
+
+    using CORE internal::ISIZE_MIN;
+    using CORE internal::ISIZE_MAX;
+
+    using CORE internal::U8_MIN;
+    using CORE internal::U8_MAX;
+    
+    using CORE internal::U16_MIN;
+    using CORE internal::U16_MAX;
+    
+    using CORE internal::U32_MIN;
+    using CORE internal::U32_MAX;
+    
+    using CORE internal::U64_MIN;
+    using CORE internal::U64_MAX;
+
+    using CORE internal::USIZE_MIN;
+    using CORE internal::USIZE_MAX;
+
+    using CORE internal::BYTE_MAX;
+    using CORE internal::WORD_MAX;
+
+} // namespace core
+} // namespace ustl
+
+
+
+#endif

@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/ustl/inc",
-                "${workspaceFolder}/ustl/src",
+                "${workspaceFolder}/ustl/lib",
                 "${workspaceFolder}/tests/inc",
                 "${workspaceFolder}/tests/third-party/googletest/googletest/include"
             ],

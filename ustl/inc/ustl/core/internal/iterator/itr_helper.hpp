@@ -13,13 +13,7 @@
 #include <ustl/core/internal/type_traits/tt_object.hpp>
 #endif
 
-namespace ustl
-{
-namespace core
-{
-namespace internal
-{
-namespace iterator
+namespace ustl::core::internal::iterator
 {
 
     template <typename Iter, typename = void> 
@@ -125,15 +119,40 @@ namespace iterator
     };
     
     template <typename Iter, typename Compare>
-    struct IterCmp
+    struct IterOpCmp
     {
         typedef Iter     iter;
         typedef Compare  compare_type;
+
+        USTL_ALWAYS_INLINE
+        IterOpCmp(compare_type cmp)
+            : _M_cmp(cmp)
+        {}
         
         USTL_ALWAYS_INLINE
         bool
         operator()(iter const &x, iter const &y) USTL_NOEXCEPT
         { return _M_cmp(*x, *y); }
+
+    private:
+        compare_type _M_cmp;
+    };
+    
+    template <typename Iter, typename Compare>
+    struct IterOpReverse
+    {
+        typedef Iter     iter;
+        typedef Compare  compare_type;
+
+        USTL_ALWAYS_INLINE
+        IterOpCmp(compare_type cmp)
+            : _M_cmp(cmp)
+        {}
+        
+        USTL_ALWAYS_INLINE
+        bool
+        operator()(iter const &x, iter const &y) USTL_NOEXCEPT
+        { return !_M_cmp(*x, *y); }
 
     private:
         compare_type _M_cmp;
@@ -223,7 +242,6 @@ namespace iterator
         iter -= n; 
     }
 
-
     template <typename Iter, typename Distance>
     USTL_ALWAYS_INLINE USTL_CONSTEXPR
     void
@@ -237,9 +255,6 @@ namespace iterator
 
 
 } // namespace ustl::core::internal::iterator
-} // namespace ustl::core::internal
-} // namespace ustl::core
-} // namespace ustl
 
 
 #endif

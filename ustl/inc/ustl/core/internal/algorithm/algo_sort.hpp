@@ -4,17 +4,18 @@
 #ifndef __USTL_CORE_INTERNAL_ALGORITHM_SORT_HPP__
 #define __USTL_CORE_INTERNAL_ALGORITHM_SORT_HPP__
 
-#include <algorithm>
+#include <ustl/core/internal/algorithm/sort/algo_quick.hpp>
+#include <ustl/core/internal/algorithm/sort/algo_insertion.hpp>
 
-namespace ustl
-{
-namespace core
-{
-namespace internal
-{
-namespace algorithm
+
+namespace ustl::core::internal::algorithm
 {
 
+    /// @brief Sort base on provided iterators range
+    /// @tparam FwdIter 
+    /// @tparam  
+    /// @param first 
+    /// @param last 
     template <typename FwdIter, typename>
     void
     sort(FwdIter first, FwdIter last)
@@ -31,10 +32,6 @@ namespace algorithm
     }
 
 } // namespace ustl::core::internal::algorithm
-} // namespace ustl::core::internal
-} // namespace ustl::core
-} // namespace ustl
-
 
 
 #endif

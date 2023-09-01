@@ -16,8 +16,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(PROJECT_NAMESPACE ustl::)
 
 # submodule
-add_subdirectory(src/core)
-add_subdirectory(src/std)
+add_subdirectory(lib/core)
+add_subdirectory(lib/std)
 
 
 # version header

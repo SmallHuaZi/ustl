@@ -89,7 +89,9 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "thread": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "integer": "cpp",
+        "queue": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc-11"
 }

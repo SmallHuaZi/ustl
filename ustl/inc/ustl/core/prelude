@@ -16,15 +16,15 @@
 #endif
 
 // Internal header
-#include <ustl/core/internal/move.hpp>
+#include <ustl/core/internal/utility/move.hpp>
 
 namespace ustl
 {
 namespace core
 {
 
-    using  internal::move;
-    using  internal::forward;
+    using  internal::utility::move;
+    using  internal::utility::forward;
     
 } // namespace ustl::core
 } // namespace ustl

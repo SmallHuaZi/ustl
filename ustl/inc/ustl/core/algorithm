@@ -19,14 +19,13 @@
 #include <ustl/core/internal/algorithm/algo_compress.hpp>
 #include <ustl/core/internal/algorithm/algo_foreach.hpp>
 #include <ustl/core/internal/algorithm/algo_count.hpp>
+#include <ustl/core/internal/algorithm/algo_heap.hpp>
 
 #if __cplusplus >= 201103ul
 #include <ustl/core/internal/algorithm/algo_move.hpp>
 #endif
 
-namespace ustl
-{
-namespace core
+namespace ustl::core
 {
 
     using  internal::algorithm::lerp;
@@ -70,14 +69,38 @@ namespace core
     using  internal::algorithm::for_each;
     using  internal::algorithm::for_each_n;
 
+    using  internal::algorithm::push_heap;
+    using  internal::algorithm::pop_heap;
+    using  internal::algorithm::sort_heap;
+
     using  internal::algorithm::sort;
     using  internal::algorithm::unique;
 
     template <typename T>
     using hash = internal::algorithm::Hash<T>;
 
-} // namespace ustl::core 
-} // namespace ustl
+} // namespace ustl::core
 
+
+namespace ustl::core::sorting
+{
+
+    template <typename RandomIter, typename Compare>
+    USTL_ALWAYS_INLINE USTL_CONSTEXPR
+    void insertion_sort(RandomIter first, RandomIter last, Compare cmp)
+    { internal::algorithm::unguarded_insertion_sort(first, last, cmp); }
+
+    template <typename RandomIter, typename Compare>
+    USTL_ALWAYS_INLINE USTL_CONSTEXPR
+    void quick_sort(RandomIter first, RandomIter last, Compare cmp)
+    { internal::algorithm::unguarded_quick_sort(first, last, cmp); }
+
+} // namespace ustl::core::sorting
+
+
+namespace ustl::core::hasher
+{
+
+} // namespace ustl::core::hasher
 
 #endif

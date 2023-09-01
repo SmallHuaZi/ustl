@@ -36,14 +36,14 @@ namespace core
     template <typename _T>
     concept IsInteger = requires (_T t)
     {
-        { internal::IsInteger<_T>::value == true };
+        { internal::type_traits::IsInteger<_T>::value };
     };
 
 
     template <typename _T>
     concept IsPointer = requires (_T t)
     {
-        { internal::IsPointer<_T>::value == true };
+        { internal::type_traits::IsPointer<_T>::value };
     };
 
 
@@ -69,7 +69,7 @@ namespace core
 
 
     template <typename Container>
-    concept IsSequenceContainer = requires (Container r, typename Container::val_type t)
+    concept IsSequenceContainer = requires (Container r, typename Container::value_type t)
     {
         r.push_front(t);
         r.push_back(t);
@@ -77,11 +77,15 @@ namespace core
         r.pop_back();
         r.front();
         r.back();
+        r.begin();
+        r.end();
+        r.cbegin();
+        r.cend();
     };
 
 
     template <typename Container>
-    concept IsContiguousContainer = requires (Container r, typename Container::val_type t)
+    concept IsContiguousContainer = requires (Container r, typename Container::value_type t)
     {
         r.begin();
     };

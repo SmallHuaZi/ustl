@@ -8,13 +8,7 @@
 #include <ustl/core/internal/type_traits/tt_rvalue.hpp>
 #endif
 
-namespace ustl
-{
-namespace core
-{
-namespace internal
-{
-namespace algorithm
+namespace ustl::core::internal::algorithm 
 {
 
     template <typename InputIter, typename OutputIter>
@@ -134,9 +128,6 @@ namespace algorithm
     
     
 } // namespace ustl::core::internal::algorithm
-} // namespace ustl::core::internal
-} // namespace ustl::core
-} // namespace ustl
 
 
 #endif

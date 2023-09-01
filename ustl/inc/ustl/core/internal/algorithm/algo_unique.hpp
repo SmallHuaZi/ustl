@@ -5,13 +5,7 @@
 #define __USTL_CORE_INTERNAL_ALGORITHM_UNIQUE_HPP__
 
 
-namespace ustl
-{
-namespace core
-{
-namespace internal
-{
-namespace algorithm
+namespace ustl::core::internal::algorithm
 {
 
     template <typename FwdIter>
@@ -25,10 +19,5 @@ namespace algorithm
     
     
 } // namespace ustl::core;:internal::algorithm
-} // namespace ustl::core;:internal
-} // namespace ustl::core
-} // namespace ustl
-
-
 
 #endif

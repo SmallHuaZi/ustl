@@ -16,13 +16,7 @@
 #include <ustl/core/internal/algorithm/hash/algo_xxhash.hpp>
 #endif
 
-namespace ustl
-{
-namespace core
-{
-namespace internal
-{
-namespace algorithm
+namespace ustl::core::internal::algorithm
 {
 
     typedef usize   hash_t;
@@ -49,9 +43,6 @@ namespace algorithm
     extern template struct Hash<wstring>;
     
 } // namespace ustl::core::internal::algorithm
-} // namespace ustl::core::internal 
-} // namespace ustl::core
-} // namespace ustl
 
 
 #endif
